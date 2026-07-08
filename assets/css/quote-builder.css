@@ -1,0 +1,10 @@
+.qs-wrapper .form {
+    width: calc(100% - 350px);
+}
+
+.qs-wrapper .qs-summary {
+    width:320px;
+    padding:25px;
+    background:#f7f4f4;
+    border:1px solid #e5e5e5;
+}

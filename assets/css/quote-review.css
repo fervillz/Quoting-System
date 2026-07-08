@@ -1,0 +1,80 @@
+.qs-review-main h3 {
+    font-family: GTWalsheim;
+}
+
+/* Review Page */
+
+.qs-review-layout {
+	display: flex;
+	gap: 40px;
+	align-items: flex-start;
+}
+
+.qs-review-main {
+	flex: 1;
+}
+
+.qs-review-summary {
+	width: 320px;
+	background: #f7f5f5;
+	padding: 30px;
+}
+
+/* Headings */
+
+.qs-review-main h2,
+.qs-review-summary h2 {
+	font-family: "GT Walsheim", sans-serif;
+	font-size: 36px;
+	font-weight: 500;
+	color: #4b6175;
+}
+
+.qs-review-main h3,
+.qs-review-summary h3 {
+	font-family: "GT Walsheim", sans-serif;
+	font-size: 22px;
+	font-weight: 500;
+	color: #4b6175;
+}
+
+.qs-review-main h4,
+.qs-review-summary h4 {
+	font-family: "GT Walsheim", sans-serif;
+	font-size: 16px;
+	font-weight: 600;
+	color: #4b6175;
+}
+
+.qs-review-buttons {
+	display: flex;
+	gap: 12px;
+	margin-top: 24px;
+	justify-content: center;
+}
+
+.qs-review-buttons form {
+	margin: 0;
+	width: 100%;
+}
+
+.qs-review-buttons .qs-btn {
+	width: 100%;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	padding: 12px 20px;
+	box-sizing: border-box;
+}
+
+.qs-btn-secondary {
+	border: 1px solid #d9d9d9;
+	background: #fff;
+	color: #4b6175;
+}
+
+.qs-btn-primary {
+	border: 1px solid #4b6175;
+	background: #4b6175;
+	color: #fff;
+}

@@ -1,0 +1,159 @@
+@page{
+    margin:10mm;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:DejaVu Sans,sans-serif;
+    color:#43586A;
+    font-size:10px;
+}
+
+.qs-container{
+    width:100%;
+}
+
+.qs-quotation{
+    width:100%;
+    margin:0;
+    padding:0;
+}
+
+@page{
+    margin:10mm;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:DejaVu Sans,sans-serif;
+    color:#43586A;
+    font-size:10px;
+}
+
+.qs-container{
+    width:100%;
+}
+
+.qs-quotation{
+    width:100%;
+    margin:0;
+    padding:0;
+}
+
+.qs-quotation-header{
+
+    background:#4E1625;
+
+    color:#fff;
+
+    padding:14px 18px;
+
+}
+
+.qs-quotation-logo{
+
+    font-size:20px;
+
+    font-weight:bold;
+
+}
+
+
+.qs-spec-grid{
+
+    width:100%;
+
+}
+
+.qs-quotation-top,
+.qs-quotation-body {
+    padding: 20px;
+}
+
+.qs-spec-item{
+
+    padding:4px 0;
+
+    border-bottom:1px solid #ddd;
+
+}
+
+.qs-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:8px;
+
+}
+
+.qs-table th{
+
+    background:#F3F3F3;
+
+    border:1px solid #DDD;
+
+    padding:4px;
+
+    font-size:9px;
+
+}
+
+.qs-table td{
+
+    border:1px solid #DDD;
+
+    padding:4px;
+
+    font-size:9px;
+
+}
+
+.qs-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:8px;
+
+}
+
+.qs-table th{
+
+    background:#F3F3F3;
+
+    border:1px solid #DDD;
+
+    padding:4px;
+
+    font-size:9px;
+
+}
+
+.qs-table td{
+
+    border:1px solid #DDD;
+
+    padding:4px;
+
+    font-size:9px;
+
+}
+
+.qs-section p{
+
+    line-height:1.5;
+
+}

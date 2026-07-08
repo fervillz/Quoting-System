@@ -1,0 +1,19 @@
+.qs-jobsheet .qs-quotation-summary{
+    display:none;
+}
+
+.qs-jobsheet .qs-quotation-footer{
+    display:none;
+}
+
+.qs-jobsheet .qs-quotation-disclaimer{
+    display:none;
+}
+
+.qs-jobsheet .qs-quotation-content{
+    width:100%;
+}
+
+.qs-quotation-content.jobsheet {
+    width: 100%;
+}

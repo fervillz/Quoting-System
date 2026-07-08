@@ -1,0 +1,136 @@
+.qs-quotation {
+    max-width: 555px;
+    margin: 0 auto;
+    background: #fff;
+    color: #3f5265;
+    font-family: 'GTWalsheim';
+}
+
+
+.qs-quotation .qs-table th {
+    background-color: transparent;
+    color: #43586A;
+    font-size: 9px;
+}
+
+.qs-quotation .qs-table th, .qs-quotation .qs-table td {
+    padding: 0;
+    text-align: center;
+    min-width: 21px;
+    font-size: 9px;
+    font-family: 'GTWalsheim';
+}
+
+.qs-quotation p {
+    font-size: 10px;
+    font-family: 'GTWalsheim';
+    margin: 0;
+    line-height: normal;
+}
+
+.qs-quotation-details p {
+    margin: 3px 0;
+}
+
+.qs-quotation h2,
+.qs-quotation h3,
+.qs-quotation h4,
+.qs-quotation h5,
+.qs-quotation h6 {
+    font-family: 'GTWalsheim';
+    margin: 0;
+}
+
+.qs-quotation h3 {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.qs-quotation h4 {
+    font-size: 9px;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    padding: 2px;
+    margin-top: 6px;
+}
+
+.qs-quotation-header {
+    background: #4e1625;
+    color: #fff;
+    padding: 25px 35px;
+    font-size: 10px;
+}
+
+.qs-quotation-top {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0 0;
+}
+
+.qs-quotation-top p,
+.qs-quotation-number {
+    font-size: 10px;
+    font-family: 'GTWalsheim';
+}
+
+.qs-spec-grid {
+    font-size: 8px;
+}
+
+.qs-quotation-body {
+    display: flex;
+    gap: 17px;
+    padding: 0;
+    align-items: flex-start;
+}
+
+.qs-quotation-content {
+    width: 65%;
+}
+
+.qs-quotation-summary {
+    width: 35%x;
+    background: #f5f3f3;
+    padding: 25px 13px;
+}
+
+.qs-quotation-summary h2 {
+    font-size: 30px;
+    font-family: "GTWalsheim";
+}
+
+.qs-quotation-summary h4 {
+    font-size: 20px;
+    font-family: "GTWalsheim";
+}
+
+.qs-section {
+    margin-bottom: 5px;
+}
+
+.qs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.qs-table th,
+.qs-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    font-size: 12px;
+}
+
+.qs-quotation-disclaimer {
+    background: #4e1625;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+}
+
+.qs-quotation-footer {
+    background: #ead9d9;
+    padding: 30px 35px;
+}
