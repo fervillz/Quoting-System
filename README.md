@@ -1,5 +1,5 @@
 Exit code: 0
-Wall time: 0.6 seconds
+Wall time: 0.5 seconds
 Output:
 # Loughlin Furniture Quote System
 
@@ -38,6 +38,18 @@ A repeater means â€œadd another row.â€ It is used because a real job ca
 
 The rows are saved as structured WordPress post meta. The exact storage keys start with `_qs_`, for example `_qs_doors_drawers`. Do not edit these values manually in the database.
 
+## Setting prices
+
+Open **Quote System â†’ Quote Pricing** in WordPress admin. Enter trade rates for
+each component: doors, drawers, drawer banks, end panels and fillers are priced
+per square metre; kickboards are priced per linear metre. You can also enter a
+fixed amount for a selected profile, timber, finish and handle.
+
+Saving a draft rebuilds its subtotal from the repeater rows. Select **Retail
+pricing** on a quote when needed; the plugin applies the documented 22.22%
+retail markup. The office adds shipping, discounts and any additional charges
+before a deposit is requested.
+
 ## Main plugin files
 
 | File | Plain-English purpose |
@@ -47,6 +59,7 @@ The rows are saved as structured WordPress post meta. The exact storage keys sta
 | `frontend/quote-builder.php` | The form the joiner uses to build and save a quote. |
 | `frontend/quote-review.php` | The final check screen before a joiner submits the quote. |
 | `pricing.php` | Calculates total, deposit and balance. |
+| `admin/pricing-settings.php` | The office screen used to enter the reusable trade rates. |
 | `statuses.php` | Defines the allowed quote stages. |
 | `pdf.php` | Collects quote data and produces the quotation/job-sheet PDF output. |
 | `integrations/woocommerce.php` | Creates WooCommerce payment orders from a quote. |
