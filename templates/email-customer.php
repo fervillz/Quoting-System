@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.5 seconds
+Output:
 <?php
 
 include QS_PATH .
@@ -80,7 +83,12 @@ $customer_name = get_post_meta(
 
 		<p>
 
-			A deposit invoice will be issued shortly.
+			<?php $payment_url = qs_get_quote_payment_url( $quote_id, 'deposit' ); ?>
+			<?php if ( $payment_url ) : ?>
+				Your deposit is ready. <a href="<?php echo esc_url( $payment_url ); ?>">Pay the deposit securely</a>.
+			<?php else : ?>
+				A deposit invoice will be issued shortly.
+			<?php endif; ?>
 
 		</p>
 
@@ -92,3 +100,4 @@ $customer_name = get_post_meta(
 
 include QS_PATH .
 	'templates/email-footer.php';
+
