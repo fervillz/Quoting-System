@@ -1,5 +1,5 @@
 Exit code: 0
-Wall time: 0.5 seconds
+Wall time: 0.7 seconds
 Output:
 <?php
 /**
@@ -33,6 +33,7 @@ require_once QS_PATH . 'repeaters.php';
 require_once QS_PATH . 'meta-boxes.php';
 require_once QS_PATH . 'pricing.php';
 require_once QS_PATH . 'email.php';
+require_once QS_PATH . 'template-functions.php';
 require_once QS_PATH . 'pdf.php';
 
 /**
