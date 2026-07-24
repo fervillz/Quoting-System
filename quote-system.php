@@ -1,11 +1,11 @@
 Exit code: 0
-Wall time: 0.4 seconds
+Wall time: 0.5 seconds
 Output:
 <?php
 /**
- * Plugin Name: Quote System
+ * Plugin Name: Quote System Pricing Update
  * Description: Frontend quotation system for Loughlin Furniture.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Loughlin Furniture
  * Text Domain: quote-system
  */
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Plugin Constants
  */
-define( 'QS_VERSION', '1.0.0' );
+define( 'QS_VERSION', '1.1.0' );
 define( 'QS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'QS_URL', plugin_dir_url( __FILE__ ) );
 
