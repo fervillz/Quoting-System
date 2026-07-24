@@ -707,7 +707,7 @@ function qs_admin_dashboard_shortcode() {
 
 						<th align="left">Total</th>
 
-						<th align="left">Actions</th>
+						<th width="60"></th>
 
 					</tr>
 
@@ -748,7 +748,7 @@ function qs_admin_dashboard_shortcode() {
 
 					?>
 
-					<tr>
+					<tr class="qs-company-summary-row">
 
 						<td>
 							<?php echo esc_html(
@@ -837,81 +837,30 @@ function qs_admin_dashboard_shortcode() {
 							); ?>
 						</td>
 
-						<td>
+						<td class="qs-expand-cell">
 
-						<a
-							class="qs-btn qs-btn-secondary"
-							href="<?php echo esc_url(
-								add_query_arg(
-									'quote_id',
-									$quote->ID,
-									site_url( '/quote-review/' )
-								)
-							); ?>"
-						>
-							View
-						</a>
+							<button
+								type="button"
+								class="qs-expand-btn"
+							>
+								▼
+							</button>
 
-						<a
-							class="qs-btn qs-btn-secondary"
-							target="_blank"
-							href="<?php echo esc_url(
-								add_query_arg(
-									'download_quote_pdf',
-									$quote->ID,
-									site_url( '/' )
-								)
-							); ?>"
-						>
-							Quotation PDF
-						</a>
+						</td>
+					</tr>
 
-						<a
-							class="qs-btn qs-btn-secondary"
-							target="_blank"
-							href="<?php echo esc_url(
-								add_query_arg(
-									'download_jobsheet_pdf',
-									$quote->ID,
-									site_url( '/' )
-								)
-							); ?>"
-						>
-							Job Sheet PDF
-						</a>
+					<tr class="qs-admin-expand-row">
 
-							<?php if ( 'pending_review' === $status ) : ?>
+						<td colspan="7">
 
-								|
+							<div class="qs-admin-expand">
 
-								<form
-									method="post"
-									style="display:inline;"
-								>
+								<?php
+								include QS_PATH .
+									'frontend/admin-quote-expanded.php';
+								?>
 
-									<?php wp_nonce_field(
-										'qs_approve_quote',
-										'qs_approve_quote_nonce'
-									); ?>
-
-									<input
-										type="hidden"
-										name="quote_id"
-										value="<?php echo esc_attr(
-											$quote->ID
-										); ?>"
-									>
-
-									<button
-										type="submit"
-										name="qs_approve_quote"
-									>
-										Approve
-									</button>
-
-								</form>
-
-							<?php endif; ?>
+							</div>
 
 						</td>
 
@@ -929,6 +878,63 @@ function qs_admin_dashboard_shortcode() {
 
 	</div>
 
+	<script>
+
+	document.querySelectorAll(
+	'.qs-expand-btn'
+	).forEach(function(btn){
+
+		btn.addEventListener(
+		'click',
+		function(e){
+
+			e.stopPropagation();
+
+			const row =
+				btn.closest('tr');
+
+			const expand =
+				row.nextElementSibling;
+
+			if(
+				expand.style.display ===
+				'table-row'
+			){
+
+				expand.style.display='none';
+
+				btn.innerHTML='▼';
+
+			}else{
+
+				document.querySelectorAll(
+				'.qs-admin-expand-row'
+				).forEach(function(r){
+
+					r.style.display='none';
+
+				});
+
+				document.querySelectorAll(
+				'.qs-expand-btn'
+				).forEach(function(b){
+
+					b.innerHTML='▼';
+
+				});
+
+				expand.style.display='table-row';
+
+				btn.innerHTML='▲';
+
+			}
+
+		});
+
+	});
+
+	</script>
+
 	<?php
 
 	return ob_get_clean();
@@ -939,3 +945,4 @@ add_shortcode(
 	'quote_admin_dashboard',
 	'qs_admin_dashboard_shortcode'
 );
+

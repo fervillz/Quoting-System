@@ -100,6 +100,28 @@ function qs_send_customer_email(
 }
 
 /**
+ * Render email template.
+ */
+function qs_render_email_template(
+	$template,
+	$data = array()
+) {
+
+	extract(
+		$data
+	);
+
+	ob_start();
+
+	include QS_PATH .
+		'templates/' .
+		$template;
+
+	return ob_get_clean();
+
+}
+
+/**
  * Notify admin when quote submitted.
  */
 function qs_email_quote_submitted(
@@ -112,29 +134,17 @@ function qs_email_quote_submitted(
 		true
 	);
 
-	$project_name = get_post_meta(
-		$quote_id,
-		'_project_name',
-		true
-	);
-
 	$subject = sprintf(
 		'New Quote Submitted - %s',
 		$quote_number
 	);
 
-	$message =
-		'<h2>New Quote Submitted</h2>' .
-
-		'<p><strong>Quote Number:</strong> ' .
-		esc_html( $quote_number ) .
-		'</p>' .
-
-		'<p><strong>Project:</strong> ' .
-		esc_html( $project_name ) .
-		'</p>' .
-
-		'<p>Please review the quotation.</p>';
+	$message = qs_render_email_template(
+		'email-admin.php',
+		array(
+			'quote_id' => $quote_id,
+		)
+	);
 
 	return qs_send_admin_email(
 		$subject,
@@ -162,14 +172,12 @@ function qs_email_quote_approved(
 		$quote_number
 	);
 
-	$message =
-		'<h2>Your Quote Has Been Approved</h2>' .
-
-		'<p>Your quotation <strong>' .
-		esc_html( $quote_number ) .
-		'</strong> has been approved.</p>' .
-
-		'<p>A deposit invoice will be issued shortly.</p>';
+	$message = qs_render_email_template(
+		'email-customer.php',
+		array(
+			'quote_id' => $quote_id,
+		)
+	);
 
 	return qs_send_customer_email(
 		$quote_id,

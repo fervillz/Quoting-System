@@ -374,6 +374,29 @@ function qs_quote_builder_shortcode() {
 				$kickboards
 			);
 
+			/**
+			* Save Pricing
+			*/
+			update_post_meta(
+				$quote_id,
+				'_subtotal',
+				isset( $_POST['subtotal'] )
+					? (float) $_POST['subtotal']
+					: 0
+			);
+
+			update_post_meta(
+				$quote_id,
+				'_discount',
+				0
+			);
+
+			update_post_meta(
+				$quote_id,
+				'_additional_charges',
+				0
+			);
+
 			wp_redirect(
 				add_query_arg(
 					'quote_id',
@@ -922,6 +945,13 @@ function qs_quote_builder_shortcode() {
 				); ?>
 
 			</h3>
+
+			<input
+				type="hidden"
+				name="subtotal"
+				id="qs-subtotal"
+				value="<?php echo esc_attr( $total ); ?>"
+			>
 
 			<p>	
 

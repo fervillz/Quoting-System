@@ -184,3 +184,90 @@ details[open] .qs-company-summary::after{
 .qs-status-paid_in_full{
 	background:#156b33;
 }
+
+.qs-admin-expand-row{
+	display:none;
+}
+
+.qs-admin-expand{
+	padding:30px;
+	background:#ead4cf;
+}
+
+.qs-expand-cell{
+	text-align:center;
+	width:60px;
+}
+
+.qs-expand-btn{
+	background:none;
+	border:none;
+	font-size:18px;
+	cursor:pointer;
+}
+
+.qs-admin-review-grid{
+
+	display:grid;
+	grid-template-columns:2fr 1fr;
+	gap:40px;
+
+}
+
+.qs-admin-review h3{
+
+	margin-top:0;
+	margin-bottom:15px;
+
+}
+
+.qs-form-row{
+
+	margin-bottom:20px;
+
+}
+
+.qs-form-row label{
+
+	display:block;
+	font-weight:600;
+	margin-bottom:6px;
+
+}
+
+.qs-form-row input{
+
+	width:100%;
+	height:42px;
+	padding:0 12px;
+
+}
+
+.qs-admin-review textarea{
+
+	width:100%;
+	padding:12px;
+	min-height:180px;
+	resize:vertical;
+
+}
+
+.qs-admin-review-right{
+
+	border-left:1px solid #e5e5e5;
+	padding-left:30px;
+
+}
+
+.qs-admin-review-right p{
+
+	margin-bottom:15px;
+
+}
+
+.qs-admin-review-right .qs-btn{
+
+	width:100%;
+	text-align:center;
+
+}

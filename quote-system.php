@@ -22,6 +22,7 @@ define( 'QS_URL', plugin_dir_url( __FILE__ ) );
  * Core
  */
 require_once QS_PATH . 'post-type.php';
+require_once QS_PATH . 'taxonomies.php';
 require_once QS_PATH . 'statuses.php';
 require_once QS_PATH . 'pricing.php';
 require_once QS_PATH . 'quote-number.php';
@@ -29,6 +30,12 @@ require_once QS_PATH . 'meta-boxes.php';
 require_once QS_PATH . 'pricing.php';
 require_once QS_PATH . 'email.php';
 require_once QS_PATH . 'pdf.php';
+
+/**
+ * Integrations
+ */
+require_once QS_PATH . 'integrations/woocommerce.php';
+
 require_once QS_PATH . 'frontend/quote-builder.php';
 require_once QS_PATH . 'frontend/quote-review.php';
 require_once QS_PATH . 'frontend/admin-dashboard.php';
@@ -111,4 +118,17 @@ add_action(
 	'wp_enqueue_scripts',
 	'qs_enqueue_assets',
 	9999
+);
+
+register_activation_hook(
+	__FILE__,
+	function () {
+
+		qs_register_post_type();
+
+		flush_rewrite_rules();
+
+		qs_create_default_product_types();
+
+	}
 );
