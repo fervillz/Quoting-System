@@ -7,7 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 /**
  * Creates a payable WooCommerce order without needing a temporary product.
- * The order contains one clearly named fee and is permanently linked to quote.
+ * The payment link WooCommerce creates is private to that order and can be
+ * safely sent to the quote customer.
  */
 function qs_create_payment_order( $quote_id, $payment_type ) {
 	if ( ! function_exists( 'wc_create_order' ) || ! in_array( $payment_type, array( 'deposit', 'balance' ), true ) ) { return new WP_Error( 'woocommerce_unavailable', 'WooCommerce is not available.' ); }
@@ -16,10 +17,15 @@ function qs_create_payment_order( $quote_id, $payment_type ) {
 	if ( $existing && wc_get_order( $existing ) ) { return (int) $existing; }
 	$amount = 'deposit' === $payment_type ? qs_calculate_deposit( $quote_id ) : qs_calculate_balance( $quote_id );
 	if ( $amount <= 0 ) { return new WP_Error( 'invalid_amount', 'This payment amount must be greater than zero.' ); }
-	$order = wc_create_order( array( 'customer_id' => get_current_user_id() ) );
+	$quote = get_post( $quote_id );
+	$order = wc_create_order( array( 'customer_id' => $quote ? (int) $quote->post_author : 0 ) );
 	if ( is_wp_error( $order ) ) { return $order; }
 	$quote_number = get_post_meta( $quote_id, '_quote_number', true );
-	$order->add_fee( sprintf( '%s for quote %s', 'deposit' === $payment_type ? 'Deposit' : 'Final balance', $quote_number ), $amount, false );
+	$fee = new WC_Order_Item_Fee();
+	$fee->set_name( sprintf( '%s for quote %s', 'deposit' === $payment_type ? '30% deposit' : 'Final balance', $quote_number ) );
+	$fee->set_amount( $amount );
+	$fee->set_total( $amount );
+	$order->add_item( $fee );
 	$order->set_billing_first_name( get_post_meta( $quote_id, '_customer_name', true ) );
 	$order->set_billing_email( get_post_meta( $quote_id, '_customer_email', true ) );
 	$order->update_meta_data( '_qs_quote_id', $quote_id );
@@ -27,7 +33,18 @@ function qs_create_payment_order( $quote_id, $payment_type ) {
 	$order->calculate_totals();
 	$order->save();
 	update_post_meta( $quote_id, '_qs_' . $payment_type . '_order_id', $order->get_id() );
+	update_post_meta( $quote_id, '_qs_' . $payment_type . '_payment_url', $order->get_checkout_payment_url() );
+	if ( 'deposit' === $payment_type ) {
+		update_post_meta( $quote_id, '_qs_locked_deposit_amount', $amount );
+	}
 	return $order->get_id();
+}
+
+/** Returns the WooCommerce "pay for order" URL for a quote payment. */
+function qs_get_quote_payment_url( $quote_id, $payment_type ) {
+	$order_id = absint( get_post_meta( $quote_id, '_qs_' . $payment_type . '_order_id', true ) );
+	$order = $order_id ? wc_get_order( $order_id ) : false;
+	return $order ? $order->get_checkout_payment_url() : '';
 }
 
 /** Updates the quote only after WooCommerce confirms a payment. */
