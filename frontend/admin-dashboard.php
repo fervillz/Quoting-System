@@ -18,6 +18,28 @@ function qs_admin_dashboard_shortcode() {
 	}
 
 	if (
+		( isset( $_POST['qs_save_review'] ) || isset( $_POST['qs_request_deposit'] ) ) &&
+		isset( $_POST['qs_admin_review_nonce'] ) &&
+		wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['qs_admin_review_nonce'] ) ), 'qs_admin_review' )
+	) {
+		$quote_id = absint( $_POST['quote_id'] );
+		if ( ! current_user_can( 'edit_post', $quote_id ) ) {
+			return '<p>You are not allowed to update this quote.</p>';
+		}
+		update_post_meta( $quote_id, '_shipping', isset( $_POST['shipping'] ) ? (float) $_POST['shipping'] : 0 );
+		update_post_meta( $quote_id, '_discount', isset( $_POST['discount'] ) ? (float) $_POST['discount'] : 0 );
+		update_post_meta( $quote_id, '_internal_notes', isset( $_POST['internal_notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['internal_notes'] ) ) : '' );
+		if ( isset( $_POST['qs_request_deposit'] ) ) {
+			qs_update_quote_status( $quote_id, 'awaiting_deposit' );
+			$order_id = qs_create_payment_order( $quote_id, 'deposit' );
+			qs_email_quote_approved( $quote_id );
+			$success_message = is_wp_error( $order_id ) ? 'Changes saved, but the deposit order could not be created: ' . $order_id->get_error_message() : 'Deposit order #' . $order_id . ' is ready for the customer.';
+		} else {
+			$success_message = 'Pricing adjustments and internal notes have been saved.';
+		}
+	}
+
+	if (
 		isset( $_POST['qs_approve_quote'] ) &&
 		isset( $_POST['qs_approve_quote_nonce'] ) &&
 		wp_verify_nonce(
@@ -33,16 +55,11 @@ function qs_admin_dashboard_shortcode() {
 			return '<p>You are not allowed to approve this quote.</p>';
 		}
 
-		qs_update_quote_status(
-			$quote_id,
-			'awaiting_deposit'
-		);
-
-		qs_email_quote_approved(
-			$quote_id
-		);
-
 		$order_id = qs_create_payment_order( $quote_id, 'deposit' );
+		if ( ! is_wp_error( $order_id ) ) {
+			qs_update_quote_status( $quote_id, 'awaiting_deposit' );
+			qs_email_quote_approved( $quote_id );
+		}
 		$success_message = is_wp_error( $order_id ) ? 'Quote approved, but the deposit order could not be created: ' . $order_id->get_error_message() : 'Quote approved and deposit order #' . $order_id . ' created.';
 	}
 
