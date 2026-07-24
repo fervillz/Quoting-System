@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.5 seconds
+Output:
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -40,8 +43,12 @@ function qs_calculate_total( $quote_id ) {
 		'_additional_charges',
 		true
 	);
+	// Shipping is entered by the office before a deposit is requested.  Keeping
+	// it separate from "additional charges" makes it clear on both PDFs and the
+	// WooCommerce order where the extra amount came from.
+	$shipping = (float) get_post_meta( $quote_id, '_shipping', true );
 
-	$total = $subtotal - $discount + $additional_charges;
+	$total = $subtotal + $shipping - $discount + $additional_charges;
 
 	return round( $total, 2 );
 
@@ -53,6 +60,13 @@ function qs_calculate_total( $quote_id ) {
  * Deposit = 30%
  */
 function qs_calculate_deposit( $quote_id ) {
+	// Once an order is made, its amount must never move when an administrator
+	// later adjusts the balance.  The saved snapshot is the amount the customer
+	// was actually asked to pay.
+	$locked_deposit = get_post_meta( $quote_id, '_qs_locked_deposit_amount', true );
+	if ( '' !== $locked_deposit && false !== $locked_deposit ) {
+		return round( (float) $locked_deposit, 2 );
+	}
 
 	$total = qs_calculate_total(
 		$quote_id
@@ -74,9 +88,7 @@ function qs_calculate_balance( $quote_id ) {
 		$quote_id
 	);
 
-	$deposit = qs_calculate_deposit(
-		$quote_id
-	);
+	$deposit = qs_calculate_deposit( $quote_id );
 
 	return round(
 		$total - $deposit,
@@ -84,3 +96,4 @@ function qs_calculate_balance( $quote_id ) {
 	);
 
 }
+
