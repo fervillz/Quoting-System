@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.5 seconds
+Output:
 <?php
 /**
  * Plugin Name: Quote System
@@ -26,6 +29,7 @@ require_once QS_PATH . 'taxonomies.php';
 require_once QS_PATH . 'statuses.php';
 require_once QS_PATH . 'pricing.php';
 require_once QS_PATH . 'quote-number.php';
+require_once QS_PATH . 'repeaters.php';
 require_once QS_PATH . 'meta-boxes.php';
 require_once QS_PATH . 'pricing.php';
 require_once QS_PATH . 'email.php';
@@ -132,3 +136,4 @@ register_activation_hook(
 
 	}
 );
+
