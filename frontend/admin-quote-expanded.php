@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.5 seconds
+Output:
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,6 +30,7 @@ $internal_notes = get_post_meta(
 ?>
 
 <form method="post" class="qs-admin-review">
+	<?php wp_nonce_field( 'qs_admin_review', 'qs_admin_review_nonce' ); ?>
 
 	<input
 		type="hidden"
@@ -160,3 +164,4 @@ $internal_notes = get_post_meta(
 	</div>
 
 </form>
+
