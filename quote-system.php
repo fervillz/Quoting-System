@@ -1,5 +1,5 @@
 Exit code: 0
-Wall time: 0.7 seconds
+Wall time: 0.4 seconds
 Output:
 <?php
 /**
@@ -56,6 +56,7 @@ add_shortcode(
  * Admin
  */
 require_once QS_PATH . 'admin/quotes.php';
+require_once QS_PATH . 'admin/pricing-settings.php';
 
 /**
  * Enqueue CSS
