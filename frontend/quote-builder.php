@@ -12,7 +12,15 @@ function qs_builder_quote_is_editable( $quote_id ) {
 		return is_user_logged_in();
 	}
 	$quote = get_post( $quote_id );
-	return $quote && 'quote' === $quote->post_type && ( current_user_can( 'edit_post', $quote_id ) || (int) $quote->post_author === get_current_user_id() );
+	if ( ! $quote || 'quote' !== $quote->post_type ) {
+		return false;
+	}
+	// The customer can change a draft, but a submitted quote is deliberately
+	// locked so that its review, deposit and production records stay aligned.
+	if ( current_user_can( 'edit_post', $quote_id ) ) {
+		return true;
+	}
+	return 'draft' === get_post_status( $quote_id ) && (int) $quote->post_author === get_current_user_id();
 }
 
 function qs_builder_save_quote( $quote_id ) {
