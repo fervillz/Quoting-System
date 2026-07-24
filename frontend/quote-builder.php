@@ -1,989 +1,115 @@
+Exit code: 0
+Wall time: 0.5 seconds
+Output:
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Quote Builder Shortcode
- */
-function qs_quote_builder_shortcode() {
-
-	$quote_id = isset( $_GET['quote_id'] )
-	? absint( $_GET['quote_id'] ) 
-	: 0;
-
-	$project_name = '';
-	$company_name = '';
-	$customer_name = '';
-	$customer_email = '';
-	$customer_phone = '';
-	$delivery_address = '';
-	$door_profile = '';
-	$timber = '';
-	$finish = '';
-	$handle_profile = '';
-	$project_notes = '';
-
-	if ( $quote_id ) {
-
-		$delivery_address = get_post_meta(
-			$quote_id,
-			'_delivery_address',
-			true
-		);
-
-		$door_profile = get_post_meta(
-			$quote_id,
-			'_door_profile',
-			true
-		);
-
-		$timber = get_post_meta(
-			$quote_id,
-			'_timber',
-			true
-		);
-
-		$finish = get_post_meta(
-			$quote_id,
-			'_finish',
-			true
-		);
-
-		$handle_profile = get_post_meta(
-			$quote_id,
-			'_handle_profile',
-			true
-		);
-
-		$project_notes = get_post_meta(
-			$quote_id,
-			'_project_notes',
-			true
-		);
-
-		$project_name = get_post_meta(
-			$quote_id,
-			'_project_name',
-			true
-		);
-
-		$company_name = get_post_meta(
-			$quote_id,
-			'_company_name',
-			true
-		);
-
-		$customer_name = get_post_meta(
-			$quote_id,
-			'_customer_name',
-			true
-		);
-
-		$customer_email = get_post_meta(
-			$quote_id,
-			'_customer_email',
-			true
-		);
-
-		$customer_phone = get_post_meta(
-			$quote_id,
-			'_customer_phone',
-			true
-		);
-
-		$doors_drawers = get_post_meta(
-			$quote_id,
-			'_doors_drawers',
-			true
-		);
-
-		if ( ! empty( $doors_drawers ) ) {
-
-			$parts = explode(
-				'|',
-				$doors_drawers
-			);
-
-			$item_type         = $parts[0] ?? '';
-			$item_width        = $parts[1] ?? '';
-			$item_height       = $parts[2] ?? '';
-			$item_quantity     = $parts[3] ?? '';
-			$item_edge_profile = $parts[4] ?? '';
-
-		}
-
-		$end_panels = get_post_meta(
-			$quote_id,
-			'_end_panels',
-			true
-		);
-
-		if ( ! empty( $end_panels ) ) {
-
-			$parts = explode(
-				'|',
-				$end_panels
-			);
-
-			$end_panel_height   = $parts[0] ?? '';
-			$end_panel_width    = $parts[1] ?? '';
-			$end_panel_quantity = $parts[2] ?? '';
-
-		}
-
-		$fillers = get_post_meta(
-			$quote_id,
-			'_fillers',
-			true
-		);
-
-		if ( ! empty( $fillers ) ) {
-
-			$parts = explode(
-				'|',
-				$fillers
-			);
-
-			$filler_width    = $parts[0] ?? '';
-			$filler_quantity = $parts[1] ?? '';
-
-		}
-
-		$kickboards = get_post_meta(
-			$quote_id,
-			'_kickboards',
-			true
-		);
-
-		if ( ! empty( $kickboards ) ) {
-
-			$parts = explode(
-				'|',
-				$kickboards
-			);
-
-			$kick_height   = $parts[0] ?? '';
-			$kick_length   = $parts[1] ?? '';
-			$kick_quantity = $parts[2] ?? '';
-
-		}
-
+function qs_builder_quote_is_editable( $quote_id ) {
+	if ( ! $quote_id ) {
+		return is_user_logged_in();
 	}
-
-	if ( isset( $_POST['qs_save_draft'] ) ) {
-
-		$project_name = sanitize_text_field(
-			$_POST['project_name']
-		);
-
-		if ( $quote_id ) {
-
-			wp_update_post(
-				array(
-					'ID'         => $quote_id,
-					'post_title' => $project_name,
-				)
-			);
-
-		} else {
-
-			$quote_id = wp_insert_post(
-				array(
-					'post_type'   => 'quote',
-					'post_status' => 'draft',
-					'post_title'  => $project_name,
-				)
-			);
-
-		}
-
-		if ( $quote_id ) {
-
-			update_post_meta(
-				$quote_id,
-				'_project_name',
-				$project_name
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_customer_name',
-				sanitize_text_field(
-					$_POST['customer_name']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_customer_email',
-				sanitize_email(
-					$_POST['customer_email']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_company_name',
-				sanitize_text_field(
-					$_POST['company_name']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_customer_phone',
-				sanitize_text_field(
-					$_POST['customer_phone']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_delivery_address',
-				sanitize_textarea_field(
-					$_POST['delivery_address']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_door_profile',
-				sanitize_text_field(
-					$_POST['door_profile']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_timber',
-				sanitize_text_field(
-					$_POST['timber']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_finish',
-				sanitize_text_field(
-					$_POST['finish']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_handle_profile',
-				sanitize_text_field(
-					$_POST['handle_profile']
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_project_notes',
-				sanitize_textarea_field(
-					$_POST['project_notes']
-				)
-			);
-
-			$doors_drawers = implode(
-				'|',
-				array(
-					sanitize_text_field(
-						$_POST['item_type']
-					),
-					absint(
-						$_POST['item_width']
-					),
-					absint(
-						$_POST['item_height']
-					),
-					absint(
-						$_POST['item_quantity']
-					),
-					sanitize_text_field(
-						$_POST['item_edge_profile']
-					),
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_doors_drawers',
-				$doors_drawers
-			);	
-
-			$end_panels = implode(
-				'|',
-				array(
-					absint(
-						$_POST['end_panel_height']
-					),
-					absint(
-						$_POST['end_panel_width']
-					),
-					absint(
-						$_POST['end_panel_quantity']
-					),
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_end_panels',
-				$end_panels
-			);
-
-			$fillers = implode(
-				'|',
-				array(
-					absint(
-						$_POST['filler_width']
-					),
-					absint(
-						$_POST['filler_quantity']
-					),
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_fillers',
-				$fillers
-			);
-
-			$kickboards = implode(
-				'|',
-				array(
-					absint(
-						$_POST['kick_height']
-					),
-					absint(
-						$_POST['kick_length']
-					),
-					absint(
-						$_POST['kick_quantity']
-					),
-				)
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_kickboards',
-				$kickboards
-			);
-
-			/**
-			* Save Pricing
-			*/
-			update_post_meta(
-				$quote_id,
-				'_subtotal',
-				isset( $_POST['subtotal'] )
-					? (float) $_POST['subtotal']
-					: 0
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_discount',
-				0
-			);
-
-			update_post_meta(
-				$quote_id,
-				'_additional_charges',
-				0
-			);
-
-			wp_redirect(
-				add_query_arg(
-					'quote_id',
-					$quote_id,
-					site_url( '/quote-builder/' )
-				)
-			);
-
-			exit;
-
-		}
-
-	}
-
-	if ( isset( $_POST['qs_review_quote'] ) ) {
-
-		if ( ! $quote_id ) {
-
-			return;
-
-		}
-
-		wp_redirect(
-			add_query_arg(
-				'quote_id',
-				$quote_id,
-				site_url(
-					'/quote-review/'
-				)
-			)
-		);
-
-		exit;
-
-	}
-	
-	$total = 0;
-
-	$door_profile_summary = '';
-	$timber_summary       = '';
-	$finish_summary       = '';
-
-	$doors_count      = 0;
-	$drawers_count    = 0;
-	$end_panel_count  = 0;
-	$kickboard_count  = 0;
-
-	if ( $quote_id ) {
-
-		$door_profile_summary = get_post_meta(
-			$quote_id,
-			'_door_profile',
-			true
-		);
-
-		$timber_summary = get_post_meta(
-			$quote_id,
-			'_timber',
-			true
-		);
-
-		$finish_summary = get_post_meta(
-			$quote_id,
-			'_finish',
-			true
-		);
-
-		$doors_drawers = get_post_meta(
-			$quote_id,
-			'_doors_drawers',
-			true
-		);
-
-		if ( ! empty( $doors_drawers ) ) {
-
-			$parts = explode(
-				'|',
-				$doors_drawers
-			);
-
-			if ( isset( $parts[0] ) ) {
-
-				if ( 'Door' === $parts[0] ) {
-
-					$doors_count = isset( $parts[3] )
-						? absint( $parts[3] )
-						: 0;
-
-				}
-
-				if ( 'Drawer' === $parts[0] ) {
-
-					$drawers_count = isset( $parts[3] )
-						? absint( $parts[3] )
-						: 0;
-
-				}
-
-			}
-
-		}
-
-		$end_panels = get_post_meta(
-			$quote_id,
-			'_end_panels',
-			true
-		);
-
-		if ( ! empty( $end_panels ) ) {
-
-			$parts = explode(
-				'|',
-				$end_panels
-			);
-
-			$end_panel_count = isset( $parts[2] )
-				? absint( $parts[2] )
-				: 0;
-
-		}
-
-		$kickboards = get_post_meta(
-			$quote_id,
-			'_kickboards',
-			true
-		);
-
-		if ( ! empty( $kickboards ) ) {
-
-			$parts = explode(
-				'|',
-				$kickboards
-			);
-
-			$kickboard_count = isset( $parts[2] )
-				? absint( $parts[2] )
-				: 0;
-
-		}
-
-		if ( function_exists(
-			'qs_calculate_total'
-		) ) {
-
-			$total = qs_calculate_total(
-				$quote_id
-			);
-
-		}
-
-	}
-		
-
-	ob_start();
-
-	?>
-
-	<h2>Quote Builder</h2>
-
-	<form method="post" class="qs-container qs-flex qs-wrapper">
-		<div class="form">
-
-			<h3>Customer Details</h3>
-
-			<p>
-				<label>Project Name</label><br>
-				<input
-					type="text"
-					name="project_name"
-					required
-					value="<?php echo esc_attr( $project_name ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Company Name</label><br>
-				<input
-					type="text"
-					name="company_name"
-					value="<?php echo esc_attr( $company_name ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Customer Name</label><br>
-				<input
-					type="text"
-					name="customer_name"
-					value="<?php echo esc_attr( $customer_name ); ?>"
-					required
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Email</label><br>
-				<input
-					type="email"
-					name="customer_email"
-					required
-					value="<?php echo esc_attr( $customer_email ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Phone</label><br>
-				<input
-					type="text"
-					name="customer_phone"
-					value="<?php echo esc_attr( $customer_phone ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Delivery Address</label><br>
-				<textarea
-					class="qs-textarea"
-					name="delivery_address"
-					rows="4"
-					class="qs-input"
-				><?php echo esc_textarea( $delivery_address ); ?></textarea>
-			</p>
-
-			<hr>
-
-			<h3>Cabinet Specifications</h3>
-
-			<p>
-				<label>Door Profile</label><br>
-				<input
-					type="text"
-					name="door_profile"
-					value="<?php echo esc_attr( $door_profile ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Timber</label><br>
-				<input
-					type="text"
-					name="timber"
-					value="<?php echo esc_attr( $timber ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Finish</label><br>
-				<input
-					type="text"
-					name="finish"
-					value="<?php echo esc_attr( $finish ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Handle Profile</label><br>
-				<input
-					type="text"
-					name="handle_profile"
-					value="<?php echo esc_attr( $handle_profile ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<hr>
-
-			<h3>Doors & Drawers</h3>
-
-			<p>
-
-				<label>Type</label><br>
-
-				<select name="item_type">
-
-					<option
-						value="Door"
-						<?php selected(
-							$item_type,
-							'Door'
-						); ?>
-					>
-						Door
-					</option>
-
-					<option
-						value="Drawer"
-						<?php selected(
-							$item_type,
-							'Drawer'
-						); ?>
-					>
-						Drawer
-					</option>
-
-				</select>
-
-			</p>
-
-			<p>
-
-				<label>Width (mm)</label><br>
-
-				<input
-					type="number"
-					name="item_width"
-					value="<?php echo esc_attr( $item_width ); ?>"
-					class="qs-input"
-				>
-
-			</p>
-
-			<p>
-
-				<label>Height (mm)</label><br>
-
-				<input
-					type="number"
-					name="item_height"
-					value="<?php echo esc_attr( $item_height ); ?>"
-					class="qs-input"
-				>
-
-			</p>
-
-			<p>
-
-				<label>Quantity</label><br>
-
-				<input
-					type="number"
-					name="item_quantity"
-					value="<?php echo esc_attr( $item_quantity ); ?>"
-					class="qs-input"
-				>
-
-			</p>
-
-			<p>
-
-				<label>Edge Profile</label><br>
-
-				<input
-					type="text"
-					name="item_edge_profile"
-					value="<?php echo esc_attr( $item_edge_profile ); ?>"
-					class="qs-input"
-				>
-
-			</p>
-
-			<hr>
-
-			<h3>End Panels</h3>
-
-			<p>
-				<label>Height (mm)</label><br>
-				<input
-					type="number"
-					name="end_panel_height"
-					value="<?php echo esc_attr( $end_panel_height ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Width (mm)</label><br>
-				<input
-					type="number"
-					name="end_panel_width"
-					value="<?php echo esc_attr( $end_panel_width ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Quantity</label><br>
-				<input
-					type="number"
-					name="end_panel_quantity"
-					value="<?php echo esc_attr( $end_panel_quantity ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<hr>
-
-			<h3>Fillers</h3>
-
-			<p>
-				<label>Width (mm)</label><br>
-				<input
-					type="number"
-					name="filler_width"
-					value="<?php echo esc_attr( $filler_width ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Quantity</label><br>
-				<input
-					type="number"
-					name="filler_quantity"
-					value="<?php echo esc_attr( $filler_quantity ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<hr>
-
-			<h3>Kickboards</h3>
-
-			<p>
-				<label>Kick Height (mm)</label><br>
-				<input
-					type="number"
-					name="kick_height"
-					value="<?php echo esc_attr( $kick_height ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Kick Length (mm)</label><br>
-				<input
-					type="number"
-					name="kick_length"
-					value="<?php echo esc_attr( $kick_length ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<p>
-				<label>Quantity</label><br>
-				<input
-					type="number"
-					name="kick_quantity"
-					value="<?php echo esc_attr( $kick_quantity ); ?>"
-					class="qs-input"
-				>
-			</p>
-
-			<hr>
-
-			<h3>Project Notes</h3>
-
-			<p>
-				<textarea
-					class="qs-textarea"
-					name="project_notes"
-					rows="6"					
-				><?php echo esc_textarea( $project_notes ); ?></textarea>
-			</p>
-
-		</div>
-
-		<div class="qs-summary">
-
-			<h3>
-				Quote Summary
-			</h3>
-
-			<h4>
-				Selected Specifications
-			</h4>
-
-			<p>
-				Door Profile:
-				<?php echo esc_html(
-					$door_profile_summary
-				); ?>
-			</p>
-
-			<p>
-				Timber:
-				<?php echo esc_html(
-					$timber_summary
-				); ?>
-			</p>
-
-			<p>
-				Finish:
-				<?php echo esc_html(
-					$finish_summary
-				); ?>
-			</p>
-
-			<hr>
-
-			<h4>
-				Items Breakdown
-			</h4>
-
-			<p>
-				Doors:
-				<?php echo esc_html(
-					$doors_count
-				); ?>
-			</p>
-
-			<p>
-				Drawers:
-				<?php echo esc_html(
-					$drawers_count
-				); ?>
-			</p>
-
-			<p>
-				End Panels:
-				<?php echo esc_html(
-					$end_panel_count
-				); ?>
-			</p>
-
-			<p>
-				Kickboards:
-				<?php echo esc_html(
-					$kickboard_count
-				); ?>
-			</p>
-
-			<hr>
-
-			<p>
-				Estimated Lead Time:
-				4-6 Weeks
-			</p>
-
-			<hr>
-
-			<h3>
-
-				$
-				<?php echo esc_html(
-					number_format(
-						$total,
-						2
-					)
-				); ?>
-
-			</h3>
-
-			<input
-				type="hidden"
-				name="subtotal"
-				id="qs-subtotal"
-				value="<?php echo esc_attr( $total ); ?>"
-			>
-
-			<p>	
-
-				<button
-					class="qs-btn"
-					type="submit"
-					name="qs_save_draft"
-				>
-					Save Draft
-				</button>
-
-				<button
-					class="qs-btn"
-					type="submit"
-					name="qs_review_quote"
-				>
-					Review Quote
-				</button>
-
-			</p>
-
-		</div>
-	</form>
-
-	<?php
-
-	return ob_get_clean();
-
+	$quote = get_post( $quote_id );
+	return $quote && 'quote' === $quote->post_type && ( current_user_can( 'edit_post', $quote_id ) || (int) $quote->post_author === get_current_user_id() );
 }
 
+function qs_builder_save_quote( $quote_id ) {
+	if ( ! isset( $_POST['qs_builder_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['qs_builder_nonce'] ) ), 'qs_save_quote' ) ) {
+		return new WP_Error( 'invalid_nonce', __( 'Your session expired. Please reload the page and try again.', 'quote-system' ) );
+	}
+	if ( ! is_user_logged_in() ) {
+		return new WP_Error( 'not_logged_in', __( 'Please log in before saving a quote.', 'quote-system' ) );
+	}
 
-add_shortcode(
-	'quote_builder',
-	'qs_quote_builder_shortcode'
-);
+	$project_name = isset( $_POST['project_name'] ) ? sanitize_text_field( wp_unslash( $_POST['project_name'] ) ) : '';
+	if ( '' === $project_name ) {
+		return new WP_Error( 'missing_project_name', __( 'Project name is required.', 'quote-system' ) );
+	}
+	if ( $quote_id && ! qs_builder_quote_is_editable( $quote_id ) ) {
+		return new WP_Error( 'forbidden', __( 'You cannot edit this quote.', 'quote-system' ) );
+	}
+
+	if ( ! $quote_id ) {
+		$quote_id = wp_insert_post( array( 'post_type' => 'quote', 'post_status' => 'draft', 'post_title' => $project_name, 'post_author' => get_current_user_id() ), true );
+	} else {
+		$quote_id = wp_update_post( array( 'ID' => $quote_id, 'post_title' => $project_name ), true );
+	}
+	if ( is_wp_error( $quote_id ) ) {
+		return $quote_id;
+	}
+
+	$fields = array(
+		'project_name' => 'sanitize_text_field', 'company_name' => 'sanitize_text_field', 'customer_name' => 'sanitize_text_field',
+		'customer_email' => 'sanitize_email', 'customer_phone' => 'sanitize_text_field', 'delivery_address' => 'sanitize_textarea_field',
+		'door_profile' => 'sanitize_text_field', 'timber' => 'sanitize_text_field', 'finish' => 'sanitize_text_field',
+		'handle_profile' => 'sanitize_text_field', 'project_notes' => 'sanitize_textarea_field',
+	);
+	foreach ( $fields as $field => $sanitiser ) {
+		$value = isset( $_POST[ $field ] ) ? call_user_func( $sanitiser, wp_unslash( $_POST[ $field ] ) ) : '';
+		update_post_meta( $quote_id, '_' . $field, $value );
+	}
+	qs_save_component_rows( $quote_id, isset( $_POST['components'] ) ? $_POST['components'] : array() );
+	return $quote_id;
+}
+
+function qs_builder_input( $name, $label, $value = '', $type = 'text', $required = false ) {
+	printf( '<p class="qs-form-group"><label class="qs-label" for="%1$s">%2$s</label><input class="qs-input" id="%1$s" type="%3$s" name="%1$s" value="%4$s" %5$s></p>', esc_attr( $name ), esc_html( $label ), esc_attr( $type ), esc_attr( $value ), $required ? 'required' : '' );
+}
+
+function qs_builder_component_table( $component, $rows ) {
+	$columns = array(
+		'doors_drawers' => array( 'type' => 'Type', 'width' => 'Width (mm)', 'height' => 'Height (mm)', 'quantity' => 'Qty', 'edge_profile' => 'Edge profile', 'drawer_count' => 'Drawers' ),
+		'end_panels' => array( 'height' => 'Height (mm)', 'width' => 'Width (mm)', 'quantity' => 'Qty', 'faces_seen' => 'Faces seen', 'edges_seen' => 'Edges seen' ),
+		'fillers' => array( 'height' => 'Height (mm)', 'width' => 'Width (mm)', 'quantity' => 'Qty', 'faces_seen' => 'Faces seen', 'edges_seen' => 'Edges seen' ),
+		'kickboards' => array( 'material' => 'Material', 'height' => 'Height (mm)', 'length' => 'Length (mm)', 'quantity' => 'Qty' ),
+	);
+	$rows = $rows ? $rows : array( array() );
+	?>
+	<section class="qs-component" data-component="<?php echo esc_attr( $component ); ?>">
+		<table class="qs-table qs-repeater"><thead><tr><?php foreach ( $columns[ $component ] as $label ) : ?><th><?php echo esc_html( $label ); ?></th><?php endforeach; ?><th><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'quote-system' ); ?></span></th></tr></thead><tbody>
+		<?php foreach ( $rows as $index => $row ) : ?><tr><?php foreach ( $columns[ $component ] as $key => $label ) : ?><td><?php if ( 'type' === $key ) : ?><select class="qs-input" name="components[<?php echo esc_attr( $component ); ?>][<?php echo esc_attr( $index ); ?>][type]"><option value="Door" <?php selected( isset( $row['type'] ) ? $row['type'] : '', 'Door' ); ?>>Door</option><option value="Drawer" <?php selected( isset( $row['type'] ) ? $row['type'] : '', 'Drawer' ); ?>>Drawer</option><option value="Drawer Bank" <?php selected( isset( $row['type'] ) ? $row['type'] : '', 'Drawer Bank' ); ?>>Drawer bank</option></select><?php else : ?><input class="qs-input" type="<?php echo in_array( $key, array( 'width', 'height', 'length', 'quantity', 'drawer_count' ), true ) ? 'number' : 'text'; ?>" min="<?php echo in_array( $key, array( 'width', 'height', 'length', 'quantity', 'drawer_count' ), true ) ? '1' : ''; ?>" name="components[<?php echo esc_attr( $component ); ?>][<?php echo esc_attr( $index ); ?>][<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( isset( $row[ $key ] ) ? $row[ $key ] : '' ); ?>"><?php endif; ?></td><?php endforeach; ?><td><button class="qs-btn qs-remove-row" type="button">Remove</button></td></tr><?php endforeach; ?>
+		</tbody></table><p><button class="qs-btn qs-add-row" type="button">Add item</button></p>
+	</section>
+	<?php
+}
+
+function qs_quote_builder_shortcode() {
+	$quote_id = isset( $_GET['quote_id'] ) ? absint( $_GET['quote_id'] ) : 0;
+	$error = '';
+	if ( isset( $_POST['qs_save_draft'] ) || isset( $_POST['qs_review_quote'] ) ) {
+		$saved = qs_builder_save_quote( $quote_id );
+		if ( is_wp_error( $saved ) ) {
+			$error = $saved->get_error_message();
+		} else {
+			$destination = isset( $_POST['qs_review_quote'] ) ? '/quote-review/' : '/quote-builder/';
+			wp_safe_redirect( add_query_arg( 'quote_id', $saved, site_url( $destination ) ) );
+			exit;
+		}
+	}
+	if ( ! qs_builder_quote_is_editable( $quote_id ) ) {
+		return '<p>' . esc_html__( 'You cannot view this quote.', 'quote-system' ) . '</p>';
+	}
+	$meta = array();
+	foreach ( array( 'project_name', 'company_name', 'customer_name', 'customer_email', 'customer_phone', 'delivery_address', 'door_profile', 'timber', 'finish', 'handle_profile', 'project_notes' ) as $key ) {
+		$meta[ $key ] = $quote_id ? get_post_meta( $quote_id, '_' . $key, true ) : '';
+	}
+	ob_start();
+	?>
+	<div class="qs-container"><h2><?php esc_html_e( 'Quote Builder', 'quote-system' ); ?></h2><?php if ( $error ) : ?><div class="qs-notice qs-notice-error"><?php echo esc_html( $error ); ?></div><?php endif; ?>
+	<form method="post" class="qs-wrapper" novalidate><?php wp_nonce_field( 'qs_save_quote', 'qs_builder_nonce' ); ?><div class="form">
+	<h3>Project details</h3><?php qs_builder_input( 'project_name', 'Project name', $meta['project_name'], 'text', true ); qs_builder_input( 'company_name', 'Company', $meta['company_name'] ); qs_builder_input( 'customer_name', 'Contact name', $meta['customer_name'], 'text', true ); qs_builder_input( 'customer_email', 'Email', $meta['customer_email'], 'email', true ); qs_builder_input( 'customer_phone', 'Phone', $meta['customer_phone'] ); ?>
+	<p class="qs-form-group"><label class="qs-label" for="delivery_address">Delivery address</label><textarea class="qs-textarea" id="delivery_address" name="delivery_address"><?php echo esc_textarea( $meta['delivery_address'] ); ?></textarea></p>
+	<h3>Specifications</h3><?php qs_builder_input( 'door_profile', 'Profile', $meta['door_profile'] ); qs_builder_input( 'timber', 'Timber', $meta['timber'] ); qs_builder_input( 'finish', 'Finish', $meta['finish'] ); qs_builder_input( 'handle_profile', 'Door / drawer handle profile', $meta['handle_profile'] ); ?>
+	<h3>Doors, drawers and drawer banks</h3><?php qs_builder_component_table( 'doors_drawers', qs_component_rows( $quote_id, 'doors_drawers' ) ); ?><h3>End panels</h3><?php qs_builder_component_table( 'end_panels', qs_component_rows( $quote_id, 'end_panels' ) ); ?><h3>Fillers</h3><?php qs_builder_component_table( 'fillers', qs_component_rows( $quote_id, 'fillers' ) ); ?><h3>Kickboards</h3><?php qs_builder_component_table( 'kickboards', qs_component_rows( $quote_id, 'kickboards' ) ); ?>
+	<p class="qs-form-group"><label class="qs-label" for="project_notes">Project notes</label><textarea class="qs-textarea" id="project_notes" name="project_notes"><?php echo esc_textarea( $meta['project_notes'] ); ?></textarea></p>
+	<p><button class="qs-btn qs-btn-secondary" type="submit" name="qs_save_draft">Save draft</button> <button class="qs-btn" type="submit" name="qs_review_quote">Review quote</button></p></div>
+	<aside class="qs-summary"><h3>Quote summary</h3><p>Doors: <?php echo esc_html( qs_quote_component_count( $quote_id, 'doors_drawers', 'Door' ) ); ?></p><p>Drawers: <?php echo esc_html( qs_quote_component_count( $quote_id, 'doors_drawers', 'Drawer' ) ); ?></p><p>Panels: <?php echo esc_html( qs_quote_component_count( $quote_id, 'end_panels' ) ); ?></p><p>Fillers: <?php echo esc_html( qs_quote_component_count( $quote_id, 'fillers' ) ); ?></p><p>Kickboards: <?php echo esc_html( qs_quote_component_count( $quote_id, 'kickboards' ) ); ?></p></aside></form></div>
+	<script>(function(){function addRow(section){var body=section.querySelector('tbody'),prototype=body.rows[0];if(!prototype)return;var row=prototype.cloneNode(true),index=body.rows.length;row.querySelectorAll('input,select').forEach(function(input){input.name=input.name.replace(/\[\d+\]/, '['+index+']');input.value='';});body.appendChild(row);}document.querySelectorAll('.qs-component').forEach(function(section){section.querySelector('.qs-add-row').addEventListener('click',function(){addRow(section);});section.addEventListener('click',function(event){if(event.target.classList.contains('qs-remove-row')&&section.querySelectorAll('tbody tr').length>1){event.target.closest('tr').remove();}});});}());</script>
+	<?php
+	return ob_get_clean();
+}
+
+add_shortcode( 'quote_builder', 'qs_quote_builder_shortcode' );
+
