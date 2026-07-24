@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.5 seconds
+Output:
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,6 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 function qs_admin_dashboard_shortcode() {
 
 	$success_message = '';
+	if ( ! current_user_can( 'edit_others_posts' ) ) {
+		return '<p>You are not allowed to manage quotes.</p>';
+	}
 
 	if (
 		isset( $_POST['qs_approve_quote'] ) &&
@@ -23,6 +29,9 @@ function qs_admin_dashboard_shortcode() {
 		$quote_id = absint(
 			$_POST['quote_id']
 		);
+		if ( ! current_user_can( 'edit_post', $quote_id ) ) {
+			return '<p>You are not allowed to approve this quote.</p>';
+		}
 
 		qs_update_quote_status(
 			$quote_id,
@@ -33,7 +42,8 @@ function qs_admin_dashboard_shortcode() {
 			$quote_id
 		);
 
-		$success_message = 'Quote approved successfully.';
+		$order_id = qs_create_payment_order( $quote_id, 'deposit' );
+		$success_message = is_wp_error( $order_id ) ? 'Quote approved, but the deposit order could not be created: ' . $order_id->get_error_message() : 'Quote approved and deposit order #' . $order_id . ' created.';
 	}
 
 	$search  = isset( $_GET['search'] )
@@ -843,7 +853,7 @@ function qs_admin_dashboard_shortcode() {
 								type="button"
 								class="qs-expand-btn"
 							>
-								▼
+								â–¼
 							</button>
 
 						</td>
@@ -903,7 +913,7 @@ function qs_admin_dashboard_shortcode() {
 
 				expand.style.display='none';
 
-				btn.innerHTML='▼';
+				btn.innerHTML='â–¼';
 
 			}else{
 
@@ -919,13 +929,13 @@ function qs_admin_dashboard_shortcode() {
 				'.qs-expand-btn'
 				).forEach(function(b){
 
-					b.innerHTML='▼';
+					b.innerHTML='â–¼';
 
 				});
 
 				expand.style.display='table-row';
 
-				btn.innerHTML='▲';
+				btn.innerHTML='â–²';
 
 			}
 
