@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.5 seconds
+Output:
 <?php
 
 use Dompdf\Dompdf;
@@ -102,6 +105,13 @@ function qs_get_quote_data( $quote_id ) {
 			$quote_id,
 			'_kickboards',
 			true
+		),
+
+		'component_rows' => array(
+			'doors_drawers' => qs_component_rows( $quote_id, 'doors_drawers' ),
+			'end_panels'    => qs_component_rows( $quote_id, 'end_panels' ),
+			'fillers'       => qs_component_rows( $quote_id, 'fillers' ),
+			'kickboards'    => qs_component_rows( $quote_id, 'kickboards' ),
 		),
 
 		'subtotal' => get_post_meta(
@@ -427,3 +437,4 @@ add_shortcode(
 	'jobsheet',
 	'qs_jobsheet_shortcode'
 );
+
