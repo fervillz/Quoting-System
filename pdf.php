@@ -1,5 +1,5 @@
 Exit code: 0
-Wall time: 0.5 seconds
+Wall time: 0.7 seconds
 Output:
 <?php
 
@@ -149,6 +149,19 @@ function qs_get_quote_data( $quote_id ) {
 }
 
 /**
+ * Checks whether the current person may view a quote document.
+ * Administrators/editors can use normal WordPress capabilities; the quote
+ * owner may also view their own document from the trade dashboard.
+ */
+function qs_can_view_quote_document( $quote_id ) {
+	$quote = get_post( $quote_id );
+	if ( ! $quote || 'quote' !== $quote->post_type || ! is_user_logged_in() ) {
+		return false;
+	}
+	return current_user_can( 'edit_post', $quote_id ) || (int) $quote->post_author === get_current_user_id();
+}
+
+/**
  * TEMPORARY PDF DATA TEST
  * https://staging2.loughlinfurniture.com.au/wp-admin/?qs_test_quote=66610
  */
@@ -219,6 +232,8 @@ function qs_generate_quotation_html(
 function qs_generate_jobsheet_html(
 	$quote_id
 ) {
+
+	$data = qs_get_quote_data( $quote_id );
 
 	ob_start();
 
@@ -302,6 +317,10 @@ function qs_download_jobsheet_pdf() {
 	$quote_id = absint(
 		$_GET['download_jobsheet_pdf']
 	);
+
+	if ( ! qs_can_view_quote_document( $quote_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to download this job sheet.', 'quote-system' ), 403 );
+	}
 
 	qs_generate_jobsheet_pdf(
 		$quote_id
@@ -403,6 +422,10 @@ function qs_download_quotation_pdf() {
 	$quote_id = absint(
 		$_GET['download_quote_pdf']
 	);
+
+	if ( ! qs_can_view_quote_document( $quote_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to download this quotation.', 'quote-system' ), 403 );
+	}
 
 	qs_stream_quotation_pdf(
 		$quote_id
