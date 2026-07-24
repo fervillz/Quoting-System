@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.5 seconds
+Output:
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,8 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function qs_my_quotes_shortcode() {
 	
 
-	$quotes = get_posts(
-		array(
+	$args = array(
 			'post_type'      => 'quote',
 			'post_status'    => array(
 				'publish',
@@ -25,8 +27,13 @@ function qs_my_quotes_shortcode() {
 			'posts_per_page' => -1,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
-		)
-	);
+		);
+	// This shortcode is the customer-facing dashboard.  An administrator can
+	// see all quotes, while every other user only sees their own work.
+	if ( ! current_user_can( 'edit_others_posts' ) ) {
+		$args['author'] = get_current_user_id();
+	}
+	$quotes = get_posts( $args );
 
 	$draft_count = 0;
 	$pending_count = 0;
@@ -290,7 +297,8 @@ function qs_my_quotes_shortcode() {
 
 						<?php elseif ( 'awaiting_deposit' === $status ) : ?>
 
-							Pay Deposit
+							<?php $payment_url = qs_get_quote_payment_url( $quote->ID, 'deposit' ); ?>
+							<?php if ( $payment_url ) : ?><a href="<?php echo esc_url( $payment_url ); ?>">Pay Deposit</a><?php else : ?>Deposit link being prepared<?php endif; ?>
 
 						<?php elseif ( 'deposit_paid' === $status ) : ?>
 
@@ -298,7 +306,8 @@ function qs_my_quotes_shortcode() {
 
 						<?php elseif ( 'final_balance' === $status ) : ?>
 
-							Pay Balance
+							<?php $payment_url = qs_get_quote_payment_url( $quote->ID, 'balance' ); ?>
+							<?php if ( $payment_url ) : ?><a href="<?php echo esc_url( $payment_url ); ?>">Pay Balance</a><?php else : ?>Balance link being prepared<?php endif; ?>
 
 						<?php elseif ( 'paid_in_full' === $status ) : ?>
 
@@ -330,3 +339,4 @@ add_shortcode(
 	'my_quotes',
 	'qs_my_quotes_shortcode'
 );
+
