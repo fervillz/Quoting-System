@@ -1,0 +1,100 @@
+site_name: Quote System Developer Documentation
+site_description: Developer and maintenance documentation for the Loughlin Furniture Quote System WordPress plugin.
+site_url: https://fervillz.github.io/Quoting-System/
+repo_url: https://github.com/fervillz/Quoting-System
+repo_name: fervillz/Quoting-System
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Use dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Use light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Local documentation site: getting-started/local-docs.md
+      - WordPress setup: getting-started/wordpress-setup.md
+      - Pages and shortcodes: getting-started/pages-and-shortcodes.md
+  - Architecture:
+      - System overview: architecture/overview.md
+      - File map: architecture/file-map.md
+      - Request lifecycle: architecture/request-lifecycle.md
+  - Data model:
+      - Quote CPT and post meta: data-model/quote-cpt.md
+      - Component repeaters: data-model/component-repeaters.md
+      - Quote Products and pricing data: data-model/quote-products.md
+  - Business workflow:
+      - Quote statuses: workflow/quote-statuses.md
+      - Admin actions: workflow/admin-actions.md
+      - WooCommerce payments: workflow/payments.md
+  - Frontend features:
+      - Quote Builder: frontend/quote-builder.md
+      - Review and submission: frontend/review-and-submission.md
+      - Dashboards: frontend/dashboards.md
+      - CSS and visual styling: frontend/css.md
+      - JavaScript behavior: frontend/javascript.md
+  - Output:
+      - PDFs: output/pdfs.md
+      - Emails: output/emails.md
+  - Reference:
+      - Shortcodes and URL parameters: reference/shortcodes-and-urls.md
+      - Functions and hooks: reference/functions-and-hooks.md
+      - Post-meta dictionary: reference/post-meta.md
+  - Development:
+      - Common changes: development/common-changes.md
+      - Debugging guide: development/debugging.md
+      - Testing checklist: development/testing.md
+      - Deployment: development/deployment.md
+      - Known issues and technical debt: development/known-issues.md
+      - Maintaining these docs: development/maintaining-docs.md

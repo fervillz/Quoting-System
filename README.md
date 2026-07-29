@@ -2,6 +2,26 @@
 
 This WordPress plugin lets approved trade customers build a joinery quote, submit it to Loughlin Furniture, and track its progress. The plugin is designed to work with WooCommerce for payment collection and Dompdf for downloadable documents.
 
+## Developer documentation
+
+The complete developer and maintenance guide is in [`docs/`](docs/index.md).
+It covers installation, architecture, every loaded file, post-meta schemas,
+pricing, role-based workflows, CSS, JavaScript, PDFs, emails, WooCommerce,
+debugging, testing, deployment and known technical debt.
+
+Preview the Material for MkDocs site locally:
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements-docs.txt
+mkdocs serve
+```
+
+Run `mkdocs build --strict` before publishing documentation. The included
+GitHub Actions workflow can deploy the site to GitHub Pages after the docs reach
+`main`.
+
 ## What a joiner can do
 
 1. Start a quote and enter the project, contact, delivery and timber details.
