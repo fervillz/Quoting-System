@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.7 seconds
-Output:
 <?php
 
 use Dompdf\Dompdf;
@@ -14,6 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Get all quote data.
  */
 function qs_get_quote_data( $quote_id ) {
+	$quote       = get_post( $quote_id );
+	$author_name = $quote ? get_the_author_meta( 'display_name', $quote->post_author ) : '';
+	$pricing     = get_post_meta( $quote_id, '_pricing_type', true );
 
 	return array(
 
@@ -59,27 +59,85 @@ function qs_get_quote_data( $quote_id ) {
 			true
 		),
 
-		'door_profile' => get_post_meta(
+		'created_by' => $author_name,
+
+		'pricing_type' => 'retail' === $pricing ? 'Retail Pricing' : 'Trade Pricing',
+
+		'date_created' => $quote ? get_the_date( 'd F Y', $quote_id ) : '',
+
+		'date_submitted' => $quote ? get_the_modified_date( 'd F Y', $quote_id ) : '',
+
+		'status' => $quote ? get_post_status( $quote_id ) : '',
+
+		'custom_requests' => get_post_meta(
+			$quote_id,
+			'_custom_requests',
+			true
+		),
+
+		'project_notes' => get_post_meta(
+			$quote_id,
+			'_project_notes',
+			true
+		),
+
+		'supporting_documents' => get_post_meta(
+			$quote_id,
+			'_supporting_documents',
+			true
+		),
+
+		'door_profile' => qs_quote_product_label( get_post_meta(
+			$quote_id,
+			'_door_profile',
+			true
+		) ),
+
+		'door_profile_id' => get_post_meta(
 			$quote_id,
 			'_door_profile',
 			true
 		),
 
-		'timber' => get_post_meta(
+		'timber' => qs_quote_product_label( get_post_meta(
+			$quote_id,
+			'_timber',
+			true
+		) ),
+
+		'timber_id' => get_post_meta(
 			$quote_id,
 			'_timber',
 			true
 		),
 
-		'finish' => get_post_meta(
+		'finish' => qs_quote_product_label( get_post_meta(
+			$quote_id,
+			'_finish',
+			true
+		) ),
+
+		'finish_id' => get_post_meta(
 			$quote_id,
 			'_finish',
 			true
 		),
 
-		'handle_profile' => get_post_meta(
+		'handle_profile' => qs_quote_product_label( get_post_meta(
 			$quote_id,
 			'_handle_profile',
+			true
+		) ),
+
+		'handle_profile_id' => get_post_meta(
+			$quote_id,
+			'_handle_profile',
+			true
+		),
+
+		'paint_colour' => get_post_meta(
+			$quote_id,
+			'_paint_colour',
 			true
 		),
 
@@ -132,6 +190,18 @@ function qs_get_quote_data( $quote_id ) {
 			true
 		),
 
+		'additional_charges' => get_post_meta(
+			$quote_id,
+			'_additional_charges',
+			true
+		),
+
+		'internal_notes' => get_post_meta(
+			$quote_id,
+			'_internal_notes',
+			true
+		),
+
 		'total' => qs_calculate_total(
 			$quote_id
 		),
@@ -160,39 +230,6 @@ function qs_can_view_quote_document( $quote_id ) {
 	}
 	return current_user_can( 'edit_post', $quote_id ) || (int) $quote->post_author === get_current_user_id();
 }
-
-/**
- * TEMPORARY PDF DATA TEST
- * https://staging2.loughlinfurniture.com.au/wp-admin/?qs_test_quote=66610
- */
-function qs_test_quote_data() {
-
-	if ( ! isset( $_GET['qs_test_quote'] ) ) {
-		return;
-	}
-
-	$quote_id = absint(
-		$_GET['qs_test_quote']
-	);
-
-	echo '<pre>';
-
-	print_r(
-		qs_get_quote_data(
-			$quote_id
-		)
-	);
-
-	echo '</pre>';
-
-	exit;
-
-}
-
-add_action(
-	'admin_init',
-	'qs_test_quote_data'
-);
 
 function qs_generate_quotation_html(
 	$quote_id
@@ -272,6 +309,7 @@ function qs_generate_jobsheet_pdf(
 		'isRemoteEnabled',
 		true
 	);
+	$options->set( 'defaultFont', 'DejaVu Sans' );
 
 	$dompdf = new Dompdf(
 		$options
@@ -288,9 +326,10 @@ function qs_generate_jobsheet_pdf(
 
 	$dompdf->render();
 
+	$quote_number = sanitize_file_name( get_post_meta( $quote_id, '_quote_number', true ) );
 	$dompdf->stream(
-		'jobsheet-' .
-		$quote_id .
+		'job-sheet-' .
+		( $quote_number ? $quote_number : $quote_id ) .
 		'.pdf',
 		array(
 			'Attachment' => false,
@@ -343,9 +382,11 @@ function qs_quotation_shortcode() {
 		)
 		: 0;
 
-	return qs_generate_quotation_html(
-		$quote_id
-	);
+	if ( ! $quote_id || ! qs_can_view_quote_document( $quote_id ) ) {
+		return '<p>You are not allowed to view this quotation.</p>';
+	}
+
+	return qs_generate_quotation_html( $quote_id );
 
 }
 
@@ -368,6 +409,7 @@ function qs_generate_quotation_pdf(
 		'isRemoteEnabled',
 		true
 	);
+	$options->set( 'defaultFont', 'DejaVu Sans' );
 
 	$dompdf = new Dompdf(
 		$options
@@ -396,9 +438,10 @@ function qs_stream_quotation_pdf(
 		$quote_id
 	);
 
+	$quote_number = sanitize_file_name( get_post_meta( $quote_id, '_quote_number', true ) );
 	$pdf->stream(
 		'quotation-' .
-		$quote_id .
+		( $quote_number ? $quote_number : $quote_id ) .
 		'.pdf',
 		array(
 			'Attachment' => false,
@@ -447,12 +490,11 @@ function qs_jobsheet_shortcode() {
 		? absint( $_GET['quote_id'] )
 		: 0;
 
-	ob_start();
+	if ( ! $quote_id || ! qs_can_view_quote_document( $quote_id ) ) {
+		return '<p>You are not allowed to view this job sheet.</p>';
+	}
 
-	include QS_PATH .
-		'templates/jobsheet.php';
-
-	return ob_get_clean();
+	return qs_generate_jobsheet_html( $quote_id );
 
 }
 
@@ -460,4 +502,3 @@ add_shortcode(
 	'jobsheet',
 	'qs_jobsheet_shortcode'
 );
-

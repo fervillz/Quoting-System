@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.6 seconds
-Output:
 <?php
 /**
  * Quote repeater data.
@@ -30,7 +27,9 @@ function qs_component_definitions() {
 			'edge_profile'  => 'text',
 			'drawer_count'  => 'positive_int',
 			'top_height'    => 'positive_int',
+			'top_middle_height' => 'positive_int',
 			'middle_height' => 'positive_int',
+			'bottom_middle_height' => 'positive_int',
 			'bottom_height' => 'positive_int',
 		),
 		'end_panels' => array(
@@ -69,7 +68,13 @@ function qs_component_rows( $quote_id, $component ) {
 	}
 
 	$rows = get_post_meta( $quote_id, '_qs_' . $component, true );
-	return is_array( $rows ) ? array_values( $rows ) : array();
+	if ( ! is_array( $rows ) ) {
+		return array();
+	}
+
+	// Re-sanitise on read as well, so old placeholder/blank rows never appear
+	// in the admin screen, frontend review or PDFs.
+	return array_values( qs_sanitise_component_rows( $component, $rows ) );
 }
 
 /**
@@ -122,6 +127,22 @@ function qs_save_component_rows( $quote_id, $posted_components ) {
 	}
 }
 
+
+/**
+ * Converts a saved Quote Product post ID into its readable title.
+ * Existing text values are returned unchanged for backward compatibility.
+ */
+function qs_quote_product_label( $value ) {
+	if ( is_numeric( $value ) && absint( $value ) ) {
+		$title = get_the_title( absint( $value ) );
+		if ( is_string( $title ) && '' !== trim( $title ) ) {
+			return $title;
+		}
+	}
+
+	return is_scalar( $value ) ? (string) $value : '';
+}
+
 /**
  * Adds quantities across a repeater group.
  *
@@ -138,4 +159,3 @@ function qs_quote_component_count( $quote_id, $component, $type = '' ) {
 
 	return $count;
 }
-

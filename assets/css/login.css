@@ -1,0 +1,181 @@
+.qs-login-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 130px;
+  width: calc(100% - 40px);
+  max-width: 1160px;
+  min-height: 610px;
+  align-items: start;
+  margin: 110px auto 85px;
+  color: var(--qs-ink);
+  font: 18px/1.55 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
+}
+
+.qs-login-page h1,
+.qs-login-page h2 {
+  margin: 0;
+  color: var(--qs-ink);
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.12;
+}
+
+.qs-login-page h1 {
+  font-size: 42px;
+}
+
+.qs-login-page h2 {
+  margin-bottom: 54px;
+  font-size: 42px;
+}
+
+.qs-login-information p {
+  margin: 25px 0;
+}
+
+.qs-login-information .qs-login-lead {
+  font-size: 20px;
+}
+
+.qs-login-information > strong {
+  display: block;
+  margin-top: 28px;
+}
+
+.qs-login-information ul {
+  margin: 15px 0 25px;
+  padding: 0;
+  list-style: none;
+}
+
+.qs-login-information li {
+  position: relative;
+  margin: 12px 0;
+  padding-left: 32px;
+}
+
+.qs-login-information li::before {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #cfa096;
+  color: #fff;
+  content: "✓";
+  font-size: 13px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.qs-login-form-panel {
+  padding-top: 22px;
+}
+
+.qs-login-error {
+  margin: -30px 0 24px;
+  padding: 10px 12px;
+  border: 1px solid #b87f7f;
+  background: #faeeee;
+  color: #6a1f2c;
+  font-size: 15px;
+}
+
+.qs-login-form label {
+  display: block;
+  margin: 0 0 9px;
+}
+
+.qs-login-control {
+  position: relative;
+  display: block;
+  margin-bottom: 25px;
+}
+
+.qs-login-control input {
+  width: 100%;
+  height: 42px;
+  padding: 0 48px 0 13px;
+  border: 1px solid #561724;
+  border-radius: 0;
+  background: #fff;
+  color: var(--qs-ink);
+  font: 16px "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
+}
+
+.qs-login-valid,
+.qs-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+}
+
+.qs-login-valid {
+  fill: #561724;
+}
+
+.qs-password-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #561724;
+  cursor: pointer;
+}
+
+.qs-password-toggle svg {
+  width: 23px;
+  height: 23px;
+  fill: currentColor;
+}
+
+.qs-forgot-password {
+  display: inline-block;
+  margin-top: -14px;
+  color: #a4aeb6;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.qs-login-submit {
+  width: 100%;
+  min-height: 43px;
+  margin-top: 47px;
+  color: #501e2a;
+  font-size: 16px;
+}
+
+.qs-login-access {
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+.qs-login-access strong {
+  font-weight: 400;
+}
+
+.qs-login-already {
+  max-width: 700px;
+  margin: 100px auto;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .qs-login-page {
+    gap: 55px;
+    margin-top: 65px;
+  }
+}
+
+@media (max-width: 700px) {
+  .qs-login-page {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+}

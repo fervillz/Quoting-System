@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.5 seconds
-Output:
 <?php
 /** WooCommerce payment orders for quote deposits and final balances. */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -59,4 +56,3 @@ function qs_handle_payment_complete( $order_id ) {
 add_action( 'woocommerce_payment_complete', 'qs_handle_payment_complete' );
 add_action( 'woocommerce_order_status_processing', 'qs_handle_payment_complete' );
 add_action( 'woocommerce_order_status_completed', 'qs_handle_payment_complete' );
-

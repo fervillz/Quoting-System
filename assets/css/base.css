@@ -1,321 +1,135 @@
-/* ==================================================
-   Typography
-================================================== */
+:root {
+	--qs-wine: #561724;
+	--qs-rose: #cfa096;
+	--qs-blush: #ead3cf;
+	--qs-paper: #f5f5f4;
+	--qs-ink: #40586b;
+	--qs-line: #d8d8d6;
+	--qs-serif: "Cormorant Garamond", "Times New Roman", serif;
+	--qs-sans: "GT Walsheim", "Montserrat", "Avenir Next", Arial, sans-serif;
+}
 
-body {
-
-	font-family: 'Poppins', sans-serif;
-
+.qs-container,
+.qs-builder-shell,
+.qs-admin-dashboard,
+.qs-my-quotes,
+.quote-sub-wrap {
+	box-sizing: border-box;
+	color: var(--qs-ink);
+	font-family: var(--qs-sans);
 	font-size: 14px;
-
-	line-height: 1.6;
-
-	color: #49596b;
-
+	line-height: 1.55;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-
-	font-family: 'Cormorant Garamond', serif;
-
-	font-weight: 500;
-
-	color: #445a70;
-
-	margin: 0 0 20px;
-
+.qs-container *,
+.qs-builder-shell *,
+.qs-admin-dashboard *,
+.qs-my-quotes *,
+.quote-sub-wrap * {
+	box-sizing: border-box;
 }
 
-h1 {
-
-	font-size: 56px;
-
+.qs-container h1,
+.qs-container h2,
+.qs-builder-shell h1,
+.qs-builder-shell h2,
+.qs-admin-dashboard h1,
+.qs-admin-dashboard h2,
+.qs-my-quotes h1,
+.qs-my-quotes h2,
+.quote-sub-wrap h1,
+.quote-sub-wrap h2 {
+	color: var(--qs-ink);
+	font-family: var(--qs-serif);
+	font-weight: 400;
 }
-
-h2 {
-
-	font-size: 42px;
-
-}
-
-h3 {
-
-	font-size: 32px;
-
-}
-
-h4 {
-
-	font-size: 22px;
-
-}
-
-p {
-
-	margin: 0 0 15px;
-
-}
-
-/* ==================================================
-   Forms
-================================================== */
 
 .qs-form-group {
-
 	margin-bottom: 20px;
-
 }
 
 .qs-label {
-
 	display: block;
-
 	margin-bottom: 6px;
-
 	font-size: 13px;
-
-	font-weight: 500;
-
+	font-weight: 600;
 }
 
 .qs-input,
 .qs-select,
 .qs-textarea {
-
 	width: 100%;
-
-	padding: 12px;
-
-	border: 1px solid #bca6a1;
-
+	padding: 10px 12px;
+	border: 1px solid #9f858b;
+	border-radius: 0;
 	background: #fff;
-
-	font-size: 14px;
-
-	box-sizing: border-box;
-
+	color: var(--qs-ink);
+	font: 14px var(--qs-sans);
 }
 
 .qs-textarea {
-
-	min-height: 120px;
-
+	min-height: 110px;
 	resize: vertical;
-
 }
 
-/* ==================================================
-   Buttons
-================================================== */
-
-.qs-btn {
-
-	display: inline-block;
-
-	padding: 12px 24px;
-
-	border: 1px solid #bca6a1;
-
-	background: #d3b0aa;
-
-	color: #4a5565;
-
+.qs-btn,
+.qs-btn-outline,
+.qs-btn-solid {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 38px;
+	padding: 0 22px;
+	border: 1px solid var(--qs-rose);
+	border-radius: 0;
+	background: var(--qs-rose);
+	color: #fff;
+	font: 600 11px/1 var(--qs-sans);
+	letter-spacing: .03em;
+	text-align: center;
 	text-decoration: none;
-
+	text-transform: uppercase;
 	cursor: pointer;
-
 }
 
-.qs-btn:hover {
-
-	opacity: .9;
-
-}
-
+.qs-btn-outline,
 .qs-btn-secondary {
-
+	border-color: var(--qs-wine);
 	background: #fff;
-
+	color: var(--qs-wine);
 }
-
-/* ==================================================
-   Forms
-================================================== */
-
-.qs-form-group {
-
-	margin-bottom: 20px;
-
-}
-
-.qs-label {
-
-	display: block;
-
-	margin-bottom: 6px;
-
-	font-size: 13px;
-
-	font-weight: 500;
-
-}
-
-.qs-input,
-.qs-select,
-.qs-textarea {
-
-	width: 100%;
-
-	padding: 12px;
-
-	border: 1px solid #bca6a1;
-
-	background: #fff;
-
-	font-size: 14px;
-
-	box-sizing: border-box;
-
-}
-
-.qs-textarea {
-
-	min-height: 120px;
-
-	resize: vertical;
-
-}
-
-/* ==================================================
-   Tables
-================================================== */
 
 .qs-table {
-
 	width: 100%;
-
 	border-collapse: collapse;
-
 }
 
 .qs-table th {
-
-	background: #56697d;
-
+	padding: 9px;
+	background: var(--qs-ink);
 	color: #fff;
-
-	padding: 10px;
-
+	font-size: 11px;
 	text-align: left;
-
-	font-size: 12px;
-
 }
 
 .qs-table td {
-
-	padding: 12px;
-
-	border-bottom: 1px solid #ececec;
-
+	padding: 10px;
+	border: 1px solid #e1e1e1;
+	font-size: 12px;
 }
-
-/* ==================================================
-   Status
-================================================== */
 
 .qs-status {
-
 	display: inline-block;
-
-	padding: 6px 18px;
-
+	min-width: 120px;
+	padding: 6px 15px;
 	border-radius: 20px;
-
-	font-size: 12px;
-
+	font-size: 11px;
+	text-align: center;
 }
 
-.qs-status-draft {
-
-	background: #d9d9d9;
-
-}
-
-.qs-status-pending {
-
-	background: #ead7d2;
-
-}
-
-.qs-status-approved {
-
-	background: #28a745;
-
-	color: #fff;
-
-}
-
-.qs-status-completed {
-
-	background: #0d6b2f;
-
-	color: #fff;
-
-}
-
-/* ==================================================
-   Cards
-================================================== */
-
-.qs-card {
-
-	background: #f7f4f4;
-
-	padding: 25px;
-
-	border: 1px solid #ececec;
-
-}
-
-/* ==================================================
-   Layout
-================================================== */
-
-.qs-container {
-
-	max-width: 1200px;
-
-	margin: 0 auto;
-
-	padding: 20px;
-
-}
-
-.qs-grid {
-
-	display: grid;
-
-	gap: 30px;
-
-}
-
-.qs-flex {
-
-	display: flex;
-
-	gap: 30px;
-
-}
-
-hr {
-	background: #D1D1D1;
-    border-color: #D1D1D1;
-    border: none;
-    height: 1px;
-}
+.qs-status-draft { background: #d9d9d9; }
+.qs-status-pending_review { background: #f1dedd; }
+.qs-status-awaiting_deposit { background: #cfa096; color: #fff; }
+.qs-status-deposit_paid,
+.qs-status-final_balance { background: #2bb566; color: #fff; }
+.qs-status-paid_in_full { background: #147c3e; color: #fff; }

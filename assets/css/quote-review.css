@@ -1,80 +1,419 @@
-.qs-review-main h3 {
-    font-family: GTWalsheim;
+.qs-review-page {
+  width: calc(100% - 40px);
+  max-width: 1220px;
+  margin: 65px auto 110px;
+  color: var(--qs-ink);
+  font: 16px/1.5 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
 }
 
-/* Review Page */
+.qs-review-page h1,
+.qs-review-page h2 {
+  margin: 0;
+  color: var(--qs-ink);
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.qs-review-page-header {
+  display: flex;
+  min-height: 118px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 46px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #dededc;
+}
+
+.qs-review-page-header h1 {
+  font-size: 40px;
+  line-height: 1.15;
+}
+
+.qs-review-page-header nav {
+  display: flex;
+  gap: 18px;
+}
+
+.qs-review-page-header .qs-btn {
+  min-width: 114px;
+  min-height: 34px;
+  padding: 0 20px;
+  font-size: 16px;
+}
+
+.qs-review-notice {
+  margin: -22px 0 28px;
+  padding: 11px 15px;
+  border: 1px solid #d6c3bf;
+  background: #f7ece9;
+  color: #501e2a;
+}
 
 .qs-review-layout {
-	display: flex;
-	gap: 40px;
-	align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 80px;
+  align-items: start;
 }
 
-.qs-review-main {
-	flex: 1;
+.qs-review-intro {
+  padding-bottom: 35px;
+  border-bottom: 1px solid #dededc;
+}
+
+.qs-review-intro h2 {
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.qs-review-intro p {
+  margin: 12px 0 0;
+  color: #5e6f7d;
+  font-size: 16px;
+}
+
+.qs-review-section {
+  padding: 25px 0 28px;
+  border-bottom: 1px solid #dededc;
+}
+
+.qs-review-section:last-child {
+  border-bottom: 0;
+}
+
+.qs-review-section h3 {
+  margin: 0 0 20px;
+  color: var(--qs-ink);
+  font: 600 20px/1.25 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
+}
+
+.qs-review-section h4 {
+  margin: 20px 0 8px;
+  color: var(--qs-ink);
+  font: 600 15px/1.2 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
+}
+
+.qs-review-section > p {
+  margin: 0;
+}
+
+.qs-review-project dl {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 9px 12px;
+  margin: 0;
+}
+
+.qs-review-project dt {
+  font-weight: 600;
+}
+
+.qs-review-project dd {
+  margin: 0;
+}
+
+.qs-review-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 32px;
+}
+
+.qs-review-spec {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-height: 54px;
+}
+
+.qs-review-swatch {
+  display: block;
+  width: 54px;
+  height: 54px;
+  background: #d7d7d7 center/cover no-repeat;
+}
+
+.qs-review-spec strong,
+.qs-review-spec small {
+  display: block;
+}
+
+.qs-review-spec small {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.qs-review-note {
+  margin: 0 0 16px !important;
+  font-size: 13px;
+}
+
+.qs-review-table {
+  width: 100%;
+  margin: 8px 0 20px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.qs-review-table th,
+.qs-review-table td {
+  padding: 7px 8px;
+  border: 1px solid #dedede;
+  background: #fff;
+  color: var(--qs-ink);
+  text-align: center;
+  vertical-align: middle;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.qs-review-table th {
+  font-weight: 600;
+}
+
+.qs-review-table th:first-child,
+.qs-review-table td:first-child {
+  width: 38px;
 }
 
 .qs-review-summary {
-	width: 320px;
-	background: #f7f5f5;
-	padding: 30px;
+  position: sticky;
+  top: 30px;
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding: 28px 30px 26px;
+  background: #f3f3f2;
 }
 
-/* Headings */
-
-.qs-review-main h2,
 .qs-review-summary h2 {
-	font-family: "GT Walsheim", sans-serif;
-	font-size: 36px;
-	font-weight: 500;
-	color: #4b6175;
+  margin-bottom: 25px;
+  font-size: 34px;
+  line-height: 1.1;
 }
 
-.qs-review-main h3,
 .qs-review-summary h3 {
-	font-family: "GT Walsheim", sans-serif;
-	font-size: 22px;
-	font-weight: 500;
-	color: #4b6175;
+  margin: 0 0 15px;
+  color: var(--qs-ink);
+  font: 600 16px/1.2 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
 }
 
-.qs-review-main h4,
-.qs-review-summary h4 {
-	font-family: "GT Walsheim", sans-serif;
-	font-size: 16px;
-	font-weight: 600;
-	color: #4b6175;
+.qs-review-summary dl {
+  display: grid;
+  grid-template-columns: minmax(120px, auto) minmax(0, 1fr);
+  gap: 8px 16px;
+  margin: 0 0 10px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid #aaa;
+  font-size: 14px;
 }
 
-.qs-review-buttons {
-	display: flex;
-	gap: 12px;
-	margin-top: 24px;
-	justify-content: center;
+.qs-review-summary dt {
+  margin: 0;
 }
 
-.qs-review-buttons form {
-	margin: 0;
-	width: 100%;
+.qs-review-summary dd {
+  margin: 0;
+  text-align: right;
 }
 
-.qs-review-buttons .qs-btn {
-	width: 100%;
-	display: block;
-	text-align: center;
-	text-decoration: none;
-	padding: 12px 20px;
-	box-sizing: border-box;
+.qs-review-summary-items {
+  padding-bottom: 10px;
 }
 
-.qs-btn-secondary {
-	border: 1px solid #d9d9d9;
-	background: #fff;
-	color: #4b6175;
+.qs-review-summary-group {
+  margin-bottom: 8px;
 }
 
-.qs-btn-primary {
-	border: 1px solid #4b6175;
-	background: #4b6175;
-	color: #fff;
+.qs-review-summary-group > strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.qs-review-summary-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px 48px;
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  margin-bottom: 4px;
+  padding: 7px 10px;
+  background: #fff;
+  font-size: 13px;
+}
+
+.qs-review-summary-description > span,
+.qs-review-summary-description small {
+  display: block;
+}
+
+.qs-review-summary-description small {
+  margin-top: 4px;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.qs-review-summary-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 11px;
+}
+
+.qs-review-summary-controls a,
+.qs-review-summary-controls button {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.qs-review-summary-controls form {
+  display: inline-flex;
+  margin: 0;
+}
+
+.qs-review-summary-controls img {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.qs-review-lead-time,
+.qs-review-subtotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-top: 1px solid #aaa;
+}
+
+.qs-review-lead-time {
+  font-size: 14px;
+}
+
+.qs-review-subtotal span {
+  font-size: 16px;
+}
+
+.qs-review-subtotal strong {
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.qs-review-summary-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 14px;
+}
+
+.qs-review-summary-actions form {
+  margin: 0;
+}
+
+.qs-review-summary-actions .qs-btn {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.qs-review-admin-actions {
+  grid-template-columns: 1fr 1fr;
+  padding-top: 18px;
+  border-top: 1px solid #aaa;
+}
+
+.qs-review-admin-actions h3 {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.qs-review-admin-actions a,
+.qs-review-admin-actions button {
+  min-height: 38px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.qs-review-admin-actions form {
+  display: flex;
+}
+
+.qs-review-admin-actions form button {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #cfa096;
+  background: #cfa096;
+  color: #501e2a;
+  font: 13px/1.15 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.qs-review-admin-actions form button:hover,
+.qs-review-admin-actions form button:focus-visible {
+  border-color: #501e2a;
+  background: #501e2a;
+  color: #fff;
+}
+
+@media (max-width: 1000px) {
+  .qs-review-layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 35px;
+  }
+
+  .qs-review-table {
+    min-width: 650px;
+  }
+
+  .qs-review-section {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 800px) {
+  .qs-review-page {
+    margin-top: 35px;
+  }
+
+  .qs-review-page-header {
+    display: block;
+  }
+
+  .qs-review-page-header nav {
+    margin-top: 22px;
+  }
+
+  .qs-review-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .qs-review-summary {
+    position: relative;
+    top: auto;
+    order: -1;
+    max-height: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .qs-review-spec-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .qs-review-project dl {
+    grid-template-columns: 1fr;
+  }
+
+  .qs-review-project dd {
+    margin-bottom: 8px;
+  }
 }

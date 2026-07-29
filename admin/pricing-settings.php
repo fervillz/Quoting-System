@@ -1,63 +1,79 @@
-Exit code: 0
-Wall time: 0.5 seconds
-Output:
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/** Adds the office-only price list under the Quote System menu. */
+/** Add a clear entry point to the Quote Product price records. */
 function qs_add_pricing_settings_page() {
-	add_submenu_page( 'edit.php?post_type=quote', 'Quote Pricing', 'Quote Pricing', 'manage_options', 'quote-pricing', 'qs_render_pricing_settings_page' );
+	add_submenu_page(
+		'edit.php?post_type=quote',
+		'Quote Product Pricing',
+		'Quote Pricing',
+		'manage_options',
+		'quote-pricing',
+		'qs_render_pricing_settings_page'
+	);
 }
 add_action( 'admin_menu', 'qs_add_pricing_settings_page' );
 
-/** Receives only numeric rates and explains every field in plain English. */
-function qs_save_pricing_settings() {
-	if ( ! isset( $_POST['qs_save_pricing'] ) ) {
-		return;
-	}
-	if ( ! current_user_can( 'manage_options' ) || ! isset( $_POST['qs_pricing_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['qs_pricing_nonce'] ) ), 'qs_save_pricing' ) ) {
-		wp_die( esc_html__( 'You are not allowed to change quote prices.', 'quote-system' ) );
-	}
-	$fields = array( 'door_rate', 'drawer_rate', 'drawer_bank_rate', 'end_panel_rate', 'filler_rate', 'kickboard_rate', 'profile_surcharge', 'timber_surcharge', 'finish_surcharge', 'handle_surcharge' );
-	$prices = array();
-	foreach ( $fields as $field ) {
-		$prices[ $field ] = isset( $_POST[ $field ] ) ? max( 0, (float) wp_unslash( $_POST[ $field ] ) ) : 0;
-	}
-	update_option( 'qs_pricing_settings', $prices );
-	wp_safe_redirect( add_query_arg( 'updated', '1', admin_url( 'edit.php?post_type=quote&page=quote-pricing' ) ) );
-	exit;
-}
-add_action( 'admin_init', 'qs_save_pricing_settings' );
-
-/** Renders the editable pricing table used by every new calculation. */
+/**
+ * Render an overview instead of the obsolete global-rate form.
+ *
+ * Every editable value now lives on its Quote Product. This page deliberately
+ * performs no writes so it cannot override the product matrices.
+ */
 function qs_render_pricing_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-	$prices = qs_get_pricing_settings();
-	$fields = array(
-		'door_rate' => array( 'Door rate', 'Trade price per mÂ² for a door.' ),
-		'drawer_rate' => array( 'Drawer front rate', 'Trade price per mÂ² for a drawer front.' ),
-		'drawer_bank_rate' => array( 'Drawer bank rate', 'Trade price per mÂ² for a complete drawer bank.' ),
-		'end_panel_rate' => array( 'End panel rate', 'Trade price per mÂ² for end panels.' ),
-		'filler_rate' => array( 'Filler rate', 'Trade price per mÂ² for fillers.' ),
-		'kickboard_rate' => array( 'Kickboard rate', 'Trade price per linear metre of kickboard.' ),
-		'profile_surcharge' => array( 'Profile surcharge', 'Fixed amount added when a profile is selected.' ),
-		'timber_surcharge' => array( 'Timber surcharge', 'Fixed amount added when a timber is selected.' ),
-		'finish_surcharge' => array( 'Finish surcharge', 'Fixed amount added when a finish is selected.' ),
-		'handle_surcharge' => array( 'Handle surcharge', 'Fixed amount added when a handle profile is selected.' ),
+
+	$types = get_terms(
+		array(
+			'taxonomy'   => 'quote_product_type',
+			'hide_empty' => false,
+		)
 	);
 	?>
-	<div class="wrap"><h1>Quote Pricing</h1>
-	<p>Enter your <strong>trade</strong> prices here. Retail quotes are calculated automatically at trade price + 22.22%. Saving these prices does not rewrite older quotes; open and save a draft to refresh its calculation.</p>
-	<?php if ( isset( $_GET['updated'] ) ) : ?><div class="notice notice-success is-dismissible"><p>Quote prices saved.</p></div><?php endif; ?>
-	<form method="post"><input type="hidden" name="qs_save_pricing" value="1"><?php wp_nonce_field( 'qs_save_pricing', 'qs_pricing_nonce' ); ?>
-	<table class="form-table" role="presentation"><tbody>
-	<?php foreach ( $fields as $key => $field ) : ?><tr><th scope="row"><label for="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $field[0] ); ?></label></th><td><span>$ </span><input type="number" min="0" step="0.01" class="regular-text" id="<?php echo esc_attr( $key ); ?>" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $prices[ $key ] ); ?>"><p class="description"><?php echo esc_html( $field[1] ); ?></p></td></tr><?php endforeach; ?>
-	</tbody></table><?php submit_button( 'Save quote prices' ); ?></form></div>
+	<div class="wrap">
+		<h1>Quote Product Pricing</h1>
+		<p>
+			Quote totals now use the pricing method and values saved on each
+			<strong>Quote Product</strong>. The old global door, drawer and
+			surcharge rates are no longer used.
+		</p>
+		<p>
+			<a class="button button-primary" href="<?php echo esc_url( admin_url( 'edit.php?post_type=quote_products' ) ); ?>">Manage Quote Products</a>
+		</p>
+
+		<h2>Pricing rules in use</h2>
+		<table class="widefat striped" style="max-width:900px">
+			<thead><tr><th>Component</th><th>Price source</th></tr></thead>
+			<tbody>
+				<tr><td>Doors and drawer fronts</td><td>The selected Door Profile matrix</td></tr>
+				<tr><td>Drawer banks</td><td>The selected Door Profile matrix for each drawer front</td></tr>
+				<tr><td>End panels and fillers</td><td>The Evans pricing matrix</td></tr>
+				<tr><td>Painted items</td><td>The Painted matrix when a paint colour is supplied</td></tr>
+				<tr><td>Finger Pull</td><td>Fixed price per panel for Evans, Valley and 30 Shaker</td></tr>
+				<tr><td>Kickboards</td><td>The selected kickboard material and height band, per linear metre</td></tr>
+				<tr><td>Timber and finish</td><td>Fixed or percentage adjustment, including Walnut +10% and Raw -10%</td></tr>
+				<tr><td>Retail quotes</td><td>Trade subtotal + 22.22%</td></tr>
+			</tbody>
+		</table>
+
+		<?php if ( ! is_wp_error( $types ) && $types ) : ?>
+			<h2>Product types</h2>
+			<ul>
+				<?php foreach ( $types as $type ) : ?>
+					<li>
+						<a href="<?php echo esc_url( add_query_arg( array( 'post_type' => 'quote_products', 'quote_product_type' => $type->slug ), admin_url( 'edit.php' ) ) ); ?>">
+							<?php echo esc_html( $type->name ); ?>
+						</a>
+						(<?php echo esc_html( $type->count ); ?>)
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
+	</div>
 	<?php
 }
-

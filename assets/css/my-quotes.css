@@ -1,0 +1,343 @@
+.qs-my-quotes {
+  width: calc(100% - 40px);
+  max-width: 1220px;
+  margin: 65px auto 110px;
+  color: var(--qs-ink);
+  font: 14px/1.45 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
+}
+
+.qs-my-quotes h1,
+.qs-my-quotes h2,
+.qs-my-quotes h3 {
+  margin: 0;
+  color: var(--qs-ink);
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.qs-dashboard-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 118px;
+  margin-bottom: 54px;
+  padding: 0 0 28px;
+  border-bottom: 1px solid #dededc;
+}
+
+.qs-dashboard-page-header h1 {
+  font-size: 40px;
+  line-height: 1.15;
+}
+
+.qs-dashboard-page-header p {
+  margin: 8px 0 0;
+  color: #607080;
+  font-size: 20px;
+}
+
+.qs-dashboard-page-header p strong {
+  font-weight: 600;
+}
+
+.qs-dashboard-page-header p span {
+  color: #c59b91;
+}
+
+.qs-dashboard-page-header .qs-user-name {
+  display: inline-block;
+  margin-left: 117px;
+}
+
+.qs-dashboard-page-header nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.qs-dashboard-page-header .qs-btn {
+  min-width: 114px;
+  min-height: 34px;
+  padding: 0 20px;
+  font-size: 16px;
+}
+
+.qs-dashboard-notice {
+  margin: -30px 0 28px;
+  padding: 11px 15px;
+  border: 1px solid #d6c3bf;
+  background: #f7ece9;
+  color: #501e2a;
+}
+
+.qs-my-quotes-intro {
+  margin-bottom: 88px;
+  text-align: center;
+}
+
+.qs-my-quotes-intro h2 {
+  font-size: 40px;
+  line-height: 1.2;
+}
+
+.qs-my-quotes-intro p {
+  margin: 16px 0 25px;
+  color: #5e6f7d;
+  font-size: 20px;
+}
+
+.qs-my-quotes .qs-start-quote {
+  gap: 10px;
+  min-width: 220px;
+  color: #501e2a;
+}
+
+.qs-start-quote svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+}
+
+.qs-my-quotes-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.qs-my-quotes-stat {
+  display: flex;
+  min-height: 66px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 8px;
+  border: 1px solid #7b5360;
+  background: #fff;
+  color: #501e2a;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.qs-my-quotes-stat strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--qs-ink);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.qs-my-quotes-panel {
+  margin-bottom: 30px;
+  padding: 48px 42px 56px;
+  background: #f3f3f2;
+}
+
+.qs-dashboard-section-heading h3 {
+  font-size: 40px;
+  line-height: 1.2;
+}
+
+.qs-dashboard-section-heading p {
+  margin: 8px 0 22px;
+  color: #61717e;
+  font-size: 20px;
+}
+
+.qs-submitted-heading {
+  margin-top: 62px;
+}
+
+.qs-my-quotes-table-wrap {
+  width: 100%;
+}
+
+.qs-my-quotes-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+  table-layout: fixed;
+}
+
+.qs-my-quotes-table th {
+  padding: 8px 12px;
+  background: var(--qs-ink);
+  color: #fff;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.qs-my-quotes-table th:nth-child(1) { width: 12%; }
+.qs-my-quotes-table th:nth-child(2) { width: 22%; }
+.qs-my-quotes-table th:nth-child(3) { width: 15%; }
+.qs-my-quotes-table th:nth-child(4) { width: 16%; }
+.qs-my-quotes-table th:nth-child(5) { width: 18%; }
+.qs-my-quotes-table th:nth-child(6) { width: 17%; }
+
+.qs-my-quotes-table td {
+  height: 56px;
+  padding: 9px 12px;
+  border: 0;
+  background: #fff;
+  color: #4d6171;
+  font-size: 20px;
+  text-align: left;
+  vertical-align: middle;
+  transition: background-color .16s ease;
+}
+
+.qs-my-quotes-table tbody tr:not(.qs-empty-row):hover td {
+  background: #ead3cf;
+}
+
+.qs-my-quotes-table .qs-project-name {
+  line-height: 1.16;
+}
+
+.qs-my-quotes-table .qs-empty-row td {
+  text-align: center;
+}
+
+.qs-my-quotes-actions {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.qs-table-action {
+  display: inline-flex;
+  min-width: 130px;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid #561724;
+  background: #fff;
+  color: #561724;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.qs-table-action:hover,
+.qs-table-action:focus-visible {
+  background: #cfa096;
+  color: #501e2a;
+}
+
+.qs-delete-draft-form {
+  display: inline-flex;
+  margin: 0 0 0 10px;
+  vertical-align: middle;
+}
+
+.qs-delete-draft-form button {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--qs-ink);
+  cursor: pointer;
+}
+
+.qs-delete-draft-form button:hover,
+.qs-delete-draft-form button:focus-visible {
+  color: #501e2a;
+}
+
+.qs-delete-draft-form svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.qs-my-quotes .qs-status {
+  display: inline-block;
+  min-width: 126px;
+  padding: 5px 12px;
+  border-radius: 18px;
+  color: var(--qs-ink);
+  font-size: 15px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.qs-my-quotes .qs-status-draft {
+  background: #d6d6d6;
+}
+
+.qs-my-quotes .qs-status-pending_review {
+  background: #f1dedd;
+}
+
+.qs-my-quotes .qs-status-awaiting_deposit {
+  background: #cfa096;
+  color: #fff;
+}
+
+.qs-my-quotes .qs-status-deposit_paid,
+.qs-my-quotes .qs-status-final_balance {
+  background: #2bb566;
+  color: #fff;
+}
+
+.qs-my-quotes .qs-status-paid_in_full {
+  background: #147c3e;
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .qs-my-quotes {
+    margin-top: 35px;
+  }
+
+  .qs-dashboard-page-header {
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .qs-my-quotes-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .qs-my-quotes-panel {
+    padding: 28px 22px 36px;
+  }
+
+  .qs-my-quotes-table-wrap {
+    overflow-x: auto;
+  }
+
+  .qs-my-quotes-table {
+    min-width: 850px;
+  }
+}
+
+@media (max-width: 600px) {
+  .qs-dashboard-page-header {
+    display: block;
+  }
+
+  .qs-dashboard-page-header nav {
+    margin-top: 24px;
+  }
+
+  .qs-dashboard-page-header .qs-user-name {
+    margin-left: 0;
+  }
+
+  .qs-my-quotes-intro {
+    margin-bottom: 50px;
+  }
+}

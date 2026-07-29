@@ -186,35 +186,3 @@ function qs_email_quote_approved(
 	);
 
 }
-
-/**
- * TEMPORARY EMAIL TEST
- * https://staging2.loughlinfurniture.com.au/wp-admin/?qs_test_email=1
- */
-function qs_test_email() {
-
-	if ( ! isset( $_GET['qs_test_email'] ) ) {
-		return;
-	}
-
-	$result = qs_send_admin_email(
-		'Quote System Test',
-		'<h2>Quote System</h2><p>This is a test email.</p>'
-	);
-
-	if ( $result ) {
-		wp_die(
-			'Email sent successfully.'
-		);
-	}
-
-	wp_die(
-		'Email failed.'
-	);
-
-}
-
-add_action(
-	'admin_init',
-	'qs_test_email'
-);

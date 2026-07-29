@@ -1,11 +1,101 @@
-Exit code: 0
-Wall time: 0.7 seconds
-Output:
 <?php
-if ( ! defined( 'ABSPATH' ) ) { exit; }
-$quote_id = isset( $quote_id ) ? absint( $quote_id ) : 0;
-$data = qs_get_quote_data( $quote_id );
-$rows = $data['component_rows'];
-?>
-<div class="qs-quotation qs-container"><header class="qs-quotation-header"><strong>Loughlin Furniture</strong><span>Job Sheet</span></header><section class="qs-quotation-top"><div><p><strong>Project:</strong> <?php echo esc_html( $data['project_name'] ); ?></p><p><strong>Company:</strong> <?php echo esc_html( $data['company_name'] ); ?></p><p><strong>Delivery:</strong><br><?php echo nl2br( esc_html( $data['delivery_address'] ) ); ?></p></div><div><strong>Quote number</strong><p><?php echo esc_html( $data['quote_number'] ); ?></p></div></section><section class="qs-section"><h3>Specifications</h3><p><?php echo esc_html( $data['door_profile'] . ' | ' . $data['timber'] . ' | ' . $data['finish'] . ' | ' . $data['handle_profile'] ); ?></p></section><section class="qs-section"><h3>Doors, drawers and drawer banks</h3><?php qs_pdf_component_table( $rows['doors_drawers'], array( 'type' => 'Type', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Qty', 'edge_profile' => 'Edge profile', 'drawer_count' => 'Drawers' ) ); ?></section><section class="qs-section"><h3>End panels</h3><?php qs_pdf_component_table( $rows['end_panels'], array( 'height' => 'Height', 'width' => 'Width', 'quantity' => 'Qty', 'faces_seen' => 'Faces seen', 'edges_seen' => 'Edges seen' ) ); ?></section><section class="qs-section"><h3>Fillers</h3><?php qs_pdf_component_table( $rows['fillers'], array( 'height' => 'Height', 'width' => 'Width', 'quantity' => 'Qty', 'faces_seen' => 'Faces seen', 'edges_seen' => 'Edges seen' ) ); ?></section><section class="qs-section"><h3>Kickboards</h3><?php qs_pdf_component_table( $rows['kickboards'], array( 'material' => 'Material', 'height' => 'Height', 'length' => 'Length', 'quantity' => 'Qty' ) ); ?></section><section class="qs-section"><h3>Production notes</h3><p><?php echo nl2br( esc_html( get_post_meta( $quote_id, '_project_notes', true ) ) ); ?></p></section></div>
+/**
+ * Internal production job-sheet PDF.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+$quote_id     = isset( $quote_id ) ? absint( $quote_id ) : 0;
+$data         = isset( $data ) && is_array( $data ) ? $data : qs_get_quote_data( $quote_id );
+$rows         = $data['component_rows'];
+$fronts       = array_values(
+	array_filter(
+		$rows['doors_drawers'],
+		static function ( $row ) {
+			return empty( $row['type'] ) || 'Drawer Bank' !== $row['type'];
+		}
+	)
+);
+$drawer_banks = qs_component_rows_by_type( $rows['doors_drawers'], 'Drawer Bank' );
+$created_by   = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
+$specs        = array(
+	array( 'Timber', $data['timber'], $data['paint_colour'] ? 'Paint Colour: ' . $data['paint_colour'] : '' ),
+	array( 'Profile', $data['door_profile'], '' ),
+	array( 'Finish', $data['finish'], '' ),
+	array( 'Door / Drawer Handle Profile', $data['handle_profile'], '' ),
+);
+?>
+<div class="qs-pdf qs-jobsheet-pdf">
+	<header class="qs-pdf-header">
+		<table class="qs-pdf-header-table">
+			<tr><td><strong>Loughlin Furniture</strong></td><td><span>Job Sheet</span></td></tr>
+		</table>
+	</header>
+
+	<main class="qs-pdf-page">
+		<table class="qs-pdf-project-header">
+			<tr>
+				<td>
+					<p><strong>Project Name:</strong> <?php echo esc_html( $data['project_name'] ); ?></p>
+					<p><strong>Company:</strong> <?php echo esc_html( $data['company_name'] ); ?></p>
+					<p><strong>Created By:</strong> <?php echo esc_html( $created_by ); ?></p>
+					<p><strong>Pricing Type:</strong> <?php echo esc_html( $data['pricing_type'] ); ?></p>
+					<p><strong>Date Created:</strong> <?php echo esc_html( $data['date_created'] ); ?></p>
+					<p><strong>Delivery Address:</strong> <?php echo nl2br( esc_html( $data['delivery_address'] ) ); ?></p>
+				</td>
+				<td class="qs-pdf-quote-number">
+					<strong>Quote Number</strong>
+					<span><?php echo esc_html( $data['quote_number'] ); ?></span>
+				</td>
+			</tr>
+		</table>
+
+		<section class="qs-pdf-section qs-pdf-project-details">
+			<h2>Project Details</h2>
+			<table class="qs-pdf-specifications">
+				<tr>
+					<?php foreach ( $specs as $spec ) : ?>
+						<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"></span></td>
+						<td>
+							<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
+							<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
+							<?php if ( $spec[2] ) : ?><small><?php echo esc_html( $spec[2] ); ?></small><?php endif; ?>
+						</td>
+					<?php endforeach; ?>
+				</tr>
+			</table>
+		</section>
+
+		<section class="qs-pdf-section">
+			<h2>Doors &amp; Drawers</h2>
+			<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+			<?php if ( $drawer_banks ) : ?>
+				<h3>Drawer Banks</h3>
+				<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity' ), 'qs-pdf-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
+			<?php endif; ?>
+		</section>
+
+		<section class="qs-pdf-section">
+			<h2>End Panels &amp; Fillers</h2>
+			<h3>End Panels</h3>
+			<?php qs_render_quote_component_table( $rows['end_panels'], array( 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+			<h3>Fillers</h3>
+			<?php qs_render_quote_component_table( $rows['fillers'], array( 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+		</section>
+
+		<section class="qs-pdf-section">
+			<h2>Kickboards</h2>
+			<?php qs_render_quote_component_table( $rows['kickboards'], array( 'material' => 'Kick Material', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+		</section>
+
+		<?php if ( $data['custom_requests'] ) : ?>
+			<section class="qs-pdf-section"><h2>Custom Requests</h2><p><?php echo nl2br( esc_html( $data['custom_requests'] ) ); ?></p></section>
+		<?php endif; ?>
+
+		<section class="qs-pdf-section qs-pdf-notes">
+			<h2>Project Notes</h2>
+			<p><?php echo nl2br( esc_html( $data['project_notes'] ? $data['project_notes'] : '-' ) ); ?></p>
+		</section>
+	</main>
+</div>
