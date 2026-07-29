@@ -1,488 +1,101 @@
 <?php
-
+/**
+ * Internal production job-sheet PDF.
+ */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$quote_id = isset( $quote_id )
-	? absint( $quote_id )
-	: 0;
-
-$data = qs_get_quote_data(
-	$quote_id
+$quote_id     = isset( $quote_id ) ? absint( $quote_id ) : 0;
+$data         = isset( $data ) && is_array( $data ) ? $data : qs_get_quote_data( $quote_id );
+$rows         = $data['component_rows'];
+$fronts       = array_values(
+	array_filter(
+		$rows['doors_drawers'],
+		static function ( $row ) {
+			return empty( $row['type'] ) || 'Drawer Bank' !== $row['type'];
+		}
+	)
 );
-
-$total = qs_calculate_total(
-	$quote_id
+$drawer_banks = qs_component_rows_by_type( $rows['doors_drawers'], 'Drawer Bank' );
+$created_by   = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
+$specs        = array(
+	array( 'Timber', $data['timber'], $data['paint_colour'] ? 'Paint Colour: ' . $data['paint_colour'] : '' ),
+	array( 'Profile', $data['door_profile'], '' ),
+	array( 'Finish', $data['finish'], '' ),
+	array( 'Door / Drawer Handle Profile', $data['handle_profile'], '' ),
 );
-
-$quote_number = get_post_meta(
-	$quote_id,
-	'_quote_number',
-	true
-);
-
-$company_name = get_post_meta(
-	$quote_id,
-	'_company_name',
-	true
-);
-
-$delivery_address = get_post_meta(
-	$quote_id,
-	'_delivery_address',
-	true
-);
-
-$door_profile = get_post_meta(
-	$quote_id,
-	'_door_profile',
-	true
-);
-
-$timber = get_post_meta(
-	$quote_id,
-	'_timber',
-	true
-);
-
-$finish = get_post_meta(
-	$quote_id,
-	'_finish',
-	true
-);
-
-$handle_profile = get_post_meta(
-	$quote_id,
-	'_handle_profile',
-	true
-);
-
-$project_notes = get_post_meta(
-	$quote_id,
-	'_project_notes',
-	true
-);
-
-$doors_drawers = get_post_meta(
-	$quote_id,
-	'_doors_drawers',
-	true
-);
-
-$end_panels = get_post_meta(
-	$quote_id,
-	'_end_panels',
-	true
-);
-
-$fillers = get_post_meta(
-	$quote_id,
-	'_fillers',
-	true
-);
-
-$kickboards = get_post_meta(
-	$quote_id,
-	'_kickboards',
-	true
-);
-
-
-$door_parts = explode(
-	'|',
-	$doors_drawers
-);
-
-$item_type         = $door_parts[0] ?? '';
-$item_width        = $door_parts[1] ?? '';
-$item_height       = $door_parts[2] ?? '';
-$item_quantity     = $door_parts[3] ?? '';
-$item_edge_profile = $door_parts[4] ?? '';
-
-$end_panel_parts = explode(
-	'|',
-	$end_panels
-);
-
-$end_panel_height   = $end_panel_parts[0] ?? '';
-$end_panel_width    = $end_panel_parts[1] ?? '';
-$end_panel_quantity = $end_panel_parts[2] ?? '';
-
-$filler_parts = explode(
-	'|',
-	$fillers
-);
-
-$filler_width    = $filler_parts[0] ?? '';
-$filler_quantity = $filler_parts[1] ?? '';
-
-$kick_parts = explode(
-	'|',
-	$kickboards
-);
-
-$kick_height   = $kick_parts[0] ?? '';
-$kick_length   = $kick_parts[1] ?? '';
-$kick_quantity = $kick_parts[2] ?? '';
-
 ?>
+<div class="qs-pdf qs-jobsheet-pdf">
+	<header class="qs-pdf-header">
+		<table class="qs-pdf-header-table">
+			<tr><td><strong>Loughlin Furniture</strong></td><td><span>Job Sheet</span></td></tr>
+		</table>
+	</header>
 
+	<main class="qs-pdf-page">
+		<table class="qs-pdf-project-header">
+			<tr>
+				<td>
+					<p><strong>Project Name:</strong> <?php echo esc_html( $data['project_name'] ); ?></p>
+					<p><strong>Company:</strong> <?php echo esc_html( $data['company_name'] ); ?></p>
+					<p><strong>Created By:</strong> <?php echo esc_html( $created_by ); ?></p>
+					<p><strong>Pricing Type:</strong> <?php echo esc_html( $data['pricing_type'] ); ?></p>
+					<p><strong>Date Created:</strong> <?php echo esc_html( $data['date_created'] ); ?></p>
+					<p><strong>Delivery Address:</strong> <?php echo nl2br( esc_html( $data['delivery_address'] ) ); ?></p>
+				</td>
+				<td class="qs-pdf-quote-number">
+					<strong>Quote Number</strong>
+					<span><?php echo esc_html( $data['quote_number'] ); ?></span>
+				</td>
+			</tr>
+		</table>
 
-
-<div class="qs-quotation qs-container">
-	<div class="qs-quotation">
-
-	<div class="qs-quotation-header">
-
-		<div class="qs-quotation-logo">
-
-			Loughlin Furniture
-
-		</div>
-
-	</div>
-
-	<div class="qs-quotation-top">
-
-		<div class="qs-quotation-details">
-
-			<p>
-				<strong>Project Name:</strong>
-				<?php echo esc_html(
-					$data['project_name']
-				); ?>
-			</p>
-
-			<p>
-				<strong>Company:</strong>
-				<?php echo esc_html(
-					$company_name
-				); ?>
-			</p>
-
-			<p>
-				<strong>Created By:</strong>
-				<?php echo esc_html(
-					$data['customer_name']
-				); ?>
-			</p>
-
-			<p>
-				<strong>Date Created:</strong>
-				<?php echo esc_html(
-					get_the_date(
-						'd F Y',
-						$quote_id
-					)
-				); ?>
-			</p>
-
-            <p>
-                <strong>Delivery Address:</strong>
-                <?php echo nl2br(
-                    esc_html(
-                        $delivery_address
-                    )
-                ); ?>
-            </p>
-
-		</div>
-
-		<div class="qs-quotation-number">
-
-			<strong>
-				Job Sheet
-			</strong>
-
-			<div>
-				<?php echo esc_html(
-					$quote_number
-				); ?>
-			</div>
-
-		</div>
-
-	</div>
-
-	<hr>
-
-	<div class="qs-quotation-body">
-
-		<div class="qs-quotation-content jobsheet">
-
-			<section class="qs-section">
-
-				<h3>
-					Project Details
-				</h3>
-
-				<div class="qs-spec-grid">
-
-					<div class="qs-spec-item">
-						<span>Profile:</span>
-						<strong>
-							<?php echo esc_html(
-								$door_profile
-							); ?>
-						</strong>
-					</div>
-
-					<div class="qs-spec-item">
-						<span>Finish:</span>
-						<strong>
-							<?php echo esc_html(
-								$finish
-							); ?>
-						</strong>
-					</div>
-
-					<div class="qs-spec-item">
-						<span>Timber:</span>
-						<strong>
-							<?php echo esc_html(
-								$timber
-							); ?>
-						</strong>
-					</div>
-
-					<div class="qs-spec-item">
-						<span>Door / Drawer Handle Profile:</span>
-						<strong>
-							<?php echo esc_html(
-								$handle_profile
-							); ?>
-						</strong>
-					</div>
-
-				</div>
-
-			</section>
-
-			<section class="qs-section">
-
-				<h3>
-					Delivery Address
-				</h3>
-
-				<p>
-					<?php echo nl2br(
-						esc_html(
-							$delivery_address
-						)
-					); ?>
-				</p>
-
-			</section>
-
-			<hr>
-
-			<section class="qs-section">
-
-				<h3>
-					Doors & Drawers
-				</h3>
-
-				<table class="qs-table">
-
-					<thead>
-
-						<tr>
-							<th>#</th>
-							<th>Item Type</th>
-							<th>Width</th>
-							<th>Height</th>
-							<th>Quantity</th>
-							<th>Edge Profile</th>
-						</tr>
-
-					</thead>
-
-					<tbody>
-
-						<tr>
-							<td>1</td>
-
-							<td>
-								<?php echo esc_html(
-									$item_type
-								); ?>
-							</td>
-
-							<td>
-								<?php echo esc_html(
-									$item_width
-								); ?> mm
-							</td>
-
-							<td>
-								<?php echo esc_html(
-									$item_height
-								); ?> mm
-							</td>
-
-							<td>
-								<?php echo esc_html(
-									$item_quantity
-								); ?>
-							</td>
-
-							<td>
-								<?php echo esc_html(
-									$item_edge_profile
-								); ?>
-							</td>
-
-						</tr>
-
-					</tbody>
-
-				</table>
-
-			</section>
-
-			<hr>
-
-			<section class="qs-section">
-
-				<h3>
-					End Panels & Fillers
-				</h3>
-
-				<h4>
-					End Panels
-				</h4>
-
-				<table class="qs-table">
-
-					<tr>
-						<th>#</th>
-						<th>Height</th>
-						<th>Width</th>
-						<th>Quantity</th>
-					</tr>
-
-					<tr>
-						<td>1</td>
-
+		<section class="qs-pdf-section qs-pdf-project-details">
+			<h2>Project Details</h2>
+			<table class="qs-pdf-specifications">
+				<tr>
+					<?php foreach ( $specs as $spec ) : ?>
+						<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"></span></td>
 						<td>
-							<?php echo esc_html(
-								$end_panel_height
-							); ?> mm
+							<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
+							<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
+							<?php if ( $spec[2] ) : ?><small><?php echo esc_html( $spec[2] ); ?></small><?php endif; ?>
 						</td>
+					<?php endforeach; ?>
+				</tr>
+			</table>
+		</section>
 
-						<td>
-							<?php echo esc_html(
-								$end_panel_width
-							); ?> mm
-						</td>
+		<section class="qs-pdf-section">
+			<h2>Doors &amp; Drawers</h2>
+			<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+			<?php if ( $drawer_banks ) : ?>
+				<h3>Drawer Banks</h3>
+				<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity' ), 'qs-pdf-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
+			<?php endif; ?>
+		</section>
 
-						<td>
-							<?php echo esc_html(
-								$end_panel_quantity
-							); ?>
-						</td>
+		<section class="qs-pdf-section">
+			<h2>End Panels &amp; Fillers</h2>
+			<h3>End Panels</h3>
+			<?php qs_render_quote_component_table( $rows['end_panels'], array( 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+			<h3>Fillers</h3>
+			<?php qs_render_quote_component_table( $rows['fillers'], array( 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+		</section>
 
-					</tr>
+		<section class="qs-pdf-section">
+			<h2>Kickboards</h2>
+			<?php qs_render_quote_component_table( $rows['kickboards'], array( 'material' => 'Kick Material', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+		</section>
 
-				</table>
+		<?php if ( $data['custom_requests'] ) : ?>
+			<section class="qs-pdf-section"><h2>Custom Requests</h2><p><?php echo nl2br( esc_html( $data['custom_requests'] ) ); ?></p></section>
+		<?php endif; ?>
 
-				<h4>
-					Fillers
-				</h4>
-
-				<table class="qs-table">
-
-					<tr>
-						<th>#</th>
-						<th>Width</th>
-						<th>Quantity</th>
-					</tr>
-
-					<tr>
-						<td>1</td>
-
-						<td>
-							<?php echo esc_html(
-								$filler_width
-							); ?> mm
-						</td>
-
-						<td>
-							<?php echo esc_html(
-								$filler_quantity
-							); ?>
-						</td>
-
-					</tr>
-
-				</table>
-
-			</section>
-
-			<hr>
-
-			<section class="qs-section">
-
-				<h3>
-					Kickboards
-				</h3>
-
-				<table class="qs-table">
-
-					<tr>
-						<th>#</th>
-						<th>Kick Height</th>
-						<th>Kick Length</th>
-						<th>Quantity</th>
-					</tr>
-
-					<tr>
-						<td>1</td>
-
-						<td>
-							<?php echo esc_html(
-								$kick_height
-							); ?> mm
-						</td>
-
-						<td>
-							<?php echo esc_html(
-								$kick_length
-							); ?> mm
-						</td>
-
-						<td>
-							<?php echo esc_html(
-								$kick_quantity
-							); ?>
-						</td>
-
-					</tr>
-
-				</table>
-
-			</section>
-
-			<hr>
-
-			<section class="qs-section">
-
-				<h3>
-					Project Notes
-				</h3>
-
-				<p>
-					<?php echo nl2br(
-						esc_html(
-							$project_notes
-						)
-					); ?>
-				</p>
-
-			</section>
-
-		</div>
-
-	</div>
+		<section class="qs-pdf-section qs-pdf-notes">
+			<h2>Project Notes</h2>
+			<p><?php echo nl2br( esc_html( $data['project_notes'] ? $data['project_notes'] : '-' ) ); ?></p>
+		</section>
+	</main>
 </div>

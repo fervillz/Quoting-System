@@ -1,273 +1,458 @@
-/* ==========================================================
-   Admin Dashboard
-========================================================== */
-
-.qs-admin-dashboard{
-	max-width:1400px;
-	margin:40px auto;
+.qs-admin-dashboard {
+  width: calc(100% - 40px);
+  max-width: 1220px;
+  margin: 65px auto 110px;
+  color: var(--qs-ink);
+  font: 14px/1.45 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
 }
 
-
-/* ==========================================================
-   Search Filters
-========================================================== */
-
-.qs-admin-search{
-	display:flex;
-	gap:15px;
-	align-items:center;
-	flex-wrap:wrap;
-	margin-bottom:30px;
+.qs-admin-dashboard h1,
+.qs-admin-dashboard h2,
+.qs-admin-dashboard h3 {
+  margin: 0;
+  color: var(--qs-ink);
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-weight: 400;
 }
 
-.qs-admin-search input,
-.qs-admin-search select{
-	height:44px;
-	padding:0 14px;
-	border:1px solid #ddd;
-	border-radius:6px;
-	font-size:14px;
+.qs-admin-dashboard .qs-dashboard-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 118px;
+  margin-bottom: 54px;
+  padding: 0 0 28px;
+  border-bottom: 1px solid #dededc;
 }
 
-.qs-admin-search input{
-	min-width:320px;
+.qs-admin-dashboard .qs-dashboard-page-header h1 {
+  font-size: 34px;
+  line-height: 1.18;
 }
 
-.qs-admin-search select{
-	min-width:180px;
+.qs-admin-dashboard .qs-dashboard-page-header nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
-
-/* ==========================================================
-   Statistics
-========================================================== */
-
-.qs-admin-stats{
-	display:grid;
-	grid-template-columns:repeat(5,1fr);
-	gap:20px;
-	margin-bottom:35px;
+.qs-admin-dashboard .qs-dashboard-page-header .qs-btn {
+  min-width: 114px;
+  min-height: 34px;
+  padding: 0 20px;
+  font-size: 16px;
 }
 
-.qs-stat-card{
-	background:#fff;
-	border:1px solid #ececec;
-	border-radius:8px;
-	padding:25px;
-	text-align:center;
+.qs-admin-notice {
+  margin: -28px 0 28px;
+  padding: 11px 15px;
+  border: 1px solid #d6c3bf;
+  background: #f7ece9;
+  color: #501e2a;
 }
 
-.qs-stat-card h4{
-	margin:0 0 10px;
-	font-size:14px;
-	font-weight:600;
+.qs-admin-intro {
+  margin-bottom: 98px;
+  text-align: center;
 }
 
-.qs-stat-card span{
-	display:block;
-	font-size:30px;
-	font-weight:700;
+.qs-admin-intro h2 {
+  font-size: 35px;
+  line-height: 1.2;
 }
 
-
-/* ==========================================================
-   Company Card
-========================================================== */
-
-.qs-company-card{
-	background:#fff;
-	border:1px solid #ececec;
-	border-radius:10px;
-	padding:30px;
-	margin-bottom:35px;
+.qs-admin-intro p {
+  margin: 16px 0 0;
+  color: #5e6f7d;
+  font-size: 20px;
 }
 
-.qs-company-header{
-	display:flex;
-	justify-content:space-between;
-	align-items:center;
-	margin-bottom:20px;
+.qs-admin-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.qs-company-info{
-	margin-bottom:20px;
-	line-height:1.8;
+.qs-stat-card {
+  display: flex;
+  min-height: 66px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 8px;
+  border: 1px solid #7b5360;
+  background: #fff;
+  color: #501e2a;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 16px;
+  line-height: 1.25;
 }
 
-
-/* ==========================================================
-   Company Collapse
-========================================================== */
-
-.qs-company-summary{
-	list-style:none;
-	cursor:pointer;
+.qs-stat-card strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--qs-ink);
+  font-size: 20px;
+  font-weight: 500;
 }
 
-.qs-company-summary::-webkit-details-marker{
-	display:none;
+.qs-admin-panel {
+  min-height: 810px;
+  padding: 42px 22px 70px;
+  background: #f3f3f2;
 }
 
-.qs-company-summary:hover{
-	background:#fafafa;
+.qs-admin-search {
+  display: grid;
+  grid-template-columns: auto repeat(4, minmax(130px, 1fr)) 150px;
+  align-items: center;
+  gap: 10px;
+  margin: 0 8px 66px;
 }
 
-.qs-company-summary::after{
-	content:"+";
-	float:right;
-	font-size:28px;
-	font-weight:300;
-	line-height:1;
+.qs-admin-search-label {
+  color: #516575;
+  font-size: 20px;
+  white-space: nowrap;
 }
 
-details[open] .qs-company-summary::after{
-	content:"−";
+.qs-admin-search select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 0 30px 0 11px;
+  border: 0;
+  border-radius: 0;
+  background-color: #fff;
+  color: #501e2a;
+  font: 16px "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
 }
 
-
-/* ==========================================================
-   Quote Table
-========================================================== */
-
-.qs-admin-table{
-	width:100%;
-	border-collapse:collapse;
-	margin:0;
+.qs-admin-search .qs-btn {
+  width: 100%;
+  min-height: 34px;
+  padding: 0 16px;
+  color: #501e2a;
+  font-size: 10px;
 }
 
-.qs-admin-table th{
-	background:#f5f5f5;
-	padding:15px;
-	text-align:left;
-	font-size:13px;
-	font-weight:600;
+.qs-admin-empty {
+  margin: 0 8px;
+  padding: 30px;
+  background: #fff;
+  text-align: center;
 }
 
-.qs-admin-table td{
-	padding:15px;
-	border-bottom:1px solid #eee;
-	font-size:14px;
+.qs-company-group {
+  margin: 0 0 52px;
 }
 
-
-/* ==========================================================
-   Status Badges
-========================================================== */
-
-.qs-status{
-	display:inline-block;
-	padding:6px 16px;
-	border-radius:50px;
-	color:#fff;
-	font-size:12px;
-	text-align:center;
-	min-width:130px;
+.qs-company-group:last-child {
+  margin-bottom: 0;
 }
 
-.qs-status-draft{
-	background:#9e9e9e;
+.qs-company-heading {
+  margin: 0 0 17px;
 }
 
-.qs-status-pending_review{
-	background:#d89a7c;
+.qs-company-heading h3 {
+  font-size: 40px;
+  line-height: 1.15;
 }
 
-.qs-status-awaiting_deposit{
-	background:#b26c59;
+.qs-company-heading p {
+  margin: 7px 0 0;
+  color: #526777;
+  font-size: 20px;
 }
 
-.qs-status-deposit_paid,
-.qs-status-final_balance{
-	background:#2aa84a;
+.qs-company-heading p strong {
+  font-weight: 600;
 }
 
-.qs-status-paid_in_full{
-	background:#156b33;
+.qs-admin-table-wrap {
+  width: 100%;
 }
 
-.qs-admin-expand-row{
-	display:none;
+.qs-admin-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+  table-layout: fixed;
 }
 
-.qs-admin-expand{
-	padding:30px;
-	background:#ead4cf;
+.qs-admin-table th {
+  padding: 8px 14px;
+  border: 0;
+  background: var(--qs-ink);
+  color: #fff;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
 }
 
-.qs-expand-cell{
-	text-align:center;
-	width:60px;
+.qs-admin-table th:nth-child(1) { width: 13%; }
+.qs-admin-table th:nth-child(2) { width: 18%; }
+.qs-admin-table th:nth-child(3) { width: 16%; }
+.qs-admin-table th:nth-child(4) { width: 18%; }
+.qs-admin-table th:nth-child(5) { width: 18%; }
+.qs-admin-table th:nth-child(6) { width: 12%; }
+.qs-admin-table th:nth-child(7) { width: 5%; }
+
+.qs-admin-table td {
+  height: 58px;
+  padding: 10px 14px;
+  border: 0;
+  background: #fff;
+  color: #4d6171;
+  font-size: 20px;
+  text-align: left;
+  vertical-align: middle;
+  transition: background-color .16s ease;
 }
 
-.qs-expand-btn{
-	background:none;
-	border:none;
-	font-size:18px;
-	cursor:pointer;
+.qs-admin-quote-row:hover td,
+.qs-admin-quote-row.is-expanded td {
+  background: #ead3cf;
 }
 
-.qs-admin-review-grid{
-
-	display:grid;
-	grid-template-columns:2fr 1fr;
-	gap:40px;
-
+.qs-admin-total {
+  color: var(--qs-ink) !important;
+  font-weight: 700;
 }
 
-.qs-admin-review h3{
-
-	margin-top:0;
-	margin-bottom:15px;
-
+.qs-admin-dashboard .qs-status {
+  display: inline-block;
+  min-width: 126px;
+  padding: 5px 12px;
+  border-radius: 18px;
+  color: var(--qs-ink);
+  font-size: 15px;
+  line-height: 1.1;
+  text-align: center;
 }
 
-.qs-form-row{
-
-	margin-bottom:20px;
-
+.qs-admin-dashboard .qs-status-draft {
+  background: #d6d6d6;
 }
 
-.qs-form-row label{
-
-	display:block;
-	font-weight:600;
-	margin-bottom:6px;
-
+.qs-admin-dashboard .qs-status-pending_review {
+  background: #f1dedd;
 }
 
-.qs-form-row input{
-
-	width:100%;
-	height:42px;
-	padding:0 12px;
-
+.qs-admin-dashboard .qs-status-awaiting_deposit {
+  background: #cfa096;
+  color: #fff;
 }
 
-.qs-admin-review textarea{
-
-	width:100%;
-	padding:12px;
-	min-height:180px;
-	resize:vertical;
-
+.qs-admin-dashboard .qs-status-deposit_paid,
+.qs-admin-dashboard .qs-status-final_balance {
+  background: #2bb566;
+  color: #fff;
 }
 
-.qs-admin-review-right{
-
-	border-left:1px solid #e5e5e5;
-	padding-left:30px;
-
+.qs-admin-dashboard .qs-status-paid_in_full {
+  background: #147c3e;
+  color: #fff;
 }
 
-.qs-admin-review-right p{
-
-	margin-bottom:15px;
-
+.qs-expand-cell {
+  width: 42px;
+  padding-right: 10px !important;
+  padding-left: 6px !important;
+  text-align: center !important;
 }
 
-.qs-admin-review-right .qs-btn{
+.qs-expand-btn {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #506473;
+  cursor: pointer;
+}
 
-	width:100%;
-	text-align:center;
+.qs-expand-btn svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+  transition: transform .18s ease;
+}
 
+.qs-admin-quote-row.is-expanded .qs-expand-btn svg {
+  transform: rotate(180deg);
+}
+
+.qs-admin-expand-row[hidden] {
+  display: none;
+}
+
+.qs-admin-expand-row td {
+  height: auto;
+  padding: 0;
+  background: #ead3cf;
+}
+
+.qs-admin-row-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 17px 118px 25px;
+}
+
+.qs-admin-row-actions a,
+.qs-admin-row-actions button,
+.qs-admin-action-disabled {
+  display: flex;
+  width: 100%;
+  min-height: 31px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 6px 12px;
+  border: 1px solid #501e2a;
+  border-radius: 0;
+  background: transparent;
+  color: #501e2a;
+  font: 16px/1.1 "GTWalsheim", "GT Walsheim", "Montserrat", Arial, sans-serif;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.qs-admin-row-actions.qs-action-count-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding-right: 185px;
+  padding-left: 185px;
+}
+
+.qs-admin-row-actions.qs-action-count-6 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.qs-admin-row-actions.qs-action-count-7 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.qs-admin-row-actions.qs-action-count-7 > * {
+  grid-column: span 2;
+}
+
+.qs-admin-row-actions.qs-action-count-7 > :nth-child(5) {
+  grid-column: 2 / span 2;
+}
+
+.qs-admin-row-actions.qs-action-count-7 > :nth-child(6) {
+  grid-column: 4 / span 2;
+}
+
+.qs-admin-row-actions.qs-action-count-7 > :nth-child(7) {
+  grid-column: 6 / span 2;
+}
+
+.qs-admin-row-actions a:hover,
+.qs-admin-row-actions a:focus-visible,
+.qs-admin-row-actions button:hover,
+.qs-admin-row-actions button:focus-visible {
+  background: #501e2a;
+  color: #fff;
+}
+
+.qs-admin-row-actions form {
+  margin: 0;
+}
+
+.qs-admin-action-disabled {
+  opacity: .48;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1050px) {
+  .qs-admin-search {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .qs-admin-search-label {
+    grid-column: 1 / -1;
+  }
+
+  .qs-admin-row-actions {
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+
+  .qs-admin-row-actions.qs-action-count-3 {
+    padding-right: 80px;
+    padding-left: 80px;
+  }
+}
+
+@media (max-width: 900px) {
+  .qs-admin-dashboard {
+    margin-top: 35px;
+  }
+
+  .qs-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .qs-admin-panel {
+    padding: 28px 20px 50px;
+  }
+
+  .qs-admin-table-wrap {
+    overflow-x: auto;
+  }
+
+  .qs-admin-table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 650px) {
+  .qs-admin-dashboard .qs-dashboard-page-header {
+    display: block;
+  }
+
+  .qs-admin-dashboard .qs-dashboard-page-header nav {
+    margin-top: 24px;
+  }
+
+  .qs-admin-intro {
+    margin-bottom: 55px;
+  }
+
+  .qs-admin-search {
+    grid-template-columns: 1fr;
+  }
+
+  .qs-admin-row-actions,
+  .qs-admin-row-actions.qs-action-count-3,
+  .qs-admin-row-actions.qs-action-count-6,
+  .qs-admin-row-actions.qs-action-count-7 {
+    grid-template-columns: 1fr 1fr;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .qs-admin-row-actions.qs-action-count-7 > *,
+  .qs-admin-row-actions.qs-action-count-7 > :nth-child(5),
+  .qs-admin-row-actions.qs-action-count-7 > :nth-child(6),
+  .qs-admin-row-actions.qs-action-count-7 > :nth-child(7) {
+    grid-column: auto;
+  }
 }

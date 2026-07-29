@@ -1,159 +1,194 @@
-@page{
-    margin:10mm;
+@page {
+	margin: 0;
+	size: A4 portrait;
+}
+
+* {
+	box-sizing: border-box;
 }
 
 html,
-body{
-    margin:0;
-    padding:0;
+body {
+	margin: 0;
+	padding: 0;
 }
 
-body{
-    font-family:DejaVu Sans,sans-serif;
-    color:#43586A;
-    font-size:10px;
+body {
+	background: #fff;
+	color: #40586b;
+	font-family: DejaVu Sans, sans-serif;
+	font-size: 8px;
+	line-height: 1.35;
 }
 
-.qs-container{
-    width:100%;
+.qs-pdf {
+	width: 100%;
 }
 
-.qs-quotation{
-    width:100%;
-    margin:0;
-    padding:0;
+.qs-pdf-header {
+	background: #501e2a;
+	color: #fff;
+	height: 16mm;
+	padding: 0 7mm;
 }
 
-@page{
-    margin:10mm;
+.qs-pdf-header-table {
+	border-collapse: collapse;
+	color: #fff;
+	height: 16mm;
+	table-layout: fixed;
+	width: 100%;
 }
 
-html,
-body{
-    margin:0;
-    padding:0;
+.qs-pdf-header-table td {
+	padding: 0;
+	vertical-align: middle;
 }
 
-body{
-    font-family:DejaVu Sans,sans-serif;
-    color:#43586A;
-    font-size:10px;
+.qs-pdf-header-table td:last-child {
+	text-align: right;
 }
 
-.qs-container{
-    width:100%;
+.qs-pdf-header strong {
+	font-size: 16px;
+	font-weight: 400;
 }
 
-.qs-quotation{
-    width:100%;
-    margin:0;
-    padding:0;
+.qs-pdf-header span {
+	font-family: DejaVu Serif, serif;
+	font-size: 14px;
 }
 
-.qs-quotation-header{
-
-    background:#4E1625;
-
-    color:#fff;
-
-    padding:14px 18px;
-
+.qs-pdf-page {
+	padding: 4mm 7mm 7mm;
 }
 
-.qs-quotation-logo{
-
-    font-size:20px;
-
-    font-weight:bold;
-
+.qs-pdf-project-header,
+.qs-pdf-specifications {
+	border-collapse: collapse;
+	table-layout: fixed;
+	width: 100%;
 }
 
-
-.qs-spec-grid{
-
-    width:100%;
-
+.qs-pdf-project-header {
+	border-bottom: 1px solid #c9c9c9;
+	margin-bottom: 4mm;
 }
 
-.qs-quotation-top,
-.qs-quotation-body {
-    padding: 20px;
+.qs-pdf-project-header td {
+	padding: 0 0 3.5mm;
+	vertical-align: top;
 }
 
-.qs-spec-item{
-
-    padding:4px 0;
-
-    border-bottom:1px solid #ddd;
-
+.qs-pdf-project-header p {
+	margin: 0 0 1.2mm;
 }
 
-.qs-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    margin-top:8px;
-
+.qs-pdf-project-header .qs-pdf-quote-number {
+	padding-left: 4mm;
+	text-align: right;
+	width: 31%;
 }
 
-.qs-table th{
-
-    background:#F3F3F3;
-
-    border:1px solid #DDD;
-
-    padding:4px;
-
-    font-size:9px;
-
+.qs-pdf-quote-number strong,
+.qs-pdf-quote-number span {
+	display: block;
 }
 
-.qs-table td{
-
-    border:1px solid #DDD;
-
-    padding:4px;
-
-    font-size:9px;
-
+.qs-pdf-quote-number span {
+	margin-top: 1.2mm;
 }
 
-.qs-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    margin-top:8px;
-
+.qs-pdf-section {
+	border-bottom: 1px solid #d2d2d2;
+	margin-bottom: 3mm;
+	padding-bottom: 3mm;
+	page-break-inside: avoid;
 }
 
-.qs-table th{
-
-    background:#F3F3F3;
-
-    border:1px solid #DDD;
-
-    padding:4px;
-
-    font-size:9px;
-
+.qs-pdf-section h2 {
+	font-size: 10px;
+	font-weight: 600;
+	line-height: 1.2;
+	margin: 0 0 2.2mm;
 }
 
-.qs-table td{
-
-    border:1px solid #DDD;
-
-    padding:4px;
-
-    font-size:9px;
-
+.qs-pdf-section h3 {
+	font-size: 7px;
+	font-weight: 700;
+	margin: 2mm 0 0.8mm;
 }
 
-.qs-section p{
+.qs-pdf-section p {
+	margin: 0;
+}
 
-    line-height:1.5;
+.qs-pdf-specifications td {
+	padding: 0 1.4mm 1mm 0;
+	vertical-align: top;
+}
 
+.qs-pdf-specifications .qs-pdf-swatch-cell {
+	width: 8mm;
+}
+
+.qs-pdf-swatch {
+	background: #d8d8d8;
+	display: block;
+	height: 9mm;
+	width: 7mm;
+}
+
+.qs-pdf-specifications strong,
+.qs-pdf-specifications span,
+.qs-pdf-specifications small {
+	display: block;
+}
+
+.qs-pdf-specifications strong {
+	font-size: 6.2px;
+}
+
+.qs-pdf-specifications span {
+	font-size: 6px;
+}
+
+.qs-pdf-specifications small {
+	font-size: 5px;
+	margin-top: 0.4mm;
+}
+
+.qs-pdf-table {
+	border-collapse: collapse;
+	margin: 1mm 0 2mm;
+	table-layout: fixed;
+	width: 100%;
+}
+
+.qs-pdf-table th,
+.qs-pdf-table td {
+	border: 0.35px solid #d9d9d9;
+	line-height: 1.18;
+	padding: 1.2mm 1mm;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.qs-pdf-table th {
+	font-size: 6.5px;
+	font-weight: 700;
+}
+
+.qs-pdf-table td {
+	font-size: 6.5px;
+}
+
+.qs-pdf-table th:first-child,
+.qs-pdf-table td:first-child {
+	width: 5%;
+}
+
+.qs-pdf-notes {
+	border-bottom: 0;
+	min-height: 17mm;
 }

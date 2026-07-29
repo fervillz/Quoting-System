@@ -61,10 +61,11 @@ add_action( 'add_meta_boxes', 'qs_register_metaboxes' );
   */
   function qs_cabinet_specifications_metabox( $post ) {
 
-  $door_profile   = get_post_meta( $post->ID, '_door_profile', true );
-  $timber         = get_post_meta( $post->ID, '_timber', true );
-  $finish         = get_post_meta( $post->ID, '_finish', true );
-  $handle_profile = get_post_meta( $post->ID, '_handle_profile', true );
+  $door_profile   = qs_quote_product_label( get_post_meta( $post->ID, '_door_profile', true ) );
+  $timber         = qs_quote_product_label( get_post_meta( $post->ID, '_timber', true ) );
+  $finish         = qs_quote_product_label( get_post_meta( $post->ID, '_finish', true ) );
+  $handle_profile = qs_quote_product_label( get_post_meta( $post->ID, '_handle_profile', true ) );
+  $paint_colour   = get_post_meta( $post->ID, '_paint_colour', true );
 
   ?>
 
@@ -98,6 +99,21 @@ add_action( 'add_meta_boxes', 'qs_register_metaboxes' );
    		/>
    	</td>
    </tr>
+
+	<tr>
+		<th>
+			<label for="paint_colour">Paint Colour</label>
+		</th>
+		<td>
+			<input
+				type="text"
+				id="paint_colour"
+				name="paint_colour"
+				value="<?php echo esc_attr( $paint_colour ); ?>"
+				class="regular-text"
+			/>
+		</td>
+	</tr>
 
    <tr>
    	<th>
@@ -142,71 +158,84 @@ add_action( 'add_meta_boxes', 'qs_register_metaboxes' );
 * by the Quote PDF and Job Sheet PDF.
   */
   function qs_components_metabox( $post ) {
+	$groups = array(
+		'doors_drawers' => array(
+			'title'   => 'Doors & Drawers',
+			'columns' => array( 'type' => 'Type', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Qty', 'edge_profile' => 'Edge profile', 'drawer_count' => 'Drawers' ),
+		),
+		'end_panels' => array(
+			'title'   => 'End Panels',
+			'columns' => array( 'height' => 'Height', 'width' => 'Width', 'quantity' => 'Qty', 'faces_seen' => 'Faces seen', 'edges_seen' => 'Edges seen' ),
+		),
+		'fillers' => array(
+			'title'   => 'Fillers',
+			'columns' => array( 'height' => 'Height', 'width' => 'Width', 'quantity' => 'Qty', 'faces_seen' => 'Faces seen', 'edges_seen' => 'Edges seen' ),
+		),
+		'kickboards' => array(
+			'title'   => 'Kickboards',
+			'columns' => array( 'material' => 'Material', 'height' => 'Height', 'length' => 'Length', 'quantity' => 'Qty' ),
+		),
+	);
 
-  $doors_drawers = get_post_meta( $post->ID, '_doors_drawers', true );
-  $end_panels    = get_post_meta( $post->ID, '_end_panels', true );
-  $fillers       = get_post_meta( $post->ID, '_fillers', true );
-  $kickboards    = get_post_meta( $post->ID, '_kickboards', true );
-
-  ?>
-
-   <p>
-   	<strong>Doors & Drawers</strong>
-   </p>
-
-   <textarea
-   	name="doors_drawers"
-   	rows="8"
-   	style="width:100%;font-family:monospace;"
-   ><?php echo esc_textarea( $doors_drawers ); ?></textarea>
-
-   <p>
-   	<small>
-   		One item per line.
-   		Example:
-   		Door | 450 | 720 | 2 | Pencil Round
-   	</small>
-   </p>
-
-   <hr>
-
-   <p>
-   	<strong>End Panels</strong>
-   </p>
-
-   <textarea
-   	name="end_panels"
-   	rows="5"
-   	style="width:100%;font-family:monospace;"
-   ><?php echo esc_textarea( $end_panels ); ?></textarea>
-
-   <hr>
-
-   <p>
-   	<strong>Fillers</strong>
-   </p>
-
-   <textarea
-   	name="fillers"
-   	rows="5"
-   	style="width:100%;font-family:monospace;"
-   ><?php echo esc_textarea( $fillers ); ?></textarea>
-
-   <hr>
-
-   <p>
-   	<strong>Kickboards</strong>
-   </p>
-
-   <textarea
-   	name="kickboards"
-   	rows="5"
-   	style="width:100%;font-family:monospace;"
-   ><?php echo esc_textarea( $kickboards ); ?></textarea>
-
-   <?php
-
-
+	foreach ( $groups as $component => $settings ) {
+		$rows = qs_component_rows( $post->ID, $component );
+		?>
+		<div class="qs-admin-component" data-component="<?php echo esc_attr( $component ); ?>">
+			<h3><?php echo esc_html( $settings['title'] ); ?></h3>
+			<table class="widefat striped qs-admin-repeater">
+				<thead><tr>
+					<?php foreach ( $settings['columns'] as $label ) : ?><th><?php echo esc_html( $label ); ?></th><?php endforeach; ?>
+					<th>Actions</th>
+				</tr></thead>
+				<tbody>
+				<?php if ( ! $rows ) : $rows = array( array() ); endif; ?>
+				<?php foreach ( $rows as $index => $row ) : ?>
+					<tr>
+					<?php foreach ( $settings['columns'] as $key => $label ) : ?>
+						<td>
+						<?php if ( 'type' === $key ) : ?>
+							<select name="components[<?php echo esc_attr( $component ); ?>][<?php echo esc_attr( $index ); ?>][type]">
+								<?php foreach ( array( 'Door', 'Drawer', 'Drawer Bank' ) as $type ) : ?><option value="<?php echo esc_attr( $type ); ?>" <?php selected( isset( $row['type'] ) ? $row['type'] : '', $type ); ?>><?php echo esc_html( $type ); ?></option><?php endforeach; ?>
+							</select>
+						<?php else : ?>
+							<?php $numeric = in_array( $key, array( 'width', 'height', 'length', 'quantity', 'drawer_count' ), true ); ?>
+							<input type="<?php echo $numeric ? 'number' : 'text'; ?>" <?php echo $numeric ? 'min="0"' : ''; ?> name="components[<?php echo esc_attr( $component ); ?>][<?php echo esc_attr( $index ); ?>][<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( isset( $row[ $key ] ) ? $row[ $key ] : '' ); ?>" style="width:100%;">
+						<?php endif; ?>
+						</td>
+					<?php endforeach; ?>
+						<td><button type="button" class="button qs-admin-remove-row">Remove</button></td>
+					</tr>
+				<?php endforeach; ?>
+				</tbody>
+			</table>
+			<p><button type="button" class="button qs-admin-add-row">Add item</button></p>
+		</div>
+		<?php
+	}
+	?>
+	<script>
+	(function(){
+		document.querySelectorAll('.qs-admin-component').forEach(function(section){
+			section.querySelector('.qs-admin-add-row').addEventListener('click', function(){
+				var body = section.querySelector('tbody');
+				var row = body.rows[0].cloneNode(true);
+				var index = body.rows.length;
+				row.querySelectorAll('input, select').forEach(function(input){
+					input.name = input.name.replace(/\[\d+\]/, '[' + index + ']');
+					if (input.tagName === 'SELECT') { input.selectedIndex = 0; } else { input.value = ''; }
+				});
+				body.appendChild(row);
+			});
+			section.addEventListener('click', function(event){
+				if (!event.target.classList.contains('qs-admin-remove-row')) return;
+				var rows = section.querySelectorAll('tbody tr');
+				if (rows.length > 1) { event.target.closest('tr').remove(); }
+				else { rows[0].querySelectorAll('input').forEach(function(input){ input.value = ''; }); }
+			});
+		});
+	}());
+	</script>
+	<?php
 }
 
 /**
@@ -369,7 +398,10 @@ function qs_project_details_metabox( $post ) {
 	$customer_phone  = get_post_meta( $post->ID, '_customer_phone', true );
 
 	$delivery_address = get_post_meta( $post->ID, '_delivery_address', true );
+	$custom_requests  = get_post_meta( $post->ID, '_custom_requests', true );
 	$project_notes    = get_post_meta( $post->ID, '_project_notes', true );
+	$supporting_documents = get_post_meta( $post->ID, '_supporting_documents', true );
+	$supporting_documents = is_array( $supporting_documents ) ? array_filter( array_map( 'absint', $supporting_documents ) ) : array();
 
 	?>
 
@@ -480,6 +512,40 @@ function qs_project_details_metabox( $post ) {
 
 		<tr>
 			<th>
+				<label for="custom_requests">Custom Requests</label>
+			</th>
+			<td>
+				<textarea
+					id="custom_requests"
+					name="custom_requests"
+					rows="5"
+					style="width:100%;"
+				><?php echo esc_textarea( $custom_requests ); ?></textarea>
+			</td>
+		</tr>
+
+		<tr>
+			<th>Supporting Documents</th>
+			<td>
+				<?php if ( $supporting_documents ) : ?>
+					<ul>
+						<?php foreach ( $supporting_documents as $attachment_id ) :
+							$file_url = wp_get_attachment_url( $attachment_id );
+							if ( ! $file_url ) {
+								continue;
+							}
+							?>
+							<li><a href="<?php echo esc_url( $file_url ); ?>" target="_blank" rel="noopener"><?php echo esc_html( qs_supporting_document_name( $attachment_id ) ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+				<?php else : ?>
+					<em>No supporting documents uploaded.</em>
+				<?php endif; ?>
+			</td>
+		</tr>
+
+		<tr>
+			<th>
 				<label for="project_notes">Project Notes</label>
 			</th>
 			<td>
@@ -573,6 +639,14 @@ function qs_save_project_details( $post_id ) {
 		);
 	}
 
+	if ( isset( $_POST['custom_requests'] ) ) {
+		update_post_meta(
+			$post_id,
+			'_custom_requests',
+			sanitize_textarea_field( $_POST['custom_requests'] )
+		);
+	}
+
 	
 	/**
 	* Cabinet Specifications
@@ -609,39 +683,21 @@ function qs_save_project_details( $post_id ) {
 		);
 	}
 
-	/**
-	* Components
-	  */
-	if ( isset( $_POST['doors_drawers'] ) ) {
-		update_post_meta(
-		$post_id,
-		'_doors_drawers',
-		sanitize_textarea_field( $_POST['doors_drawers'] )
-		);
-	}
-
-	if ( isset( $_POST['end_panels'] ) ) {
-		update_post_meta(
-		$post_id,
-		'_end_panels',
-		sanitize_textarea_field( $_POST['end_panels'] )
-		);
-	}
-
-	if ( isset( $_POST['fillers'] ) ) {
-		update_post_meta(
-		$post_id,
-		'_fillers',
-		sanitize_textarea_field( $_POST['fillers'] )
-		);
-	}
-
-	if ( isset( $_POST['kickboards'] ) ) {
+	if ( isset( $_POST['paint_colour'] ) ) {
 		update_post_meta(
 			$post_id,
-			'_kickboards',
-			sanitize_textarea_field( $_POST['kickboards'] )
+			'_paint_colour',
+			sanitize_text_field( $_POST['paint_colour'] )
 		);
+	}
+
+	/**
+	 * Structured component repeaters. Blank placeholder rows are discarded by
+	 * qs_sanitise_component_rows() before they are stored.
+	 */
+	if ( isset( $_POST['components'] ) && is_array( $_POST['components'] ) ) {
+		qs_save_component_rows( $post_id, $_POST['components'] );
+		qs_recalculate_quote_pricing( $post_id );
 	}
 
 	/**
