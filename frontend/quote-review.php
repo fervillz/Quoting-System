@@ -166,7 +166,7 @@ function qs_review_admin_summary_actions( $quote_id, $status ) {
 		<a class="qs-btn" href="<?php echo esc_url( $quotation_url ); ?>" target="_blank" rel="noopener">Quotation PDF</a>
 		<a class="qs-btn" href="<?php echo esc_url( $jobsheet_url ); ?>" target="_blank" rel="noopener">Job Sheet</a>
 
-		<?php if ( 'pending_review' === $status ) : ?>
+		<?php if ( in_array( $status, array( 'pending', 'pending_review' ), true ) ) : ?>
 			<?php qs_admin_dashboard_action_button( $quote_id, 'request_deposit', 'Request Deposit' ); ?>
 			<?php qs_admin_dashboard_action_button( $quote_id, 'mark_approved', 'Mark as Approved' ); ?>
 		<?php elseif ( 'awaiting_deposit' === $status ) : ?>
