@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function qs_admin_dashboard_status_display( $status ) {
 	$labels = array(
 		'draft'            => 'Draft',
+		'pending'          => 'Pending Review',
 		'pending_review'   => 'Pending Review',
 		'awaiting_deposit' => 'Deposit Requested',
 		'deposit_paid'     => 'Approved',
@@ -20,6 +21,9 @@ function qs_admin_dashboard_status_display( $status ) {
 }
 
 function qs_admin_dashboard_status_bucket( $status ) {
+	if ( 'pending' === $status ) {
+		return 'pending_review';
+	}
 	if ( in_array( $status, array( 'deposit_paid', 'final_balance' ), true ) ) {
 		return 'approved';
 	}
@@ -168,7 +172,7 @@ function qs_admin_dashboard_handle_action() {
 			return wp_trash_post( $quote_id ) ? 'Draft deleted.' : 'The draft could not be deleted.';
 
 		case 'mark_approved':
-			if ( 'pending_review' !== $status ) {
+			if ( ! in_array( $status, array( 'pending', 'pending_review' ), true ) ) {
 				return 'Only a quote pending review can be marked as approved.';
 			}
 			qs_update_quote_status( $quote_id, 'awaiting_deposit' );
@@ -177,7 +181,7 @@ function qs_admin_dashboard_handle_action() {
 		case 'request_deposit':
 		case 'resend_deposit':
 			if (
-				( 'request_deposit' === $action && 'pending_review' !== $status ) ||
+				( 'request_deposit' === $action && ! in_array( $status, array( 'pending', 'pending_review' ), true ) ) ||
 				( 'resend_deposit' === $action && 'awaiting_deposit' !== $status )
 			) {
 				return 'The deposit request is not available for this quote status.';
@@ -262,6 +266,7 @@ function qs_admin_dashboard_quote_actions( $quote ) {
 			);
 			break;
 
+		case 'pending':
 		case 'pending_review':
 			$actions = array(
 				array( 'link', 'Review', $admin_url ),
@@ -333,7 +338,7 @@ function qs_admin_dashboard_shortcode() {
 	}
 
 	$success_message = qs_admin_dashboard_handle_action();
-	$statuses        = array( 'draft', 'pending_review', 'awaiting_deposit', 'deposit_paid', 'final_balance', 'paid_in_full' );
+	$statuses        = array( 'draft', 'pending', 'pending_review', 'awaiting_deposit', 'deposit_paid', 'final_balance', 'paid_in_full' );
 	$visible_quotes  = qs_admin_dashboard_visible_meta_query();
 	$all_quotes      = get_posts(
 		array(
@@ -351,9 +356,16 @@ function qs_admin_dashboard_shortcode() {
 	$project_filter = isset( $_GET['project'] ) ? sanitize_text_field( wp_unslash( $_GET['project'] ) ) : '';
 	$date_filter    = isset( $_GET['date'] ) ? sanitize_key( wp_unslash( $_GET['date'] ) ) : '';
 
+	$filtered_statuses = $statuses;
+	if ( 'pending_review' === $status_filter ) {
+		$filtered_statuses = array( 'pending', 'pending_review' );
+	} elseif ( $status_filter && in_array( $status_filter, $statuses, true ) ) {
+		$filtered_statuses = array( $status_filter );
+	}
+
 	$args = array(
 		'post_type'      => 'quote',
-		'post_status'    => $status_filter && in_array( $status_filter, $statuses, true ) ? array( $status_filter ) : $statuses,
+		'post_status'    => $filtered_statuses,
 		'posts_per_page' => -1,
 		'orderby'        => 'modified',
 		'order'          => 'DESC',
@@ -522,6 +534,7 @@ function qs_admin_dashboard_shortcode() {
 							<tbody>
 								<?php foreach ( $company_quotes as $quote ) :
 									$status       = get_post_status( $quote->ID );
+									$status_class = 'pending' === $status ? 'pending_review' : $status;
 									$quote_number = get_post_meta( $quote->ID, '_quote_number', true );
 									$created_by   = get_the_author_meta( 'display_name', $quote->post_author );
 									$total        = qs_calculate_total( $quote->ID );
@@ -532,7 +545,7 @@ function qs_admin_dashboard_shortcode() {
 										<td><?php echo esc_html( $company ); ?></td>
 										<td><?php echo esc_html( $created_by ); ?></td>
 										<td><?php echo esc_html( get_the_modified_date( 'd M Y', $quote->ID ) ); ?></td>
-										<td><span class="qs-status qs-status-<?php echo esc_attr( $status ); ?>"><?php echo esc_html( qs_admin_dashboard_status_display( $status ) ); ?></span></td>
+										<td><span class="qs-status qs-status-<?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( qs_admin_dashboard_status_display( $status ) ); ?></span></td>
 										<td class="qs-admin-total">$<?php echo esc_html( number_format_i18n( $total, 0 ) ); ?></td>
 										<td class="qs-expand-cell">
 											<button type="button" class="qs-expand-btn" aria-expanded="false" aria-controls="<?php echo esc_attr( $expand_id ); ?>" aria-label="<?php echo esc_attr( 'Show actions for ' . $quote_number ); ?>">
