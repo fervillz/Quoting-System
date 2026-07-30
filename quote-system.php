@@ -87,6 +87,13 @@ function qs_enqueue_assets() {
 	);
 
 	wp_enqueue_style(
+		'qs-quote-review-admin-actions',
+		QS_URL . 'assets/css/quote-review-admin-actions.css',
+		array( 'qs-quote-review' ),
+		$asset_version( 'assets/css/quote-review-admin-actions.css' )
+	);
+
+	wp_enqueue_style(
 		'qs-quote-submitted',
 		QS_URL . 'assets/css/quote-submitted.css',
 		array( 'qs-base' ),
@@ -144,6 +151,5 @@ register_activation_hook(
 		flush_rewrite_rules();
 
 		qs_create_default_product_types();
-
 	}
 );
