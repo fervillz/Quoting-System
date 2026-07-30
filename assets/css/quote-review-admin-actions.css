@@ -1,20 +1,32 @@
-.qs-review-admin-actions {
+.qs-review-page .qs-review-summary .qs-review-admin-actions {
   width: 100%;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
 }
 
-.qs-review-admin-actions > a,
-.qs-review-admin-actions > button,
-.qs-review-admin-actions > form {
-  width: 100%;
-  min-width: 0;
+.qs-review-page .qs-review-summary .qs-review-admin-actions > a.qs-btn,
+.qs-review-page .qs-review-summary .qs-review-admin-actions > button,
+.qs-review-page .qs-review-summary .qs-review-admin-actions > form {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 
-.qs-review-admin-actions > a,
-.qs-review-admin-actions > button,
-.qs-review-admin-actions > form button {
-  display: flex;
-  width: 100%;
+.qs-review-page .qs-review-summary .qs-review-admin-actions > form {
+  display: flex !important;
+}
+
+.qs-review-page .qs-review-summary .qs-review-admin-actions > a.qs-btn,
+.qs-review-page .qs-review-summary .qs-review-admin-actions > button,
+.qs-review-page .qs-review-summary .qs-review-admin-actions > form > button {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 100%;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box !important;
 }
