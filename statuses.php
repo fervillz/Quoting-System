@@ -74,6 +74,7 @@ function qs_append_statuses_to_dropdown() {
 		/**
 		 * Quote workflow statuses.
 		 */
+		var currentStatus = <?php echo wp_json_encode( 'pending' === $post->post_status ? 'pending_review' : $post->post_status ); ?>;
 		var statuses = [
 			['pending_review', 'Quote — Pending Review'],
 			['awaiting_deposit', 'Approved - Awaiting Deposit'],
@@ -101,6 +102,16 @@ function qs_append_statuses_to_dropdown() {
 			}
 
 		});
+
+		/**
+		 * WordPress can fall back to `publish` when the current custom status
+		 * was not present when the Publish box was rendered. Restore the real
+		 * workflow selection after all custom options have been added.
+		 */
+		if ($('#post_status option[value="' + currentStatus + '"]').length) {
+			$('#post_status').val(currentStatus);
+			$('#post-status-display').text($('#post_status option:selected').text());
+		}
 
 	});
 	</script>
@@ -139,18 +150,33 @@ function qs_get_quote_statuses() {
  * Quote System workflow. WordPress submits `pending`, while this plugin uses
  * `pending_review` for quotes awaiting administrator review.
  */
-function qs_normalize_pending_quote_status( $data ) {
-	if (
-		isset( $data['post_type'], $data['post_status'] ) &&
-		'quote' === $data['post_type'] &&
-		'pending' === $data['post_status']
-	) {
+function qs_normalize_pending_quote_status( $data, $postarr ) {
+	if ( ! isset( $data['post_type'], $data['post_status'] ) || 'quote' !== $data['post_type'] ) {
+		return $data;
+	}
+
+	if ( 'pending' === $data['post_status'] ) {
 		$data['post_status'] = 'pending_review';
+	}
+
+	/**
+	 * A normal edit in wp-admin must not move a quote out of its workflow.
+	 * This specifically protects pricing and internal-note updates when the
+	 * Publish box incorrectly submits WordPress's generic `publish` status.
+	 */
+	$post_id = isset( $postarr['ID'] ) ? absint( $postarr['ID'] ) : 0;
+	if ( $post_id && 'publish' === $data['post_status'] ) {
+		$current_status = get_post_status( $post_id );
+		$current_status = 'pending' === $current_status ? 'pending_review' : $current_status;
+
+		if ( isset( qs_get_quote_statuses()[ $current_status ] ) ) {
+			$data['post_status'] = $current_status;
+		}
 	}
 
 	return $data;
 }
-add_filter( 'wp_insert_post_data', 'qs_normalize_pending_quote_status' );
+add_filter( 'wp_insert_post_data', 'qs_normalize_pending_quote_status', 10, 2 );
 
 /**
  * Update Quote status.
