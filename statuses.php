@@ -75,6 +75,7 @@ function qs_append_statuses_to_dropdown() {
 		 * Quote workflow statuses.
 		 */
 		var statuses = [
+			['pending_review', 'Quote — Pending Review'],
 			['awaiting_deposit', 'Approved - Awaiting Deposit'],
 			['deposit_paid', 'Deposit Paid'],
 			['final_balance', 'Final Balance'],
@@ -132,6 +133,24 @@ function qs_get_quote_statuses() {
 	);
 
 }
+
+/**
+ * Keep WordPress's built-in "Save as Pending" action aligned with the
+ * Quote System workflow. WordPress submits `pending`, while this plugin uses
+ * `pending_review` for quotes awaiting administrator review.
+ */
+function qs_normalize_pending_quote_status( $data ) {
+	if (
+		isset( $data['post_type'], $data['post_status'] ) &&
+		'quote' === $data['post_type'] &&
+		'pending' === $data['post_status']
+	) {
+		$data['post_status'] = 'pending_review';
+	}
+
+	return $data;
+}
+add_filter( 'wp_insert_post_data', 'qs_normalize_pending_quote_status' );
 
 /**
  * Update Quote status.
