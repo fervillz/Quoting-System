@@ -16,6 +16,63 @@
     return match ? match[1] : '';
   }
 
+  function quoteStatusFromRow(row) {
+    var badge = row.querySelector('.qs-status');
+    if (!badge) {
+      return '';
+    }
+
+    var statuses = [
+      'draft',
+      'pending_review',
+      'awaiting_deposit',
+      'deposit_paid',
+      'final_balance',
+      'paid_in_full'
+    ];
+
+    for (var index = 0; index < statuses.length; index += 1) {
+      if (badge.classList.contains('qs-status-' + statuses[index])) {
+        return statuses[index];
+      }
+    }
+
+    return '';
+  }
+
+  function matchesFilter(pair, filter) {
+    if (!filter) {
+      return true;
+    }
+
+    if (filter === 'payment_verify') {
+      return pair.verify;
+    }
+
+    if (filter === 'approved') {
+      return pair.status === 'deposit_paid' || pair.status === 'final_balance';
+    }
+
+    if (filter === 'completed') {
+      return pair.status === 'paid_in_full';
+    }
+
+    return pair.status === filter;
+  }
+
+  function filterUrl(filter, activeFilter) {
+    var url = new URL(window.location.href);
+    url.searchParams.delete('qs_payment_notice');
+
+    if (filter && filter !== activeFilter) {
+      url.searchParams.set('status', filter);
+    } else {
+      url.searchParams.delete('status');
+    }
+
+    return url.toString();
+  }
+
   function buildConfirmationForm(quoteId, state) {
     var form = document.createElement('form');
     form.method = 'post';
@@ -59,6 +116,31 @@
     container.classList.add('qs-action-count-' + container.children.length);
   }
 
+  function makeFilterCard(card, filter, activeFilter) {
+    var link = card;
+
+    if (card.tagName.toLowerCase() !== 'a') {
+      link = document.createElement('a');
+      link.className = card.className;
+      link.innerHTML = card.innerHTML;
+      card.parentNode.replaceChild(link, card);
+    }
+
+    link.classList.add('qs-stat-card-filter');
+    link.setAttribute('data-status-filter', filter);
+    link.href = filterUrl(filter, activeFilter);
+
+    if (filter === activeFilter) {
+      link.classList.add('is-active');
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.classList.remove('is-active');
+      link.removeAttribute('aria-current');
+    }
+
+    return link;
+  }
+
   ready(function () {
     var data = window.QSPaymentPriority || {};
     var dashboard = document.querySelector('.qs-admin-dashboard');
@@ -67,26 +149,52 @@
     }
 
     var states = data.states || {};
+    var activeFilter = data.activeFilter || '';
     var stats = dashboard.querySelector('.qs-admin-stats');
     if (stats) {
       var priorityCard = document.createElement('a');
       priorityCard.className = 'qs-stat-card qs-stat-card-payment';
-      if (data.activeFilter === 'payment_verify') {
-        priorityCard.className += ' is-active';
-      }
-      priorityCard.href = data.activeFilter === 'payment_verify' ? data.clearUrl : data.filterUrl;
       priorityCard.innerHTML = '<span>Payments to Verify</span><strong>' + String(data.verifyCount || 0) + '</strong>';
       stats.insertBefore(priorityCard, stats.firstElementChild);
+      makeFilterCard(priorityCard, 'payment_verify', activeFilter);
+
+      var cardFilters = {
+        'DRAFT QUOTES': 'draft',
+        'PENDING REVIEW': 'pending_review',
+        'DEPOSIT REQUESTED': 'awaiting_deposit',
+        'APPROVED QUOTES': 'approved',
+        'COMPLETED': 'completed'
+      };
+
+      Array.prototype.slice.call(stats.querySelectorAll('.qs-stat-card:not(.qs-stat-card-payment)')).forEach(function (card) {
+        var label = card.querySelector('span');
+        var filter = label ? cardFilters[(label.textContent || '').trim().toUpperCase()] : '';
+        if (filter) {
+          makeFilterCard(card, filter, activeFilter);
+        }
+      });
     }
 
     var statusSelect = dashboard.querySelector('.qs-admin-search select[name="status"]');
-    if (statusSelect && !statusSelect.querySelector('option[value="payment_verify"]')) {
-      var option = document.createElement('option');
-      option.value = 'payment_verify';
-      option.textContent = 'Payment to Verify';
-      option.selected = data.activeFilter === 'payment_verify';
-      statusSelect.insertBefore(option, statusSelect.options[1] || null);
+    if (statusSelect) {
+      var virtualOptions = [
+        { value: 'payment_verify', label: 'Payment to Verify' },
+        { value: 'approved', label: 'Approved Quotes' },
+        { value: 'completed', label: 'Completed' }
+      ];
+
+      virtualOptions.reverse().forEach(function (item) {
+        if (!statusSelect.querySelector('option[value="' + item.value + '"]')) {
+          var option = document.createElement('option');
+          option.value = item.value;
+          option.textContent = item.label;
+          option.selected = activeFilter === item.value;
+          statusSelect.insertBefore(option, statusSelect.options[1] || null);
+        }
+      });
     }
+
+    var hasVisibleQuotes = false;
 
     dashboard.querySelectorAll('.qs-admin-table tbody').forEach(function (tbody) {
       var rows = Array.prototype.filter.call(tbody.children, function (child) {
@@ -147,6 +255,7 @@
           expansion: expansion,
           priority: typeof state.priority === 'number' ? state.priority : 60,
           verify: !!state.needs_verification,
+          status: quoteStatusFromRow(row),
           index: index
         };
       });
@@ -162,31 +271,38 @@
         }
       });
 
-      if (data.activeFilter === 'payment_verify') {
+      if (activeFilter) {
         pairs.forEach(function (pair) {
-          pair.row.hidden = !pair.verify;
+          var visible = matchesFilter(pair, activeFilter);
+          pair.row.hidden = !visible;
           if (pair.expansion) {
             pair.expansion.hidden = true;
+          }
+          if (visible) {
+            hasVisibleQuotes = true;
           }
         });
 
         var group = tbody.closest('.qs-company-group');
         if (group) {
-          group.hidden = !pairs.some(function (pair) { return pair.verify; });
+          group.hidden = !pairs.some(function (pair) {
+            return matchesFilter(pair, activeFilter);
+          });
         }
+      } else if (pairs.length) {
+        hasVisibleQuotes = true;
       }
     });
 
-    if (data.activeFilter === 'payment_verify') {
-      var visibleGroups = dashboard.querySelectorAll('.qs-company-group:not([hidden])');
-      if (!visibleGroups.length) {
-        var panel = dashboard.querySelector('.qs-admin-panel');
-        if (panel && !panel.querySelector('.qs-payment-empty')) {
-          var empty = document.createElement('p');
-          empty.className = 'qs-admin-empty qs-payment-empty';
-          empty.textContent = 'There are no bank-transfer payments waiting for verification.';
-          panel.appendChild(empty);
-        }
+    if (activeFilter && !hasVisibleQuotes) {
+      var panel = dashboard.querySelector('.qs-admin-panel');
+      if (panel && !panel.querySelector('.qs-payment-empty')) {
+        var empty = document.createElement('p');
+        empty.className = 'qs-admin-empty qs-payment-empty';
+        empty.textContent = activeFilter === 'payment_verify'
+          ? 'There are no bank-transfer payments waiting for verification.'
+          : 'There are no quotes in this status.';
+        panel.appendChild(empty);
       }
     }
   });
