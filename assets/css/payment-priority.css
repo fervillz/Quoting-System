@@ -2,6 +2,30 @@
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
+.qs-admin-dashboard .qs-stat-card-filter {
+  position: relative;
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .16s ease, box-shadow .16s ease, color .16s ease;
+}
+
+.qs-admin-dashboard .qs-stat-card-filter:hover,
+.qs-admin-dashboard .qs-stat-card-filter:focus-visible,
+.qs-admin-dashboard .qs-stat-card-filter.is-active {
+  border-color: #40586b;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px #40586b;
+  color: #40586b;
+  outline: none;
+}
+
+.qs-admin-dashboard .qs-stat-card-filter:hover strong,
+.qs-admin-dashboard .qs-stat-card-filter:focus-visible strong,
+.qs-admin-dashboard .qs-stat-card-filter.is-active strong {
+  color: #40586b;
+}
+
 .qs-admin-dashboard .qs-stat-card-payment {
   position: relative;
   border: 1px solid #40586b;
