@@ -40,6 +40,7 @@ require_once QS_PATH . 'integrations/woocommerce.php';
 require_once QS_PATH . 'frontend/quote-builder.php';
 require_once QS_PATH . 'frontend/quote-review.php';
 require_once QS_PATH . 'frontend/admin-dashboard.php';
+require_once QS_PATH . 'frontend/payment-priority.php';
 require_once QS_PATH . 'frontend/my-quotes.php';
 require_once QS_PATH . 'frontend/quote-submitted.php';
 require_once QS_PATH . 'frontend/login.php';
