@@ -148,7 +148,7 @@ function qs_review_summary_items( $quote_id, $can_edit ) {
  * it; administrators receive control through WordPress capabilities.
  */
 function qs_review_admin_summary_actions( $quote_id, $status ) {
-	$dashboard_url = site_url( '/admin-dashboard/' );
+	$dashboard_url = site_url( '/quote-admin-dashboard/' );
 	$builder_url   = add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) );
 	$pricing_url   = admin_url( 'post.php?post=' . $quote_id . '&action=edit' );
 	$quotation_url = add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) );
@@ -225,7 +225,7 @@ function qs_quote_review_shortcode() {
 		<header class="qs-review-page-header">
 			<h1>Quote Builder</h1>
 			<nav aria-label="Quote account actions">
-				<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( site_url( $is_admin ? '/admin-dashboard/' : '/my-quotes/' ) ); ?>"><?php echo esc_html( $is_admin ? 'Admin Dashboard' : 'My Quotes' ); ?></a>
+				<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( site_url( $is_admin ? '/quote-admin-dashboard/' : '/my-quotes/' ) ); ?>"><?php echo esc_html( $is_admin ? 'Admin Dashboard' : 'My Quotes' ); ?></a>
 				<a class="qs-btn" href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>">Logout</a>
 			</nav>
 		</header>
