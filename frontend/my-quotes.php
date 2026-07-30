@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function qs_my_quotes_status_display( $status ) {
 	$labels = array(
 		'draft'            => 'Draft',
+		'pending'          => 'Pending Review',
 		'pending_review'   => 'Pending Review',
 		'awaiting_deposit' => 'Deposit Requested',
 		'deposit_paid'     => 'Approved',
@@ -119,7 +120,7 @@ function qs_my_quotes_shortcode() {
 
 	$args = array(
 		'post_type'      => 'quote',
-		'post_status'    => array( 'draft', 'pending_review', 'awaiting_deposit', 'deposit_paid', 'final_balance', 'paid_in_full' ),
+		'post_status'    => array( 'draft', 'pending', 'pending_review', 'awaiting_deposit', 'deposit_paid', 'final_balance', 'paid_in_full' ),
 		'posts_per_page' => -1,
 		'orderby'        => 'modified',
 		'order'          => 'DESC',
@@ -139,6 +140,7 @@ function qs_my_quotes_shortcode() {
 
 	foreach ( $quotes as $quote ) {
 		$status = get_post_status( $quote->ID );
+		$status = 'pending' === $status ? 'pending_review' : $status;
 		if ( isset( $groups[ $status ] ) ) {
 			$groups[ $status ][] = $quote;
 		} elseif ( in_array( $status, array( 'deposit_paid', 'final_balance' ), true ) ) {
