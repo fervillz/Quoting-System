@@ -50,6 +50,15 @@
     return form;
   }
 
+  function updateActionCountClass(container) {
+    Array.prototype.slice.call(container.classList).forEach(function (className) {
+      if (/^qs-action-count-\d+$/.test(className)) {
+        container.classList.remove(className);
+      }
+    });
+    container.classList.add('qs-action-count-' + container.children.length);
+  }
+
   ready(function () {
     var data = window.QSPaymentPriority || {};
     var dashboard = document.querySelector('.qs-admin-dashboard');
@@ -128,6 +137,7 @@
               }
             } else if (actionContainer && state.confirm_action && state.nonce) {
               actionContainer.appendChild(buildConfirmationForm(quoteId, state));
+              updateActionCountClass(actionContainer);
             }
           }
         }
