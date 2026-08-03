@@ -146,6 +146,14 @@ function qs_enqueue_assets() {
 		true
 	);
 
+	wp_enqueue_script(
+		'qs-multi-room-fixes',
+		QS_URL . 'assets/js/multi-room-fixes.js',
+		array( 'qs-multi-room' ),
+		$asset_version( 'assets/js/multi-room-fixes.js' ),
+		true
+	);
+
 	wp_enqueue_style(
 		'qs-quote-submitted',
 		QS_URL . 'assets/css/quote-submitted.css',
