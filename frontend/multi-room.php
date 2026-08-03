@@ -102,6 +102,36 @@ function qs_multi_room_review_shortcode() {
 	return $html;
 }
 
+function qs_multi_room_ajax_recalculate() {
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( array( 'message' => 'Please log in before calculating a quote.' ), 403 );
+	}
+
+	$quote_id = isset( $_POST['quote_id'] ) ? absint( $_POST['quote_id'] ) : 0;
+	$saved_id = qs_builder_save_quote( $quote_id, false );
+	if ( is_wp_error( $saved_id ) ) {
+		wp_send_json_error( array( 'message' => $saved_id->get_error_message() ), 400 );
+	}
+
+	$pricing = qs_calculate_rooms_pricing( $saved_id );
+	qs_store_rooms_pricing( $saved_id );
+
+	wp_send_json_success(
+		array(
+			'quote_id'           => (int) $saved_id,
+			'subtotal'           => $pricing['subtotal'],
+			'formatted_subtotal' => number_format_i18n( $pricing['subtotal'], 2 ),
+			'room_subtotals'     => $pricing['room_subtotals'],
+		)
+	);
+}
+
+function qs_register_multi_room_ajax() {
+	remove_action( 'wp_ajax_qs_builder_recalculate', 'qs_builder_ajax_recalculate' );
+	add_action( 'wp_ajax_qs_builder_recalculate', 'qs_multi_room_ajax_recalculate' );
+}
+add_action( 'init', 'qs_register_multi_room_ajax', 100 );
+
 function qs_register_multi_room_shortcodes() {
 	remove_shortcode( 'quote_builder' );
 	add_shortcode( 'quote_builder', 'qs_multi_room_builder_shortcode' );
