@@ -92,8 +92,10 @@
 
         var desiredQuantity = Number(quantityInput.value);
         var editingIndex = section.dataset.editingIndex;
-        var width = editorField(section, type, 'width');
-        var height = editorField(section, type, 'height');
+        var widthInput = editorField(section, type, 'width');
+        var heightInput = editorField(section, type, 'height');
+        var widthValue = widthInput ? widthInput.value : '';
+        var heightValue = heightInput ? heightInput.value : '';
         var existingRows = Array.prototype.slice.call(section.querySelectorAll('.qs-repeater-row'));
         var matchingRow = null;
         var previousQuantity = 0;
@@ -103,8 +105,8 @@
         } else if (type !== 'Drawer Bank') {
           matchingRow = existingRows.find(function (row) {
             return storedValue(row, 'type') === type &&
-              String(storedValue(row, 'width')) === String(width ? width.value : '') &&
-              String(storedValue(row, 'height')) === String(height ? height.value : '');
+              String(storedValue(row, 'width')) === String(widthValue) &&
+              String(storedValue(row, 'height')) === String(heightValue);
           }) || null;
           previousQuantity = matchingRow ? Number(storedValue(matchingRow, 'quantity')) || 0 : 0;
         }
@@ -116,8 +118,8 @@
           if (!row && type !== 'Drawer Bank') {
             row = rows.find(function (candidate) {
               return storedValue(candidate, 'type') === type &&
-                String(storedValue(candidate, 'width')) === String(width ? width.value : '') &&
-                String(storedValue(candidate, 'height')) === String(height ? height.value : '');
+                String(storedValue(candidate, 'width')) === String(widthValue) &&
+                String(storedValue(candidate, 'height')) === String(heightValue);
             }) || null;
           }
 
