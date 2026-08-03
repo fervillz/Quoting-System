@@ -114,6 +114,7 @@ function qs_quote_summary_groups( $quote_id ) {
 		array( 'title' => 'Doors', 'component' => 'doors_drawers', 'rows' => qs_component_rows_by_type( $doors_drawers, 'Door' ) ),
 		array( 'title' => 'Drawers', 'component' => 'doors_drawers', 'rows' => qs_component_rows_by_type( $doors_drawers, 'Drawer' ) ),
 		array( 'title' => 'Drawer Banks', 'component' => 'doors_drawers', 'rows' => qs_component_rows_by_type( $doors_drawers, 'Drawer Bank' ) ),
+		array( 'title' => 'Profile End Panels', 'component' => 'doors_drawers', 'rows' => qs_component_rows_by_type( $doors_drawers, 'Profile End Panel' ) ),
 		array( 'title' => 'End Panels', 'component' => 'end_panels', 'rows' => qs_component_rows_with_indices( qs_component_rows( $quote_id, 'end_panels' ) ) ),
 		array( 'title' => 'Fillers', 'component' => 'fillers', 'rows' => qs_component_rows_with_indices( qs_component_rows( $quote_id, 'fillers' ) ) ),
 		array( 'title' => 'Kickboards', 'component' => 'kickboards', 'rows' => qs_component_rows_with_indices( qs_component_rows( $quote_id, 'kickboards' ) ) ),
