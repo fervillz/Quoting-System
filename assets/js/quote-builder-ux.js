@@ -19,7 +19,7 @@
     fields.appendChild(input);
   }
 
-  function edgeSelectorMarkup(prefix) {
+  function edgeSelectorMarkup() {
     var wrap = document.createElement('div');
     wrap.className = 'qs-edge-selector qs-filler-edge-selector';
     wrap.setAttribute('data-filler-edge-selector', '');
@@ -41,6 +41,17 @@
     return wrap;
   }
 
+  function syncFillerChecks(section) {
+    var hidden = section.querySelector('[data-component-field="edges_seen"]');
+    var selector = section.querySelector('[data-filler-edge-selector]');
+    if (!hidden || !selector) return;
+    var selected = String(hidden.value || '').toLowerCase();
+    selector.querySelectorAll('[data-filler-edge-position]').forEach(function (input) {
+      input.checked = selected.indexOf(String(input.value).toLowerCase()) !== -1;
+    });
+    selector.classList.toggle('is-saved', !!hidden.value);
+  }
+
   function setupFillerEdges(section) {
     var select = section.querySelector('[data-component-field="edges_seen"]');
     if (!select || select.type === 'hidden') return;
@@ -50,7 +61,7 @@
     select.parentNode.insertBefore(hidden, select);
     var label = select.previousElementSibling;
     if (label && label.tagName === 'LABEL') label.textContent = 'Edge/s Seen*';
-    var selector = edgeSelectorMarkup('filler');
+    var selector = edgeSelectorMarkup();
     select.parentNode.insertBefore(selector, select.nextSibling);
     select.remove();
 
@@ -120,11 +131,14 @@
         width = storedValue(row, 'length');
       }
 
-      if (primary && width && height) primary.textContent = mm(width, 'w') + ' × ' + mm(height, 'h');
+      if (primary && width && height) {
+        var text = mm(width, 'w') + ' × ' + mm(height, 'h');
+        if (primary.textContent !== text) primary.textContent = text;
+      }
     });
   }
 
-  function highlightEditor(component, index) {
+  function highlightEditor(component) {
     var section = document.querySelector('.qs-component[data-component="' + component + '"]');
     if (!section) return;
     document.querySelectorAll('.qs-edit-highlight').forEach(function (node) { node.classList.remove('qs-edit-highlight'); });
@@ -182,7 +196,12 @@
       }
 
       var edit = event.target.closest('[data-summary-action="edit"]');
-      if (edit) setTimeout(function () { highlightEditor(edit.dataset.component, edit.dataset.rowIndex); }, 0);
+      if (edit) {
+        setTimeout(function () {
+          highlightEditor(edit.dataset.component);
+          if (edit.dataset.component === 'fillers' && fillers) syncFillerChecks(fillers);
+        }, 0);
+      }
     }, true);
 
     var observer = new MutationObserver(updateSummary);
