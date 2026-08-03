@@ -87,11 +87,26 @@ function qs_enqueue_assets() {
 		$asset_version( 'assets/css/quantity-fields.css' )
 	);
 
+	wp_enqueue_style(
+		'qs-quote-builder-ux',
+		QS_URL . 'assets/css/quote-builder-ux.css',
+		array( 'qs-quote-builder', 'qs-quantity-fields' ),
+		$asset_version( 'assets/css/quote-builder-ux.css' )
+	);
+
 	wp_enqueue_script(
 		'qs-quantity-fields',
 		QS_URL . 'assets/js/quantity-fields.js',
 		array(),
 		$asset_version( 'assets/js/quantity-fields.js' ),
+		true
+	);
+
+	wp_enqueue_script(
+		'qs-quote-builder-ux',
+		QS_URL . 'assets/js/quote-builder-ux.js',
+		array( 'qs-quantity-fields' ),
+		$asset_version( 'assets/js/quote-builder-ux.js' ),
 		true
 	);
 
