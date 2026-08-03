@@ -19,6 +19,17 @@
     fields.appendChild(input);
   }
 
+  function syncEdgeVisualState(selector) {
+    if (!selector) return;
+    ['top', 'right', 'bottom', 'left'].forEach(function (edge) {
+      var input = selector.querySelector(
+        '[data-edge-position="' + edge.charAt(0).toUpperCase() + edge.slice(1) + '"], ' +
+        '[data-filler-edge-position="' + edge.charAt(0).toUpperCase() + edge.slice(1) + '"]'
+      );
+      selector.classList.toggle('qs-edge-selected-' + edge, !!(input && input.checked));
+    });
+  }
+
   function edgeSelectorMarkup() {
     var wrap = document.createElement('div');
     wrap.className = 'qs-edge-selector qs-filler-edge-selector';
@@ -50,6 +61,7 @@
       input.checked = selected.indexOf(String(input.value).toLowerCase()) !== -1;
     });
     selector.classList.toggle('is-saved', !!hidden.value);
+    syncEdgeVisualState(selector);
   }
 
   function setupFillerEdges(section) {
@@ -69,9 +81,11 @@
       hidden.value = Array.prototype.map.call(selector.querySelectorAll('[data-filler-edge-position]:checked'), function (input) { return input.value; }).join(' + ');
       hidden.dispatchEvent(new Event('change', { bubbles: true }));
       selector.classList.toggle('is-saved', !!hidden.value);
+      syncEdgeVisualState(selector);
     }
     selector.addEventListener('change', sync);
     selector.querySelector('.qs-save-edges').addEventListener('click', sync);
+    syncEdgeVisualState(selector);
   }
 
   function addEndPanelFaceOption(section) {
@@ -156,6 +170,13 @@
     if (endPanels) {
       addQuantity(endPanels, 'End panel');
       addEndPanelFaceOption(endPanels);
+      var endPanelSelector = endPanels.querySelector('.qs-edge-selector');
+      syncEdgeVisualState(endPanelSelector);
+      if (endPanelSelector) {
+        endPanelSelector.addEventListener('change', function () {
+          syncEdgeVisualState(endPanelSelector);
+        });
+      }
     }
     if (fillers) {
       addQuantity(fillers, 'Filler');
@@ -200,6 +221,7 @@
         setTimeout(function () {
           highlightEditor(edit.dataset.component);
           if (edit.dataset.component === 'fillers' && fillers) syncFillerChecks(fillers);
+          if (edit.dataset.component === 'end_panels' && endPanels) syncEdgeVisualState(endPanels.querySelector('.qs-edge-selector'));
         }, 0);
       }
     }, true);
