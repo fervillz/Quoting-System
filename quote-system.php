@@ -28,6 +28,7 @@ require_once QS_PATH . 'pricing.php';
 require_once QS_PATH . 'quote-number.php';
 require_once QS_PATH . 'repeaters.php';
 require_once QS_PATH . 'rooms.php';
+require_once QS_PATH . 'room-display-pricing.php';
 require_once QS_PATH . 'meta-boxes.php';
 require_once QS_PATH . 'email.php';
 require_once QS_PATH . 'template-functions.php';
