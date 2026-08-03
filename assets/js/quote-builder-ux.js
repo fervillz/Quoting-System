@@ -1,0 +1,195 @@
+(function () {
+  'use strict';
+
+  function ready(callback) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', callback);
+    else callback();
+  }
+
+  function addQuantity(section, label) {
+    var fields = section.querySelector('.qs-component-editor .qs-editor-fields');
+    if (!fields || section.querySelector('[data-component-field="quantity"]')) return;
+    var input = document.createElement('input');
+    input.type = 'number';
+    input.min = '1';
+    input.step = '1';
+    input.placeholder = 'Quantity';
+    input.setAttribute('aria-label', label + ' quantity');
+    input.setAttribute('data-component-field', 'quantity');
+    fields.appendChild(input);
+  }
+
+  function edgeSelectorMarkup(prefix) {
+    var wrap = document.createElement('div');
+    wrap.className = 'qs-edge-selector qs-filler-edge-selector';
+    wrap.setAttribute('data-filler-edge-selector', '');
+    ['Top', 'Right', 'Bottom', 'Left'].forEach(function (edge) {
+      var label = document.createElement('label');
+      label.className = 'qs-edge-choice qs-edge-' + edge.toLowerCase();
+      label.innerHTML = '<input type="checkbox" value="' + edge + '" data-filler-edge-position="' + edge + '"><span></span><em>' + edge + ' edge</em>';
+      wrap.appendChild(label);
+    });
+    var face = document.createElement('div');
+    face.className = 'qs-edge-face';
+    face.textContent = 'Face';
+    wrap.appendChild(face);
+    var save = document.createElement('button');
+    save.type = 'button';
+    save.className = 'qs-save-edges';
+    save.textContent = 'Save';
+    wrap.appendChild(save);
+    return wrap;
+  }
+
+  function setupFillerEdges(section) {
+    var select = section.querySelector('[data-component-field="edges_seen"]');
+    if (!select || select.type === 'hidden') return;
+    var hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.setAttribute('data-component-field', 'edges_seen');
+    select.parentNode.insertBefore(hidden, select);
+    var label = select.previousElementSibling;
+    if (label && label.tagName === 'LABEL') label.textContent = 'Edge/s Seen*';
+    var selector = edgeSelectorMarkup('filler');
+    select.parentNode.insertBefore(selector, select.nextSibling);
+    select.remove();
+
+    function sync() {
+      hidden.value = Array.prototype.map.call(selector.querySelectorAll('[data-filler-edge-position]:checked'), function (input) { return input.value; }).join(' + ');
+      hidden.dispatchEvent(new Event('change', { bubbles: true }));
+      selector.classList.toggle('is-saved', !!hidden.value);
+    }
+    selector.addEventListener('change', sync);
+    selector.querySelector('.qs-save-edges').addEventListener('click', sync);
+  }
+
+  function addEndPanelFaceOption(section) {
+    var select = section.querySelector('[data-component-field="faces_seen"]');
+    if (!select || select.querySelector('option[value="1 Face / 3 Returns (100mm)"]')) return;
+    var option = document.createElement('option');
+    option.value = '1 Face / 3 Returns (100mm)';
+    option.textContent = '1 Face / 3 Returns (100mm)';
+    var twoFaces = select.querySelector('option[value="2 Faces"]');
+    select.insertBefore(option, twoFaces || null);
+  }
+
+  function stripKickboardNote() {
+    document.querySelectorAll('.qs-kickboard-notes li').forEach(function (item) {
+      if (/Cost at LM Rate/i.test(item.textContent || '')) item.remove();
+    });
+  }
+
+  function storedValue(row, key) {
+    var input = row && row.querySelector('[name$="[' + key + ']"]');
+    return input ? input.value : '';
+  }
+
+  function mm(value, axis) {
+    return value ? String(value) + 'mm (' + axis + ')' : '';
+  }
+
+  function updateSummary() {
+    var paint = document.querySelector('[data-summary="paint_colour"]');
+    if (paint) {
+      var value = (paint.textContent || '').trim();
+      var hide = !value || value === '—';
+      paint.hidden = hide;
+      var term = paint.previousElementSibling;
+      if (term && term.tagName === 'DT') term.hidden = hide;
+    }
+
+    document.querySelectorAll('.qs-summary-item').forEach(function (item) {
+      var action = item.querySelector('[data-summary-action]');
+      if (!action) return;
+      var component = action.dataset.component;
+      var index = Number(action.dataset.rowIndex);
+      var section = document.querySelector('.qs-component[data-component="' + component + '"]');
+      var row = section && section.querySelectorAll('.qs-repeater-row')[index];
+      if (!row) return;
+
+      var width = storedValue(row, 'width');
+      var height = storedValue(row, 'height');
+      var primary = item.querySelector('.qs-summary-item-primary');
+      var type = storedValue(row, 'type');
+
+      if (component === 'doors_drawers' && type === 'Drawer Bank') {
+        height = ['top_height','top_middle_height','middle_height','bottom_middle_height','bottom_height'].reduce(function (sum, key) {
+          return sum + (Number(storedValue(row, key)) || 0);
+        }, 0);
+      } else if (component === 'kickboards') {
+        width = storedValue(row, 'length');
+      }
+
+      if (primary && width && height) primary.textContent = mm(width, 'w') + ' × ' + mm(height, 'h');
+    });
+  }
+
+  function highlightEditor(component, index) {
+    var section = document.querySelector('.qs-component[data-component="' + component + '"]');
+    if (!section) return;
+    document.querySelectorAll('.qs-edit-highlight').forEach(function (node) { node.classList.remove('qs-edit-highlight'); });
+    var editor = section.querySelector('.qs-door-entry-editor, .qs-component-editor') || section;
+    editor.classList.add('qs-edit-highlight');
+    window.setTimeout(function () { editor.classList.remove('qs-edit-highlight'); }, 4000);
+  }
+
+  ready(function () {
+    var form = document.querySelector('.qs-builder-form');
+    if (!form) return;
+
+    var endPanels = document.querySelector('.qs-end-panels');
+    var fillers = document.querySelector('.qs-fillers');
+    if (endPanels) {
+      addQuantity(endPanels, 'End panel');
+      addEndPanelFaceOption(endPanels);
+    }
+    if (fillers) {
+      addQuantity(fillers, 'Filler');
+      setupFillerEdges(fillers);
+    }
+    stripKickboardNote();
+
+    document.addEventListener('click', function (event) {
+      var button = event.target.closest('.qs-commit-component');
+      if (button) {
+        var section = button.closest('.qs-configured-component');
+        if (section && (section.classList.contains('qs-end-panels') || section.classList.contains('qs-fillers'))) {
+          var quantity = section.querySelector('[data-component-field="quantity"]');
+          if (!quantity || Number(quantity.value) <= 0) {
+            if (quantity) {
+              quantity.setCustomValidity('Please enter a quantity.');
+              quantity.reportValidity();
+              setTimeout(function () { quantity.setCustomValidity(''); }, 0);
+            }
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+          }
+          var desired = quantity.value;
+          var editing = section.dataset.editingIndex;
+          setTimeout(function () {
+            var rows = section.querySelectorAll('.qs-repeater-row');
+            var row = editing !== '' ? rows[Number(editing)] : rows[rows.length - 1];
+            var hidden = row && row.querySelector('[name$="[quantity]"]');
+            if (hidden) {
+              hidden.value = desired;
+              hidden.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            quantity.value = '';
+            updateSummary();
+          }, 0);
+        }
+      }
+
+      var edit = event.target.closest('[data-summary-action="edit"]');
+      if (edit) setTimeout(function () { highlightEditor(edit.dataset.component, edit.dataset.rowIndex); }, 0);
+    }, true);
+
+    var observer = new MutationObserver(updateSummary);
+    var summary = document.querySelector('.qs-summary-items');
+    if (summary) observer.observe(summary, { childList: true, subtree: true, characterData: true });
+    form.addEventListener('input', function () { setTimeout(updateSummary, 0); });
+    form.addEventListener('change', function () { setTimeout(updateSummary, 0); });
+    updateSummary();
+  });
+}());
