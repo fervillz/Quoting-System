@@ -1,21 +1,57 @@
 (function () {
   'use strict';
 
-  function updateRoomTotals(totals) {
+  function isRetailQuote() {
+    var pricingToggle = document.querySelector('.qs-builder-form input[name="pricing_type"]');
+    return !!(pricingToggle && pricingToggle.checked);
+  }
+
+  function displayRoomTotals(totals, grandTotal) {
+    var display = {};
+    Object.keys(totals || {}).forEach(function (roomId) {
+      display[roomId] = Number(totals[roomId] || 0);
+    });
+
+    if (!isRetailQuote()) return display;
+
+    Object.keys(display).forEach(function (roomId) {
+      display[roomId] = Math.round(display[roomId] * 1.2222 * 100) / 100;
+    });
+
+    var roomIds = Object.keys(display);
+    var expected = Number(grandTotal || 0);
+    if (expected && roomIds.length) {
+      var sum = roomIds.reduce(function (total, roomId) { return total + display[roomId]; }, 0);
+      var difference = Math.round((expected - sum) * 100) / 100;
+      var lastRoom = roomIds[roomIds.length - 1];
+      display[lastRoom] = Math.round((display[lastRoom] + difference) * 100) / 100;
+    }
+
+    return display;
+  }
+
+  function updateRoomTotals(totals, grandTotal) {
     if (!totals) return;
+    var display = displayRoomTotals(totals, grandTotal);
     document.querySelectorAll('[data-room-id]').forEach(function (button) {
       var roomId = button.dataset.roomId;
-      if (!Object.prototype.hasOwnProperty.call(totals, roomId)) return;
+      if (!Object.prototype.hasOwnProperty.call(display, roomId)) return;
       var small = button.querySelector('small');
       if (!small) {
         small = document.createElement('small');
         button.appendChild(small);
       }
-      small.textContent = '$' + Number(totals[roomId] || 0).toLocaleString(undefined, {
+      small.textContent = '$' + Number(display[roomId] || 0).toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
     });
+  }
+
+  function displayedGrandTotal() {
+    var subtotal = document.querySelector('[data-qs-subtotal]');
+    if (!subtotal) return 0;
+    return Number(String(subtotal.textContent || '').replace(/[^0-9.-]/g, '')) || 0;
   }
 
   if (window.fetch) {
@@ -26,7 +62,7 @@
         if (calculation) {
           response.clone().json().then(function (payload) {
             if (payload && payload.success && payload.data) {
-              updateRoomTotals(payload.data.room_subtotals);
+              updateRoomTotals(payload.data.room_subtotals, payload.data.subtotal);
             }
           }).catch(function () {});
         }
@@ -92,6 +128,14 @@
       }, 0);
     });
 
+    var pricingToggle = form.querySelector('input[name="pricing_type"]');
+    if (pricingToggle) {
+      pricingToggle.addEventListener('change', function () {
+        updateRoomTotals((window.QSMultiRoom || {}).roomSubtotals || {}, displayedGrandTotal());
+      });
+    }
+
     syncPaintedState(form);
+    updateRoomTotals((window.QSMultiRoom || {}).roomSubtotals || {}, displayedGrandTotal());
   });
 }());
