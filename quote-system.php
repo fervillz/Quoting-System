@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Quote System
  * Description: Frontend quotation system for Loughlin Furniture.
- * Version: 1.4.1
+ * Version: 1.5.0-beta.1
  * Author: Loughlin Furniture
  * Text Domain: quote-system
  */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Plugin Constants
  */
-define( 'QS_VERSION', '1.4.1' );
+define( 'QS_VERSION', '1.5.0-beta.1' );
 define( 'QS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'QS_URL', plugin_dir_url( __FILE__ ) );
 
@@ -27,6 +27,8 @@ require_once QS_PATH . 'statuses.php';
 require_once QS_PATH . 'pricing.php';
 require_once QS_PATH . 'quote-number.php';
 require_once QS_PATH . 'repeaters.php';
+require_once QS_PATH . 'rooms.php';
+require_once QS_PATH . 'room-display-pricing.php';
 require_once QS_PATH . 'meta-boxes.php';
 require_once QS_PATH . 'email.php';
 require_once QS_PATH . 'template-functions.php';
@@ -37,8 +39,19 @@ require_once QS_PATH . 'pdf.php';
  */
 require_once QS_PATH . 'integrations/woocommerce.php';
 
+/**
+ * Admin
+ */
+require_once QS_PATH . 'admin/quotes.php';
+require_once QS_PATH . 'admin/pricing-settings.php';
+require_once QS_PATH . 'admin/lead-time-settings.php';
+
+/**
+ * Frontend
+ */
 require_once QS_PATH . 'frontend/quote-builder.php';
 require_once QS_PATH . 'frontend/quote-review.php';
+require_once QS_PATH . 'frontend/multi-room.php';
 require_once QS_PATH . 'frontend/admin-dashboard.php';
 require_once QS_PATH . 'frontend/payment-priority.php';
 require_once QS_PATH . 'frontend/my-quotes.php';
@@ -50,14 +63,9 @@ add_shortcode(
 	'quote_builder',
 	'qs_quote_builder_shortcode'
 );
-/**
- * Admin
- */
-require_once QS_PATH . 'admin/quotes.php';
-require_once QS_PATH . 'admin/pricing-settings.php';
 
 /**
- * Enqueue CSS
+ * Enqueue CSS and JavaScript.
  */
 function qs_enqueue_assets() {
 
@@ -122,6 +130,29 @@ function qs_enqueue_assets() {
 		QS_URL . 'assets/css/quote-review-admin-actions.css',
 		array( 'qs-quote-review' ),
 		$asset_version( 'assets/css/quote-review-admin-actions.css' )
+	);
+
+	wp_enqueue_style(
+		'qs-multi-room',
+		QS_URL . 'assets/css/multi-room.css',
+		array( 'qs-quote-builder-ux', 'qs-quote-review' ),
+		$asset_version( 'assets/css/multi-room.css' )
+	);
+
+	wp_enqueue_script(
+		'qs-multi-room',
+		QS_URL . 'assets/js/multi-room.js',
+		array( 'qs-quantity-fields', 'qs-quote-builder-ux' ),
+		$asset_version( 'assets/js/multi-room.js' ),
+		true
+	);
+
+	wp_enqueue_script(
+		'qs-multi-room-fixes',
+		QS_URL . 'assets/js/multi-room-fixes.js',
+		array( 'qs-multi-room' ),
+		$asset_version( 'assets/js/multi-room-fixes.js' ),
+		true
 	);
 
 	wp_enqueue_style(

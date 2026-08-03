@@ -101,7 +101,7 @@ function qs_sanitise_component_rows( $component, $raw_rows ) {
 			if ( 'positive_int' === $rule ) {
 				$row[ $key ] = absint( $value );
 			} elseif ( 'select' === $rule ) {
-				$row[ $key ] = in_array( $value, array( 'Door', 'Drawer', 'Drawer Bank' ), true ) ? $value : 'Door';
+				$row[ $key ] = in_array( $value, array( 'Door', 'Drawer', 'Drawer Bank', 'Profile End Panel' ), true ) ? $value : 'Door';
 			} else {
 				$row[ $key ] = sanitize_text_field( $value );
 			}
