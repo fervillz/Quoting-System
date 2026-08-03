@@ -7,7 +7,9 @@
 
 .qs-room-manager-heading,
 .qs-room-toolbar,
-.qs-room-summary-card header {
+.qs-room-summary-card header,
+.qs-room-review-heading,
+.qs-room-review-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -15,11 +17,13 @@
 }
 
 .qs-room-manager-heading h3,
-.qs-room-summary-overview > h3 {
+.qs-room-summary-overview > h3,
+.qs-room-review-heading h3 {
   margin: 0;
 }
 
-.qs-room-manager-heading p {
+.qs-room-manager-heading p,
+.qs-room-review-heading p {
   margin: 3px 0 0;
   color: #6d7881;
   font-size: 13px;
@@ -171,10 +175,106 @@ body .qs-builder-shell .qs-room-name {
   white-space: nowrap;
 }
 
+.qs-room-aware-review .qs-review-summary > h3,
+.qs-room-aware-review .qs-review-summary > dl,
+.qs-room-aware-review .qs-review-summary > .qs-review-summary-items {
+  display: none;
+}
+
+.qs-room-review-overview {
+  margin-top: 28px;
+}
+
+.qs-room-review-heading {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(64, 88, 107, .25);
+}
+
+.qs-room-review-card {
+  margin: 0 0 24px;
+  padding: 20px;
+  border: 1px solid #40586b;
+  background: rgba(64, 88, 107, .025);
+  box-shadow: 0 1px 0 rgba(64, 88, 107, .08);
+}
+
+.qs-room-review-card-header {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(64, 88, 107, .2);
+}
+
+.qs-room-review-card-header h4 {
+  margin: 0;
+  color: #40586b;
+  font-size: 22px;
+}
+
+.qs-room-review-card-header span {
+  color: #6d7881;
+  font-size: 12px;
+}
+
+.qs-room-review-card-actions {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.qs-room-review-card-actions strong {
+  color: #40586b;
+  font-size: 17px;
+}
+
+.qs-room-review-card-actions a {
+  color: #501e2a;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.qs-room-review-specifications {
+  display: grid;
+  grid-template-columns: 145px minmax(0, 1fr);
+  gap: 6px 14px;
+  margin: 0 0 18px;
+}
+
+.qs-room-review-specifications dt {
+  font-weight: 700;
+}
+
+.qs-room-review-specifications dd {
+  margin: 0;
+}
+
+.qs-room-review-component {
+  margin-top: 18px;
+}
+
+.qs-room-review-component h5 {
+  margin: 0 0 8px;
+  color: #40586b;
+  font-size: 15px;
+}
+
+.qs-room-review-component .qs-review-table {
+  margin-bottom: 0;
+}
+
+.qs-room-review-empty {
+  margin: 14px 0 0;
+  color: #6d7881;
+  font-style: italic;
+}
+
 @media (max-width: 700px) {
   .qs-room-manager-heading,
   .qs-room-toolbar,
-  .qs-room-summary-card header {
+  .qs-room-summary-card header,
+  .qs-room-review-heading,
+  .qs-room-review-card-header {
     align-items: stretch;
     flex-direction: column;
   }
@@ -187,5 +287,18 @@ body .qs-builder-shell .qs-room-name {
   .qs-builder-shell .qs-room-tab,
   .qs-builder-shell .qs-summary-room-tab {
     flex: 1 1 calc(50% - 8px);
+  }
+
+  .qs-room-review-card-actions {
+    align-items: flex-start;
+  }
+
+  .qs-room-review-specifications {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .qs-room-review-specifications dd {
+    margin-bottom: 8px;
   }
 }
