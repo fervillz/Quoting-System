@@ -8,6 +8,28 @@
   margin-bottom: 18px;
 }
 
+/* The face starts neutral. Each coloured edge appears only after its checkbox is selected. */
+.qs-builder-shell .qs-edge-selector .qs-edge-face {
+  box-sizing: border-box;
+  border: 1px solid transparent;
+}
+
+.qs-builder-shell .qs-edge-selector.qs-edge-selected-top .qs-edge-face {
+  border-top-color: #501e2a;
+}
+
+.qs-builder-shell .qs-edge-selector.qs-edge-selected-right .qs-edge-face {
+  border-right-color: #501e2a;
+}
+
+.qs-builder-shell .qs-edge-selector.qs-edge-selected-bottom .qs-edge-face {
+  border-bottom-color: #501e2a;
+}
+
+.qs-builder-shell .qs-edge-selector.qs-edge-selected-left .qs-edge-face {
+  border-left-color: #501e2a;
+}
+
 .qs-edit-highlight {
   position: relative;
   border: 2px solid #40586b;
