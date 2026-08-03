@@ -49,6 +49,41 @@
     });
   }
 
+  function updateDrawerBankFields(section) {
+    var panel = editorPanel(section, 'Drawer Bank');
+    var countField = panel ? panel.querySelector('[data-editor-field="drawer_count"]') : null;
+    if (!panel || !countField) {
+      return;
+    }
+
+    var count = String(countField.value || '3');
+    var visibility = {
+      top_middle_height: count === '4',
+      middle_height: count === '3',
+      bottom_middle_height: count === '4'
+    };
+
+    Object.keys(visibility).forEach(function (key) {
+      var input = panel.querySelector('[data-editor-field="' + key + '"]');
+      if (!input) {
+        return;
+      }
+
+      var show = visibility[key];
+      input.hidden = !show;
+      input.disabled = !show;
+
+      if (!show) {
+        input.value = '';
+      }
+    });
+
+    var fields = panel.querySelector('.qs-bank-editor-fields');
+    if (fields) {
+      fields.dataset.bankCount = count;
+    }
+  }
+
   function reportMissingQuantity(input) {
     if (!input || Number(input.value) <= 0) {
       if (input) {
@@ -73,6 +108,14 @@
       addFrontQuantityField(section, 'Door');
       addFrontQuantityField(section, 'Drawer');
       clearDefaultQuantityValues(section);
+      updateDrawerBankFields(section);
+
+      var drawerCount = editorField(section, 'Drawer Bank', 'drawer_count');
+      if (drawerCount) {
+        drawerCount.addEventListener('change', function () {
+          updateDrawerBankFields(section);
+        });
+      }
     });
 
     document.querySelectorAll('.qs-configured-component').forEach(clearDefaultQuantityValues);
