@@ -90,10 +90,6 @@ function qs_render_quote_component_table( $rows, $columns, $class = 'qs-table', 
 	echo '</tbody></table>';
 }
 
-/**
- * Prints one structured repeater table.
- * This keeps every PDF row aligned with the quote-builder fields.
- */
 function qs_pdf_component_table( $rows, $columns ) {
 	qs_render_quote_component_table( $rows, $columns, 'qs-table' );
 }
@@ -114,10 +110,20 @@ function qs_quote_summary_groups( $quote_id ) {
 		array( 'title' => 'Doors', 'component' => 'doors_drawers', 'rows' => qs_component_rows_by_type( $doors_drawers, 'Door' ) ),
 		array( 'title' => 'Drawers', 'component' => 'doors_drawers', 'rows' => qs_component_rows_by_type( $doors_drawers, 'Drawer' ) ),
 		array( 'title' => 'Drawer Banks', 'component' => 'doors_drawers', 'rows' => qs_component_rows_by_type( $doors_drawers, 'Drawer Bank' ) ),
+		array( 'title' => 'Profile End Panels', 'component' => 'doors_drawers', 'rows' => qs_component_rows_by_type( $doors_drawers, 'Profile End Panel' ) ),
 		array( 'title' => 'End Panels', 'component' => 'end_panels', 'rows' => qs_component_rows_with_indices( qs_component_rows( $quote_id, 'end_panels' ) ) ),
 		array( 'title' => 'Fillers', 'component' => 'fillers', 'rows' => qs_component_rows_with_indices( qs_component_rows( $quote_id, 'fillers' ) ) ),
 		array( 'title' => 'Kickboards', 'component' => 'kickboards', 'rows' => qs_component_rows_with_indices( qs_component_rows( $quote_id, 'kickboards' ) ) ),
 	);
+}
+
+function qs_quote_dimension_label( $width, $height ) {
+	$width  = absint( $width );
+	$height = absint( $height );
+	if ( ! $width && ! $height ) {
+		return '';
+	}
+	return $width . 'mm (w) × ' . $height . 'mm (h)';
 }
 
 function qs_quote_summary_primary( $component, $row ) {
@@ -130,18 +136,21 @@ function qs_quote_summary_primary( $component, $row ) {
 		foreach ( array( 'top_height', 'top_middle_height', 'middle_height', 'bottom_middle_height', 'bottom_height' ) as $key ) {
 			$height += isset( $row[ $key ] ) ? absint( $row[ $key ] ) : 0;
 		}
-		return $width && $height ? $width . ' x ' . $height : (string) ( $width ? $width : $height );
-	}
-	if ( in_array( $component, array( 'end_panels', 'fillers' ), true ) ) {
-		return absint( isset( $row['height'] ) ? $row['height'] : 0 ) . ' x ' . absint( isset( $row['width'] ) ? $row['width'] : 0 );
+		return qs_quote_dimension_label( $width, $height );
 	}
 
-	return absint( isset( $row['width'] ) ? $row['width'] : 0 ) . ' x ' . absint( isset( $row['height'] ) ? $row['height'] : 0 );
+	return qs_quote_dimension_label(
+		isset( $row['width'] ) ? $row['width'] : 0,
+		isset( $row['height'] ) ? $row['height'] : 0
+	);
 }
 
 function qs_quote_summary_secondary( $component, $row ) {
 	if ( 'kickboards' === $component ) {
-		return absint( isset( $row['height'] ) ? $row['height'] : 0 ) . ' x ' . absint( isset( $row['length'] ) ? $row['length'] : 0 );
+		return qs_quote_dimension_label(
+			isset( $row['length'] ) ? $row['length'] : 0,
+			isset( $row['height'] ) ? $row['height'] : 0
+		);
 	}
 	if ( 'doors_drawers' === $component && isset( $row['type'] ) && 'Drawer Bank' === $row['type'] ) {
 		return qs_component_drawer_heights( $row );
