@@ -95,7 +95,7 @@ $created_by = $data['created_by'] ? $data['created_by'] : $data['customer_name']
 							<?php foreach ( $room['components'] as $component => $component_rows ) : ?>
 								<?php if ( $component_rows ) : ?><p><span><?php echo esc_html( ucwords( str_replace( '_', ' ', $component ) ) ); ?></span><em><?php echo esc_html( count( $component_rows ) ); ?></em></p><?php endif; ?>
 							<?php endforeach; ?>
-							<p><span>Room subtotal</span><em>$<?php echo esc_html( number_format_i18n( qs_room_subtotal( $quote_id, $room['id'] ), 2 ) ); ?></em></p>
+							<p><span>Room subtotal</span><em>$<?php echo esc_html( number_format_i18n( qs_room_display_subtotal( $quote_id, $room['id'] ), 2 ) ); ?></em></p>
 						</div>
 					<?php endforeach; ?>
 					<div class="qs-pdf-lead-time"><strong>Estimated Lead Time</strong><span><?php echo esc_html( qs_quote_lead_time( $quote_id ) ); ?></span></div>
