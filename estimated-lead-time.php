@@ -25,6 +25,28 @@ function qs_estimated_lead_time( $quote_id = 0 ) {
 }
 
 /**
+ * Lead time may be changed from the frontend only before the quote is
+ * approved. `awaiting_deposit` is the first approved workflow state.
+ */
+function qs_estimated_lead_time_is_preapproval( $quote_id ) {
+	$status = get_post_status( $quote_id );
+	$status = 'pending' === $status ? 'pending_review' : $status;
+
+	return in_array( $status, array( 'draft', 'pending_review' ), true );
+}
+
+function qs_estimated_lead_time_can_frontend_edit( $quote_id ) {
+	$post = get_post( $quote_id );
+	if ( ! $post || 'quote' !== $post->post_type ) {
+		return false;
+	}
+
+	return current_user_can( 'edit_others_posts' )
+		&& current_user_can( 'edit_post', $quote_id )
+		&& qs_estimated_lead_time_is_preapproval( $quote_id );
+}
+
+/**
  * Keep the field inside the existing Pricing & Workflow side metabox.
  */
 function qs_pricing_workflow_with_estimated_lead_time_metabox( $post ) {
@@ -92,6 +114,11 @@ function qs_save_estimated_lead_time( $post_id ) {
 		return;
 	}
 
+	$is_frontend_request = ! is_admin() || ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() );
+	if ( $is_frontend_request && ! qs_estimated_lead_time_can_frontend_edit( $post_id ) ) {
+		return;
+	}
+
 	$value = isset( $_POST['estimated_lead_time'] )
 		? sanitize_text_field( wp_unslash( $_POST['estimated_lead_time'] ) )
 		: '';
@@ -105,18 +132,94 @@ function qs_save_estimated_lead_time( $post_id ) {
 }
 add_action( 'save_post_quote', 'qs_save_estimated_lead_time', 20 );
 
-function qs_replace_estimated_lead_time_markup( $html, $quote_id, $class_name ) {
-	$value   = esc_html( qs_estimated_lead_time( $quote_id ) );
-	$pattern = '/(<div class="' . preg_quote( $class_name, '/' ) . '"><strong>Estimated Lead Time<\/strong><span>).*?(<\/span>)/s';
+/**
+ * Save the standalone lead-time form on the frontend Quote Review page before
+ * the page template sends output, then redirect to prevent duplicate submits.
+ */
+function qs_handle_frontend_estimated_lead_time_update() {
+	if ( empty( $_POST['qs_update_estimated_lead_time'] ) ) {
+		return;
+	}
 
-	return preg_replace_callback(
-		$pattern,
-		static function ( $matches ) use ( $value ) {
-			return $matches[1] . $value . $matches[2];
-		},
-		$html,
-		1
+	$quote_id = isset( $_POST['quote_id'] ) ? absint( $_POST['quote_id'] ) : 0;
+	$nonce    = isset( $_POST['qs_estimated_lead_time_nonce'] )
+		? sanitize_text_field( wp_unslash( $_POST['qs_estimated_lead_time_nonce'] ) )
+		: '';
+
+	if ( ! $quote_id || ! wp_verify_nonce( $nonce, 'qs_save_estimated_lead_time' ) ) {
+		wp_die( esc_html__( 'Security check failed. Please reload the page and try again.', 'quote-system' ), 403 );
+	}
+	if ( ! qs_estimated_lead_time_can_frontend_edit( $quote_id ) ) {
+		wp_die( esc_html__( 'This lead time can no longer be changed from the quote page.', 'quote-system' ), 403 );
+	}
+
+	$value = isset( $_POST['estimated_lead_time'] )
+		? sanitize_text_field( wp_unslash( $_POST['estimated_lead_time'] ) )
+		: '';
+
+	if ( '' === $value ) {
+		delete_post_meta( $quote_id, '_estimated_lead_time' );
+	} else {
+		update_post_meta( $quote_id, '_estimated_lead_time', $value );
+	}
+
+	$redirect = wp_get_referer();
+	if ( ! $redirect ) {
+		$redirect = add_query_arg( 'quote_id', $quote_id, site_url( '/quote-review/' ) );
+	}
+	$redirect = remove_query_arg( 'lead_time_updated', $redirect );
+
+	wp_safe_redirect( add_query_arg( 'lead_time_updated', '1', $redirect ) );
+	exit;
+}
+add_action( 'template_redirect', 'qs_handle_frontend_estimated_lead_time_update' );
+
+function qs_estimated_lead_time_display_markup( $quote_id, $class_name ) {
+	return sprintf(
+		'<div class="%1$s"><strong>Estimated Lead Time</strong><span>%2$s</span></div>',
+		esc_attr( $class_name ),
+		esc_html( qs_estimated_lead_time( $quote_id ) )
 	);
+}
+
+function qs_estimated_lead_time_builder_editor_markup( $quote_id, $class_name ) {
+	return sprintf(
+		'<div class="%1$s qs-estimated-lead-time-editable"><strong>Estimated Lead Time</strong><span class="qs-estimated-lead-time-control"><input type="text" name="estimated_lead_time" value="%2$s" placeholder="%3$s" aria-label="Estimated Lead Time"><small>Saved with the quote</small></span><input type="hidden" name="qs_estimated_lead_time_nonce" value="%4$s"></div>',
+		esc_attr( $class_name ),
+		esc_attr( qs_estimated_lead_time( $quote_id ) ),
+		esc_attr( qs_estimated_lead_time_default() ),
+		esc_attr( wp_create_nonce( 'qs_save_estimated_lead_time' ) )
+	);
+}
+
+function qs_estimated_lead_time_review_editor_markup( $quote_id, $class_name ) {
+	$updated = isset( $_GET['lead_time_updated'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['lead_time_updated'] ) );
+
+	return sprintf(
+		'<form method="post" class="%1$s qs-estimated-lead-time-editable"><strong>Estimated Lead Time</strong><span class="qs-estimated-lead-time-control"><input type="text" name="estimated_lead_time" value="%2$s" placeholder="%3$s" aria-label="Estimated Lead Time"><button type="submit" name="qs_update_estimated_lead_time" value="1">Update</button>%4$s</span><input type="hidden" name="quote_id" value="%5$d"><input type="hidden" name="qs_estimated_lead_time_nonce" value="%6$s"></form>',
+		esc_attr( $class_name ),
+		esc_attr( qs_estimated_lead_time( $quote_id ) ),
+		esc_attr( qs_estimated_lead_time_default() ),
+		$updated ? '<small class="qs-estimated-lead-time-updated">Updated</small>' : '',
+		absint( $quote_id ),
+		esc_attr( wp_create_nonce( 'qs_save_estimated_lead_time' ) )
+	);
+}
+
+function qs_replace_estimated_lead_time_markup( $html, $quote_id, $class_name, $context = 'display' ) {
+	$pattern = '/<div class="' . preg_quote( $class_name, '/' ) . '"><strong>Estimated Lead Time<\/strong><span>.*?<\/span><\/div>/s';
+
+	if ( qs_estimated_lead_time_can_frontend_edit( $quote_id ) ) {
+		$replacement = 'builder' === $context
+			? qs_estimated_lead_time_builder_editor_markup( $quote_id, $class_name )
+			: ( 'review' === $context
+				? qs_estimated_lead_time_review_editor_markup( $quote_id, $class_name )
+				: qs_estimated_lead_time_display_markup( $quote_id, $class_name ) );
+	} else {
+		$replacement = qs_estimated_lead_time_display_markup( $quote_id, $class_name );
+	}
+
+	return preg_replace( $pattern, $replacement, $html, 1 );
 }
 
 function qs_current_quote_id() {
@@ -131,17 +234,19 @@ function qs_current_quote_id() {
 }
 
 function qs_estimated_lead_time_builder_shortcode() {
-	$html = function_exists( 'qs_profile_end_panel_builder_shortcode' )
+	$html     = function_exists( 'qs_profile_end_panel_builder_shortcode' )
 		? qs_profile_end_panel_builder_shortcode()
 		: qs_quote_builder_shortcode();
+	$quote_id = qs_current_quote_id();
 
-	return qs_replace_estimated_lead_time_markup( $html, qs_current_quote_id(), 'qs-lead-time' );
+	return qs_replace_estimated_lead_time_markup( $html, $quote_id, 'qs-lead-time', 'builder' );
 }
 
 function qs_estimated_lead_time_review_shortcode() {
-	$html = qs_quote_review_shortcode();
+	$html     = qs_quote_review_shortcode();
+	$quote_id = qs_current_quote_id();
 
-	return qs_replace_estimated_lead_time_markup( $html, qs_current_quote_id(), 'qs-review-lead-time' );
+	return qs_replace_estimated_lead_time_markup( $html, $quote_id, 'qs-review-lead-time', 'review' );
 }
 
 function qs_register_estimated_lead_time_shortcodes() {
@@ -207,3 +312,16 @@ function qs_estimated_lead_time_download_quotation_pdf() {
 
 remove_action( 'init', 'qs_download_quotation_pdf' );
 add_action( 'init', 'qs_estimated_lead_time_download_quotation_pdf' );
+
+function qs_enqueue_estimated_lead_time_assets() {
+	$relative_path = 'assets/css/estimated-lead-time.css';
+	$path          = QS_PATH . $relative_path;
+
+	wp_enqueue_style(
+		'qs-estimated-lead-time',
+		QS_URL . $relative_path,
+		array(),
+		file_exists( $path ) ? (string) filemtime( $path ) : QS_VERSION
+	);
+}
+add_action( 'wp_enqueue_scripts', 'qs_enqueue_estimated_lead_time_assets', 10001 );
