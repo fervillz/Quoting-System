@@ -14,6 +14,12 @@
     return input ? input.value : '';
   }
 
+  function applyTypeActionButtonSizing(section) {
+    section.querySelectorAll('.qs-type-actions button').forEach(function (button) {
+      button.style.setProperty('font-size', '13px', 'important');
+    });
+  }
+
   function addEditor(section) {
     var actions = section.querySelector('.qs-type-actions');
     var editor = section.querySelector('.qs-door-entry-editor');
@@ -129,6 +135,7 @@
     }
 
     addEditor(section);
+    applyTypeActionButtonSizing(section);
     renderSummary(section, summary);
 
     if (summary && window.MutationObserver) {
