@@ -1,0 +1,80 @@
+.qs-estimated-lead-time-editable {
+  gap: 18px;
+}
+
+.qs-estimated-lead-time-control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.qs-estimated-lead-time-control input[type="text"] {
+  box-sizing: border-box;
+  width: 170px;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 7px 9px;
+  border: 1px solid #501e2a;
+  border-radius: 0;
+  background: #fff;
+  color: #40586b;
+  font: 13px/1.3 "GTWalsheim", sans-serif;
+}
+
+.qs-estimated-lead-time-control small {
+  display: block;
+  color: #6d7881;
+  font-size: 11px;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.qs-review-lead-time.qs-estimated-lead-time-editable {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+}
+
+.qs-review-lead-time .qs-estimated-lead-time-control button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #501e2a;
+  border-radius: 0;
+  background: #cfa096;
+  color: #501e2a;
+  font: 600 12px/1 "GTWalsheim", sans-serif;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.qs-review-lead-time .qs-estimated-lead-time-control button:hover,
+.qs-review-lead-time .qs-estimated-lead-time-control button:focus-visible {
+  background: #501e2a;
+  color: #fff;
+}
+
+.qs-estimated-lead-time-updated {
+  color: #40586b !important;
+  font-style: normal !important;
+}
+
+@media (max-width: 700px) {
+  .qs-estimated-lead-time-editable,
+  .qs-review-lead-time.qs-estimated-lead-time-editable {
+    display: block;
+  }
+
+  .qs-estimated-lead-time-control {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .qs-estimated-lead-time-control input[type="text"] {
+    width: 100%;
+  }
+}
