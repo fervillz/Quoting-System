@@ -30,6 +30,11 @@
   border-left-color: #501e2a;
 }
 
+.qs-type-actions button,
+.qs-add-row {
+  padding: 0 10px !important;
+}
+
 .qs-edit-highlight {
   position: relative;
   border: 2px solid #40586b;
