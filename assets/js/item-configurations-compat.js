@@ -6,6 +6,28 @@
     else callback();
   }
 
+  function storedValue(row, key) {
+    var input = row && row.querySelector('[name$="[' + key + ']"]');
+    return input ? String(input.value || '') : '';
+  }
+
+  function syncPaintedEditor(editor, timberValue) {
+    if (!editor || !/paint/i.test(timberValue || '')) return;
+    var timber = editor.querySelector('[data-item-config-field="timber"]');
+    var paint = editor.querySelector('[data-item-config-field="paint_colour"]');
+    var finish = editor.querySelector('[data-item-config-field="finish"]');
+    if (timber && !timber.value) timber.value = timberValue;
+    if (paint) {
+      paint.hidden = false;
+      paint.disabled = false;
+    }
+    if (finish) {
+      finish.hidden = true;
+      finish.disabled = true;
+      finish.value = '';
+    }
+  }
+
   ready(function () {
     var form = document.querySelector('.qs-builder-form');
     if (!form) return;
@@ -26,6 +48,25 @@
         option.textContent = 'Painted Oak';
         select.appendChild(option);
       }
+    });
+
+    // Restore the carry-forward value for existing quotes whose Painted Oak
+    // value could not be selected until the fallback option above existed.
+    var doorSection = document.querySelector('.qs-doors-drawers');
+    if (doorSection) {
+      var doorRows = doorSection.querySelectorAll('.qs-repeater-row');
+      var legacyTimber = form.querySelector('[name="timber"]:checked');
+      var lastDoorTimber = doorRows.length ? storedValue(doorRows[doorRows.length - 1], 'timber') : '';
+      var doorTimber = lastDoorTimber || (legacyTimber ? legacyTimber.value : '');
+      doorSection.querySelectorAll('.qs-item-editor').forEach(function (editor) {
+        syncPaintedEditor(editor, doorTimber);
+      });
+    }
+
+    document.querySelectorAll('.qs-configured-component').forEach(function (section) {
+      var rows = section.querySelectorAll('.qs-repeater-row');
+      if (!rows.length) return;
+      syncPaintedEditor(section.querySelector('.qs-component-editor'), storedValue(rows[rows.length - 1], 'timber'));
     });
 
     // Notes are item-specific. Specifications may carry forward, but notes do not.
