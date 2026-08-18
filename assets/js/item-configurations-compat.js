@@ -16,7 +16,15 @@
 
     // Notes are item-specific. Specifications may carry forward, but notes do not.
     document.querySelectorAll('[data-item-config-field="notes"]').forEach(function (notes) {
-      if (!notes.closest('.qs-edit-highlight')) notes.value = '';
+      notes.value = '';
     });
+
+    // Match the client flow: Kick Material first, then Timber / Finish, then dimensions.
+    var kickboardEditor = document.querySelector('.qs-kickboards .qs-component-editor');
+    if (kickboardEditor) {
+      var config = kickboardEditor.querySelector('.qs-item-config-block');
+      var fields = kickboardEditor.querySelector('.qs-kickboard-fields');
+      if (config && fields) kickboardEditor.insertBefore(config, fields);
+    }
   });
 }());
