@@ -14,6 +14,20 @@
       input.removeAttribute('required');
     });
 
+    // Keep the same Painted Oak fallback the original Door Specifications
+    // picker provided when Painted Oak is not a Timber taxonomy product.
+    document.querySelectorAll('[data-item-config-field="timber"]').forEach(function (select) {
+      var hasPainted = Array.prototype.some.call(select.options, function (option) {
+        return /paint/i.test(option.textContent || '');
+      });
+      if (!hasPainted) {
+        var option = document.createElement('option');
+        option.value = 'Painted Oak';
+        option.textContent = 'Painted Oak';
+        select.appendChild(option);
+      }
+    });
+
     // Notes are item-specific. Specifications may carry forward, but notes do not.
     document.querySelectorAll('[data-item-config-field="notes"]').forEach(function (notes) {
       notes.value = '';
