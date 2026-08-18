@@ -59,8 +59,11 @@ function qs_component_display_value( $row, $key ) {
 	}
 
 	$value = isset( $row[ $key ] ) ? $row[ $key ] : '';
-	if ( 'material' === $key ) {
+	if ( in_array( $key, array( 'material', 'door_profile', 'timber', 'finish', 'handle_profile' ), true ) ) {
 		$value = qs_quote_product_label( $value );
+	}
+	if ( 'timber' === $key && ! empty( $row['paint_colour'] ) ) {
+		$value = trim( (string) $value ) . "\nPaint Colour: " . $row['paint_colour'];
 	}
 	if ( in_array( $key, array( 'width', 'height', 'length' ), true ) && '' !== $value ) {
 		$value = absint( $value ) . ' mm';
@@ -131,22 +134,61 @@ function qs_quote_summary_primary( $component, $row ) {
 		foreach ( array( 'top_height', 'top_middle_height', 'middle_height', 'bottom_middle_height', 'bottom_height' ) as $key ) {
 			$height += isset( $row[ $key ] ) ? absint( $row[ $key ] ) : 0;
 		}
-		return $width && $height ? $width . ' x ' . $height : (string) ( $width ? $width : $height );
-	}
-	if ( in_array( $component, array( 'end_panels', 'fillers' ), true ) ) {
-		return absint( isset( $row['height'] ) ? $row['height'] : 0 ) . ' x ' . absint( isset( $row['width'] ) ? $row['width'] : 0 );
+		return $width && $height ? $width . 'mm (w) x ' . $height . 'mm (h)' : (string) ( $width ? $width . 'mm (w)' : $height . 'mm (h)' );
 	}
 
-	return absint( isset( $row['width'] ) ? $row['width'] : 0 ) . ' x ' . absint( isset( $row['height'] ) ? $row['height'] : 0 );
+	$width  = absint( isset( $row['width'] ) ? $row['width'] : 0 );
+	$height = absint( isset( $row['height'] ) ? $row['height'] : 0 );
+	return $width . 'mm (w) x ' . $height . 'mm (h)';
+}
+
+function qs_quote_summary_configuration_lines( $component, $row ) {
+	$lines = array();
+	if ( 'doors_drawers' === $component ) {
+		if ( ! empty( $row['door_profile'] ) ) {
+			$lines[] = 'Profile: ' . qs_quote_product_label( $row['door_profile'] );
+		}
+		if ( ! empty( $row['timber'] ) ) {
+			$lines[] = 'Timber: ' . qs_quote_product_label( $row['timber'] );
+		}
+		if ( ! empty( $row['handle_profile'] ) ) {
+			$lines[] = 'Handle: ' . qs_quote_product_label( $row['handle_profile'] );
+		}
+		if ( ! empty( $row['finish'] ) ) {
+			$lines[] = 'Finish: ' . qs_quote_product_label( $row['finish'] );
+		}
+	} else {
+		if ( ! empty( $row['timber'] ) ) {
+			$lines[] = 'Timber: ' . qs_quote_product_label( $row['timber'] );
+		}
+		if ( ! empty( $row['finish'] ) ) {
+			$lines[] = 'Finish: ' . qs_quote_product_label( $row['finish'] );
+		}
+	}
+	if ( ! empty( $row['paint_colour'] ) ) {
+		$lines[] = 'Paint Colour: ' . $row['paint_colour'];
+	}
+
+	return $lines;
 }
 
 function qs_quote_summary_secondary( $component, $row ) {
+	$lines = qs_quote_summary_configuration_lines( $component, $row );
+
 	if ( 'kickboards' === $component ) {
-		return absint( isset( $row['height'] ) ? $row['height'] : 0 ) . ' x ' . absint( isset( $row['length'] ) ? $row['length'] : 0 );
+		$height = absint( isset( $row['height'] ) ? $row['height'] : 0 );
+		$length = absint( isset( $row['length'] ) ? $row['length'] : 0 );
+		array_unshift( $lines, $length . 'mm (w) x ' . $height . 'mm (h)' );
 	}
 	if ( 'doors_drawers' === $component && isset( $row['type'] ) && 'Drawer Bank' === $row['type'] ) {
-		return qs_component_drawer_heights( $row );
+		$heights = qs_component_drawer_heights( $row );
+		if ( $heights ) {
+			$lines[] = $heights;
+		}
+	}
+	if ( ! empty( $row['notes'] ) ) {
+		$lines[] = 'Notes: ' . $row['notes'];
 	}
 
-	return '';
+	return implode( "\n", array_filter( $lines ) );
 }
