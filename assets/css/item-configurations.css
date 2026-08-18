@@ -1,0 +1,58 @@
+.qs-legacy-door-specifications[hidden] {
+  display: none !important;
+}
+
+.qs-item-config-block {
+  margin: 0 0 12px;
+}
+
+.qs-item-config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body .qs-builder-shell .qs-item-config-grid select,
+body .qs-builder-shell .qs-item-config-grid input,
+body .qs-builder-shell .qs-item-notes {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  border: 1px solid #501e2a !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  padding: 9px 11px !important;
+  color: #40586b !important;
+  font: 13px var(--qs-sans) !important;
+}
+
+body .qs-builder-shell .qs-item-config-grid select,
+body .qs-builder-shell .qs-item-config-grid input {
+  min-height: 36px !important;
+}
+
+body .qs-builder-shell .qs-item-config-grid [hidden] {
+  display: none !important;
+}
+
+body .qs-builder-shell .qs-item-notes {
+  min-height: 58px !important;
+  margin: 10px 0 14px;
+  resize: vertical;
+}
+
+.qs-item-config-summary {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #6d7881;
+}
+
+@media (max-width: 700px) {
+  .qs-item-config-grid {
+    grid-template-columns: 1fr;
+  }
+}
