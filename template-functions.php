@@ -57,6 +57,25 @@ function qs_component_display_value( $row, $key ) {
 			' /'
 		);
 	}
+	if ( 'item_specifications' === $key ) {
+		$lines = array();
+		if ( ! empty( $row['door_profile'] ) ) {
+			$lines[] = 'Profile: ' . qs_quote_product_label( $row['door_profile'] );
+		}
+		if ( ! empty( $row['timber'] ) ) {
+			$lines[] = 'Timber: ' . qs_quote_product_label( $row['timber'] );
+		}
+		if ( ! empty( $row['handle_profile'] ) ) {
+			$lines[] = 'Handle: ' . qs_quote_product_label( $row['handle_profile'] );
+		}
+		if ( ! empty( $row['finish'] ) ) {
+			$lines[] = 'Finish: ' . qs_quote_product_label( $row['finish'] );
+		}
+		if ( ! empty( $row['paint_colour'] ) ) {
+			$lines[] = 'Paint Colour: ' . $row['paint_colour'];
+		}
+		return implode( "\n", $lines );
+	}
 
 	$value = isset( $row[ $key ] ) ? $row[ $key ] : '';
 	if ( in_array( $key, array( 'material', 'door_profile', 'timber', 'finish', 'handle_profile' ), true ) ) {
