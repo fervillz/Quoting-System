@@ -14,43 +14,63 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Lists every repeater and the fields each row is allowed to contain.
  *
- * Keeping this list in one place stops the builder, review page and PDFs from
- * disagreeing about the shape of a quote item.
+ * Product configuration now lives on each individual row. Older quotes that
+ * only have quote-level Door Specifications remain supported by the pricing
+ * and display helpers, which fall back to the legacy quote meta when a row
+ * does not yet contain these values.
  */
 function qs_component_definitions() {
 	return array(
 		'doors_drawers' => array(
-			'type'          => 'select',
-			'width'         => 'positive_int',
-			'height'        => 'positive_int',
-			'quantity'      => 'positive_int',
-			'edge_profile'  => 'text',
-			'drawer_count'  => 'positive_int',
-			'top_height'    => 'positive_int',
-			'top_middle_height' => 'positive_int',
-			'middle_height' => 'positive_int',
+			'type'                 => 'select',
+			'door_profile'         => 'text',
+			'timber'               => 'text',
+			'handle_profile'       => 'text',
+			'finish'               => 'text',
+			'paint_colour'         => 'text',
+			'width'                => 'positive_int',
+			'height'               => 'positive_int',
+			'quantity'             => 'positive_int',
+			'edge_profile'         => 'text',
+			'drawer_count'         => 'positive_int',
+			'top_height'           => 'positive_int',
+			'top_middle_height'    => 'positive_int',
+			'middle_height'        => 'positive_int',
 			'bottom_middle_height' => 'positive_int',
-			'bottom_height' => 'positive_int',
+			'bottom_height'        => 'positive_int',
+			'notes'                => 'textarea',
 		),
 		'end_panels' => array(
-			'height'      => 'positive_int',
-			'width'       => 'positive_int',
-			'quantity'    => 'positive_int',
-			'faces_seen'  => 'text',
-			'edges_seen'  => 'text',
+			'timber'       => 'text',
+			'finish'       => 'text',
+			'paint_colour' => 'text',
+			'height'       => 'positive_int',
+			'width'        => 'positive_int',
+			'quantity'     => 'positive_int',
+			'faces_seen'   => 'text',
+			'edges_seen'   => 'text',
+			'notes'        => 'textarea',
 		),
 		'fillers' => array(
-			'height'      => 'positive_int',
-			'width'       => 'positive_int',
-			'quantity'    => 'positive_int',
-			'faces_seen'  => 'text',
-			'edges_seen'  => 'text',
+			'timber'       => 'text',
+			'finish'       => 'text',
+			'paint_colour' => 'text',
+			'height'       => 'positive_int',
+			'width'        => 'positive_int',
+			'quantity'     => 'positive_int',
+			'faces_seen'   => 'text',
+			'edges_seen'   => 'text',
+			'notes'        => 'textarea',
 		),
 		'kickboards' => array(
-			'material' => 'text',
-			'height'   => 'positive_int',
-			'length'   => 'positive_int',
-			'quantity' => 'positive_int',
+			'material'     => 'text',
+			'timber'       => 'text',
+			'finish'       => 'text',
+			'paint_colour' => 'text',
+			'height'       => 'positive_int',
+			'length'       => 'positive_int',
+			'quantity'     => 'positive_int',
+			'notes'        => 'textarea',
 		),
 	);
 }
@@ -102,6 +122,8 @@ function qs_sanitise_component_rows( $component, $raw_rows ) {
 				$row[ $key ] = absint( $value );
 			} elseif ( 'select' === $rule ) {
 				$row[ $key ] = in_array( $value, array( 'Door', 'Drawer', 'Drawer Bank', 'Profile End Panel' ), true ) ? $value : 'Door';
+			} elseif ( 'textarea' === $rule ) {
+				$row[ $key ] = sanitize_textarea_field( $value );
 			} else {
 				$row[ $key ] = sanitize_text_field( $value );
 			}
@@ -126,7 +148,6 @@ function qs_save_component_rows( $quote_id, $posted_components ) {
 		update_post_meta( $quote_id, '_qs_' . $component, qs_sanitise_component_rows( $component, $raw_rows ) );
 	}
 }
-
 
 /**
  * Converts a saved Quote Product post ID into its readable title.
