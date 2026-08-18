@@ -7,6 +7,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Only replace pricing when the Quote System is performing its normal product
+ * recalculation. Direct office edits to the Pricing & Workflow subtotal remain
+ * manual overrides, as they were before per-item configurations were added.
+ */
+remove_action( 'added_post_meta', 'qs_item_config_sync_pricing', 1200 );
+remove_action( 'updated_post_meta', 'qs_item_config_sync_pricing', 1200 );
+
+function qs_item_config_sync_recalculated_pricing( $meta_id, $quote_id, $meta_key, $meta_value ) {
+	if ( '_subtotal' !== $meta_key || 'quote' !== get_post_type( $quote_id ) ) {
+		return;
+	}
+
+	$from_recalculation = false;
+	foreach ( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 12 ) as $frame ) { // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		if ( isset( $frame['function'] ) && 'qs_recalculate_quote_pricing' === $frame['function'] ) {
+			$from_recalculation = true;
+			break;
+		}
+	}
+
+	if ( $from_recalculation ) {
+		qs_item_config_sync_pricing( $meta_id, $quote_id, $meta_key, $meta_value );
+	}
+}
+add_action( 'added_post_meta', 'qs_item_config_sync_recalculated_pricing', 1200, 4 );
+add_action( 'updated_post_meta', 'qs_item_config_sync_recalculated_pricing', 1200, 4 );
+
+/**
  * Keep Profile End Panel item types intact when the legacy wp-admin Components
  * table is saved. That table predates the Profile End Panel option.
  */
