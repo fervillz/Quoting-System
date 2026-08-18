@@ -25,6 +25,9 @@ $specs        = array(
 	array( 'Finish', $data['finish'], '' ),
 	array( 'Door / Drawer Handle Profile', $data['handle_profile'], '' ),
 );
+$has_legacy_specs = (bool) array_filter(
+	array( $data['timber'], $data['finish'], $data['door_profile'], $data['handle_profile'], $data['paint_colour'] )
+);
 ?>
 <div class="qs-pdf qs-jobsheet-pdf">
 	<header class="qs-pdf-header">
@@ -53,40 +56,42 @@ $specs        = array(
 
 		<section class="qs-pdf-section qs-pdf-project-details">
 			<h2>Project Details</h2>
-			<table class="qs-pdf-specifications">
-				<tr>
-					<?php foreach ( $specs as $spec ) : ?>
-						<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"></span></td>
-						<td>
-							<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
-							<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
-							<?php if ( $spec[2] ) : ?><small><?php echo esc_html( $spec[2] ); ?></small><?php endif; ?>
-						</td>
-					<?php endforeach; ?>
-				</tr>
-			</table>
+			<?php if ( $has_legacy_specs ) : ?>
+				<table class="qs-pdf-specifications">
+					<tr>
+						<?php foreach ( $specs as $spec ) : ?>
+							<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"></span></td>
+							<td>
+								<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
+								<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
+								<?php if ( $spec[2] ) : ?><small><?php echo esc_html( $spec[2] ); ?></small><?php endif; ?>
+							</td>
+						<?php endforeach; ?>
+					</tr>
+				</table>
+			<?php endif; ?>
 		</section>
 
 		<section class="qs-pdf-section">
 			<h2>Doors &amp; Drawers</h2>
-			<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+			<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
 			<?php if ( $drawer_banks ) : ?>
 				<h3>Drawer Banks</h3>
-				<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity' ), 'qs-pdf-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
+				<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
 			<?php endif; ?>
 		</section>
 
 		<section class="qs-pdf-section">
 			<h2>End Panels &amp; Fillers</h2>
 			<h3>End Panels</h3>
-			<?php qs_render_quote_component_table( $rows['end_panels'], array( 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+			<?php qs_render_quote_component_table( $rows['end_panels'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
 			<h3>Fillers</h3>
-			<?php qs_render_quote_component_table( $rows['fillers'], array( 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+			<?php qs_render_quote_component_table( $rows['fillers'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
 		</section>
 
 		<section class="qs-pdf-section">
 			<h2>Kickboards</h2>
-			<?php qs_render_quote_component_table( $rows['kickboards'], array( 'material' => 'Kick Material', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity' ), 'qs-pdf-table' ); ?>
+			<?php qs_render_quote_component_table( $rows['kickboards'], array( 'material' => 'Kick Material', 'item_specifications' => 'Specifications', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
 		</section>
 
 		<?php if ( $data['custom_requests'] ) : ?>
