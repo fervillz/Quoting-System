@@ -15,6 +15,10 @@
 .qs-my-quotes,
 .quote-sub-wrap {
 	box-sizing: border-box;
+	width: calc(100% - 40px);
+	max-width: 1280px;
+	margin-left: auto;
+	margin-right: auto;
 	color: var(--qs-ink);
 	font-family: var(--qs-sans);
 	font-size: 14px;
@@ -27,6 +31,31 @@
 .qs-my-quotes *,
 .quote-sub-wrap * {
 	box-sizing: border-box;
+}
+
+.qs-container button,
+.qs-container input,
+.qs-container select,
+.qs-container textarea,
+.qs-builder-shell button,
+.qs-builder-shell input,
+.qs-builder-shell select,
+.qs-builder-shell textarea,
+.qs-admin-dashboard button,
+.qs-admin-dashboard input,
+.qs-admin-dashboard select,
+.qs-admin-dashboard textarea,
+.qs-my-quotes button,
+.qs-my-quotes input,
+.qs-my-quotes select,
+.qs-my-quotes textarea,
+.quote-sub-wrap button,
+.quote-sub-wrap input,
+.quote-sub-wrap select,
+.quote-sub-wrap textarea {
+	box-sizing: border-box;
+	max-width: 100%;
+	font-family: var(--qs-sans);
 }
 
 .qs-container h1,
@@ -133,3 +162,13 @@
 .qs-status-deposit_paid,
 .qs-status-final_balance { background: #2bb566; color: #fff; }
 .qs-status-paid_in_full { background: #147c3e; color: #fff; }
+
+@media (max-width: 700px) {
+	.qs-container,
+	.qs-builder-shell,
+	.qs-admin-dashboard,
+	.qs-my-quotes,
+	.quote-sub-wrap {
+		width: calc(100% - 24px);
+	}
+}
