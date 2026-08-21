@@ -2,6 +2,13 @@
   display: none !important;
 }
 
+/* The per-item configuration workflow supersedes the old quote-level summary.
+ * Some theme styles force DL elements to display, so explicitly honour hidden. */
+.qs-builder-summary > h4[hidden],
+.qs-builder-summary > dl[hidden] {
+  display: none !important;
+}
+
 .qs-item-config-block {
   margin: 0 0 12px;
 }
