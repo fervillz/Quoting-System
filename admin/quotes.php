@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once QS_PATH . 'admin/item-configurations.php';
+require_once QS_PATH . 'admin/item-configurations-force.php';
 
 /**
  * Customize Quote admin columns.
