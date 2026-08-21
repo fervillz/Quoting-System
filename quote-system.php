@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Quote System
  * Description: Frontend quotation system for Loughlin Furniture.
- * Version: 1.6.1
+ * Version: 1.6.2
  * Author: Loughlin Furniture
  * Text Domain: quote-system
  */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Plugin Constants
  */
-define( 'QS_VERSION', '1.6.1' );
+define( 'QS_VERSION', '1.6.2' );
 define( 'QS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'QS_URL', plugin_dir_url( __FILE__ ) );
 
@@ -63,7 +63,106 @@ require_once QS_PATH . 'admin/quotes.php';
 require_once QS_PATH . 'admin/pricing-settings.php';
 
 /**
- * Enqueue CSS
+ * Return true when the current request is one of the Quote System frontend
+ * screens. The installer stores page IDs, but the shortcode check also keeps
+ * manually-created/legacy pages working.
+ */
+function qs_is_frontend_ui_page() {
+	if ( is_admin() || ! is_singular() ) {
+		return false;
+	}
+
+	$queried_id = get_queried_object_id();
+	if ( $queried_id && function_exists( 'qs_setup_page_definitions' ) && function_exists( 'qs_setup_get_page_id' ) ) {
+		foreach ( array_keys( qs_setup_page_definitions() ) as $page_key ) {
+			if ( $queried_id === (int) qs_setup_get_page_id( $page_key ) ) {
+				return true;
+			}
+		}
+	}
+
+	$post = get_post( $queried_id );
+	if ( ! $post ) {
+		return false;
+	}
+
+	$shortcodes = array(
+		'quote_builder',
+		'quote_review',
+		'quote_admin_dashboard',
+		'admin_dashboard',
+		'my_quotes',
+		'quote_submitted',
+		'quote_login',
+		'joiner_login',
+	);
+
+	foreach ( $shortcodes as $shortcode ) {
+		if ( has_shortcode( (string) $post->post_content, $shortcode ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Frontend CSS files that make up the complete Quote System UI.
+ *
+ * These are still enqueued as normal cacheable stylesheets below. On Quote
+ * System pages we also append the same CSS inline to qs-base as a defensive
+ * fallback. This avoids a partially-unformatted UI when a theme/optimizer
+ * drops, delays or combines one of the dependent stylesheet handles.
+ */
+function qs_frontend_css_files() {
+	return array(
+		'assets/css/quote-builder.css',
+		'assets/css/quantity-fields.css',
+		'assets/css/quote-builder-ux.css',
+		'assets/css/item-configurations.css',
+		'assets/css/quote-review.css',
+		'assets/css/quote-review-admin-actions.css',
+		'assets/css/quote-submitted.css',
+		'assets/css/quotation.css',
+		'assets/css/jobsheet.css',
+		'assets/css/admin-dashboard.css',
+		'assets/css/payment-priority.css',
+		'assets/css/my-quotes.css',
+		'assets/css/login.css',
+	);
+}
+
+/**
+ * Add a complete scoped CSS fallback after base.css on Quote System pages.
+ * The files are local plugin assets; no remote request is made here.
+ */
+function qs_add_frontend_css_fallback() {
+	if ( ! qs_is_frontend_ui_page() || ! wp_style_is( 'qs-base', 'enqueued' ) ) {
+		return;
+	}
+
+	$css = '';
+	foreach ( qs_frontend_css_files() as $relative_path ) {
+		$path = QS_PATH . ltrim( $relative_path, '/' );
+		if ( ! is_readable( $path ) ) {
+			continue;
+		}
+
+		$contents = file_get_contents( $path );
+		if ( false === $contents || '' === trim( $contents ) ) {
+			continue;
+		}
+
+		$css .= "\n/* Quote System fallback: " . sanitize_text_field( $relative_path ) . " */\n" . $contents . "\n";
+	}
+
+	if ( '' !== $css ) {
+		wp_add_inline_style( 'qs-base', $css );
+	}
+}
+
+/**
+ * Enqueue CSS and scripts.
  */
 function qs_enqueue_assets() {
 
@@ -172,6 +271,7 @@ function qs_enqueue_assets() {
 		$asset_version( 'assets/css/login.css' )
 	);
 
+	qs_add_frontend_css_fallback();
 }
 add_action(
 	'wp_enqueue_scripts',
