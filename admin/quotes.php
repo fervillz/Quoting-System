@@ -4,6 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once QS_PATH . 'admin/item-configurations.php';
+
 /**
  * Customize Quote admin columns.
  */
