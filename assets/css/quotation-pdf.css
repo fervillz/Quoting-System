@@ -121,6 +121,21 @@ body {
 	page-break-inside: auto;
 }
 
+/* Small sections should move as one unit instead of leaving their heading or
+ * explanatory note at the bottom of one page and their table on the next. */
+.qs-pdf-small-section,
+.qs-pdf-subsection {
+	page-break-inside: avoid;
+	break-inside: avoid-page;
+}
+
+.qs-pdf-section h2,
+.qs-pdf-section h3,
+.qs-pdf-note {
+	page-break-after: avoid;
+	break-after: avoid-page;
+}
+
 .qs-pdf-section:last-child {
 	border-bottom: 0;
 }
@@ -180,6 +195,14 @@ body {
 	margin: 1mm 0 2mm;
 	table-layout: fixed;
 	width: 100%;
+}
+
+.qs-pdf-table thead {
+	display: table-header-group;
+}
+
+.qs-pdf-table tr {
+	page-break-inside: avoid;
 }
 
 .qs-pdf-table th,
