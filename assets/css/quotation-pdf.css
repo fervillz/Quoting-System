@@ -93,14 +93,15 @@ body {
 	margin-top: 1.2mm;
 }
 
-/* Match the original visual balance: detailed quote on the left, a distinct
- * gutter, then the Items Breakdown card on the right. */
+/* Match the original visual balance: detailed quote on the left, a fixed
+ * 17px gutter, then the Items Breakdown card on the right. */
 .qs-pdf-columns {
 	width: 100%;
 }
 
 .qs-pdf-content {
-	width: 62%;
+	margin-right: 17px;
+	width: calc(66% - 17px);
 }
 
 .qs-pdf-summary {
