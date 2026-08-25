@@ -96,23 +96,27 @@ $has_legacy_specs = (bool) array_filter(
 
 					<section class="qs-pdf-section">
 						<h2>End Panels &amp; Fillers</h2>
-						<h3>End Panels</h3>
-						<?php qs_render_quote_component_table( $rows['end_panels'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
-						<h3>Fillers</h3>
-						<?php qs_render_quote_component_table( $rows['fillers'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
+						<div class="qs-pdf-subsection">
+							<h3>End Panels</h3>
+							<?php qs_render_quote_component_table( $rows['end_panels'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
+						</div>
+						<div class="qs-pdf-subsection">
+							<h3>Fillers</h3>
+							<?php qs_render_quote_component_table( $rows['fillers'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
+						</div>
 					</section>
 
-					<section class="qs-pdf-section">
+					<section class="qs-pdf-section qs-pdf-small-section qs-pdf-kickboards">
 						<h2>Kickboards</h2>
 						<p class="qs-pdf-note"><em>* Grain runs long / horizontal<br>* Max 2400mm per piece<br>* 1 face / no edges finished</em></p>
 						<?php qs_render_quote_component_table( $rows['kickboards'], array( 'material' => 'Kick Material', 'item_specifications' => 'Specifications', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
 					</section>
 
 					<?php if ( $data['custom_requests'] ) : ?>
-						<section class="qs-pdf-section"><h2>Custom Requests</h2><p><?php echo nl2br( esc_html( $data['custom_requests'] ) ); ?></p></section>
+						<section class="qs-pdf-section qs-pdf-small-section"><h2>Custom Requests</h2><p><?php echo nl2br( esc_html( $data['custom_requests'] ) ); ?></p></section>
 					<?php endif; ?>
 
-					<section class="qs-pdf-section qs-pdf-notes">
+					<section class="qs-pdf-section qs-pdf-notes qs-pdf-small-section">
 						<h2>Project Notes</h2>
 						<p><?php echo nl2br( esc_html( $data['project_notes'] ? $data['project_notes'] : '-' ) ); ?></p>
 					</section>
