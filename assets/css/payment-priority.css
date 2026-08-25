@@ -84,7 +84,7 @@
   background: transparent;
   box-shadow: inset 0 0 0 1px #40586b;
   color: #40586b;
-  font-size: 9px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.1;
   text-align: center;
@@ -131,19 +131,96 @@
   margin-top: 0;
 }
 
-@media (max-width: 820px) {
+/* Final dashboard sizing to match the approved desktop layout. */
+.qs-admin-dashboard {
+  width: calc(100% - 40px);
+  max-width: 1220px;
+  font-size: 15px;
+}
+
+.qs-admin-dashboard .qs-dashboard-page-header .qs-btn,
+.qs-admin-dashboard .qs-admin-search .qs-btn,
+.qs-admin-dashboard .qs-admin-row-actions a,
+.qs-admin-dashboard .qs-admin-row-actions button,
+.qs-admin-dashboard .qs-admin-action-disabled {
+  font-size: 15px;
+}
+
+.qs-admin-dashboard .qs-admin-intro p,
+.qs-admin-dashboard .qs-company-heading p,
+.qs-admin-dashboard .qs-admin-notice {
+  font-size: 15px;
+}
+
+.qs-admin-dashboard .qs-stat-card {
+  font-size: 16px;
+}
+
+.qs-admin-dashboard .qs-stat-card strong {
+  font-size: 20px;
+}
+
+.qs-admin-dashboard .qs-admin-search {
+  grid-template-columns: auto repeat(4, minmax(130px, 1fr)) 150px;
+  gap: 10px;
+}
+
+.qs-admin-dashboard .qs-admin-search-label,
+.qs-admin-dashboard .qs-admin-search select {
+  font-size: 16px;
+}
+
+.qs-admin-dashboard .qs-admin-search select {
+  height: 34px;
+}
+
+.qs-admin-dashboard .qs-admin-table th {
+  font-size: 15px;
+}
+
+.qs-admin-dashboard .qs-admin-table td {
+  height: 58px;
+  padding: 10px 14px;
+  font-size: 20px;
+}
+
+.qs-admin-dashboard .qs-status {
+  min-width: 126px;
+  font-size: 15px;
+}
+
+.qs-admin-dashboard .qs-admin-row-actions a,
+.qs-admin-dashboard .qs-admin-row-actions button,
+.qs-admin-dashboard .qs-admin-action-disabled {
+  min-height: 31px;
+  padding: 6px 12px;
+}
+
+@media (max-width: 1100px) {
   .qs-admin-dashboard .qs-admin-stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-}
 
-@media (max-width: 560px) {
-  .qs-admin-dashboard .qs-admin-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .qs-admin-dashboard .qs-admin-search {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .qs-admin-dashboard .qs-admin-search-label {
+    grid-column: 1 / -1;
   }
 }
 
-@media (max-width: 390px) {
+@media (max-width: 700px) {
+  .qs-admin-dashboard .qs-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .qs-admin-dashboard .qs-admin-search {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 430px) {
   .qs-admin-dashboard .qs-admin-stats {
     grid-template-columns: 1fr;
   }
