@@ -1,5 +1,5 @@
 @page {
-	margin: 0;
+	margin: 7mm 0 0;
 	size: A4 portrait;
 }
 
@@ -25,10 +25,13 @@ body {
 	width: 100%;
 }
 
+/* Pull the first-page masthead into the page margin so it still reaches the
+ * physical top edge. Continuation pages keep the 7mm @page top breathing room. */
 .qs-pdf-header {
 	background: #501e2a;
 	color: #fff;
 	height: 16mm;
+	margin-top: -7mm;
 	padding: 5mm 7mm 0;
 }
 
