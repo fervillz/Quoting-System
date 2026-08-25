@@ -513,7 +513,14 @@ function qs_calculate_component_subtotal( $quote_id ) {
 
 /** Save the current product calculation so every screen and PDF agrees. */
 function qs_recalculate_quote_pricing( $quote_id ) {
-	$trade_subtotal = qs_calculate_component_subtotal( $quote_id );
+	// New quotes keep Profile / Timber / Handle / Finish on each component row.
+	// Use the row-aware calculator directly when it is available instead of
+	// relying on a later post-meta hook to replace the legacy quote-level total.
+	// The row-aware calculator also contains the legacy fallback, so old quotes
+	// continue to calculate exactly as before.
+	$trade_subtotal = function_exists( 'qs_item_config_calculate_trade_subtotal' )
+		? qs_item_config_calculate_trade_subtotal( $quote_id )
+		: qs_calculate_component_subtotal( $quote_id );
 	$pricing_type   = get_post_meta( $quote_id, '_pricing_type', true );
 	$subtotal       = 'retail' === $pricing_type ? qs_apply_retail_markup( $trade_subtotal ) : $trade_subtotal;
 
