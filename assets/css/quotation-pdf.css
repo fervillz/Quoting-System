@@ -83,26 +83,42 @@ body {
 	margin-top: 1.2mm;
 }
 
+/*
+ * Do not keep the entire quotation body inside one Dompdf table row.
+ * Dompdf cannot page-break an oversized table row reliably and can insert
+ * multiple blank pages before finally rendering the row. Turning the outer
+ * layout table into normal block flow lets each section/table paginate in
+ * sequence while retaining tables only where they are useful for tabular data.
+ */
+.qs-pdf-main-layout,
+.qs-pdf-main-layout > tbody,
+.qs-pdf-main-layout > tbody > tr,
+.qs-pdf-main-layout > tbody > tr > td {
+	display: block;
+	width: 100%;
+}
+
 .qs-pdf-main-layout > tbody > tr > td {
 	vertical-align: top;
 }
 
 .qs-pdf-content {
-	padding-right: 6mm;
-	width: 65%;
+	padding-right: 0;
+	width: 100%;
 }
 
 .qs-pdf-summary {
 	background: #f3f3f3;
+	margin-top: 4mm;
 	padding: 4mm;
-	width: 35%;
+	width: 100%;
 }
 
 .qs-pdf-section {
 	border-bottom: 1px solid #d2d2d2;
 	margin-bottom: 3mm;
 	padding-bottom: 3mm;
-	page-break-inside: avoid;
+	page-break-inside: auto;
 }
 
 .qs-pdf-section:last-child {
