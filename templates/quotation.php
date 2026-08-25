@@ -2,8 +2,9 @@
 /**
  * Customer quotation PDF.
  *
- * The markup intentionally uses tables for layout because Dompdf renders
- * them more consistently than flexbox or grid.
+ * The detailed quotation uses normal block flow so Dompdf can paginate the
+ * left column naturally. The summary is floated on the right rather than
+ * placing both columns in one large table row, which Dompdf cannot split.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -55,96 +56,97 @@ $has_legacy_specs = (bool) array_filter(
 			</tr>
 		</table>
 
-		<table class="qs-pdf-main-layout">
-			<tr>
-				<td class="qs-pdf-content">
-					<section class="qs-pdf-section qs-pdf-project-details">
-						<h2>Project Details</h2>
-						<?php if ( $has_legacy_specs ) : ?>
-							<table class="qs-pdf-specifications">
-								<?php for ( $i = 0; $i < count( $specs ); $i += 2 ) : ?>
-									<tr>
-										<?php for ( $j = $i; $j < $i + 2; $j++ ) : ?>
-											<?php if ( isset( $specs[ $j ] ) ) : ?>
-												<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"></span></td>
-												<td>
-													<strong><?php echo esc_html( $specs[ $j ][0] ); ?>:</strong>
-													<span><?php echo esc_html( $specs[ $j ][1] ? $specs[ $j ][1] : '-' ); ?></span>
-													<?php if ( $specs[ $j ][2] ) : ?><small><?php echo esc_html( $specs[ $j ][2] ); ?></small><?php endif; ?>
-												</td>
-											<?php else : ?>
-												<td></td><td></td>
-											<?php endif; ?>
-										<?php endfor; ?>
-									</tr>
-								<?php endfor; ?>
-							</table>
-						<?php endif; ?>
-						<h3>Delivery Address</h3>
-						<p><?php echo nl2br( esc_html( $data['delivery_address'] ) ); ?></p>
-					</section>
+		<div class="qs-pdf-columns">
+			<aside class="qs-pdf-summary">
+				<h2>Items Breakdown</h2>
+				<?php foreach ( qs_quote_summary_groups( $quote_id ) as $group ) : ?>
+					<?php if ( ! $group['rows'] ) { continue; } ?>
+					<div class="qs-pdf-summary-group">
+						<strong><?php echo esc_html( $group['title'] . ' (' . count( $group['rows'] ) . ')' ); ?></strong>
+						<?php foreach ( $group['rows'] as $row ) : ?>
+							<p>
+								<span><?php echo esc_html( qs_quote_summary_primary( $group['component'], $row ) ); ?></span>
+								<em><?php echo esc_html( isset( $row['quantity'] ) ? absint( $row['quantity'] ) : 0 ); ?></em>
+								<?php if ( qs_quote_summary_secondary( $group['component'], $row ) ) : ?>
+									<small><?php echo nl2br( esc_html( qs_quote_summary_secondary( $group['component'], $row ) ) ); ?></small>
+								<?php endif; ?>
+							</p>
+						<?php endforeach; ?>
+					</div>
+				<?php endforeach; ?>
 
-					<section class="qs-pdf-section">
-						<h2>Doors &amp; Drawers</h2>
-						<p class="qs-pdf-note"><em>Grains run vertical (height)</em></p>
-						<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
-						<?php if ( $drawer_banks ) : ?>
-							<h3>Drawer Banks</h3>
-							<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
-						<?php endif; ?>
-					</section>
+				<div class="qs-pdf-lead-time"><strong>Estimated Lead Time</strong><span><?php echo esc_html( function_exists( 'qs_get_estimated_lead_time' ) ? qs_get_estimated_lead_time( $quote_id ) : '4–6 Weeks' ); ?></span></div>
+				<div class="qs-pdf-subtotal"><strong>Subtotal</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
+			</aside>
 
-					<section class="qs-pdf-section">
-						<h2>End Panels &amp; Fillers</h2>
-						<div class="qs-pdf-subsection">
-							<h3>End Panels</h3>
-							<?php qs_render_quote_component_table( $rows['end_panels'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
-						</div>
-						<div class="qs-pdf-subsection">
-							<h3>Fillers</h3>
-							<?php qs_render_quote_component_table( $rows['fillers'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
-						</div>
-					</section>
+			<div class="qs-pdf-content">
+				<section class="qs-pdf-section qs-pdf-project-details">
+					<h2>Project Details</h2>
+					<?php if ( $has_legacy_specs ) : ?>
+						<table class="qs-pdf-specifications">
+							<?php for ( $i = 0; $i < count( $specs ); $i += 2 ) : ?>
+								<tr>
+									<?php for ( $j = $i; $j < $i + 2; $j++ ) : ?>
+										<?php if ( isset( $specs[ $j ] ) ) : ?>
+											<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"></span></td>
+											<td>
+												<strong><?php echo esc_html( $specs[ $j ][0] ); ?>:</strong>
+												<span><?php echo esc_html( $specs[ $j ][1] ? $specs[ $j ][1] : '-' ); ?></span>
+												<?php if ( $specs[ $j ][2] ) : ?><small><?php echo esc_html( $specs[ $j ][2] ); ?></small><?php endif; ?>
+											</td>
+										<?php else : ?>
+											<td></td><td></td>
+										<?php endif; ?>
+									<?php endfor; ?>
+								</tr>
+							<?php endfor; ?>
+						</table>
+					<?php endif; ?>
+					<h3>Delivery Address</h3>
+					<p><?php echo nl2br( esc_html( $data['delivery_address'] ) ); ?></p>
+				</section>
 
-					<section class="qs-pdf-section qs-pdf-small-section qs-pdf-kickboards">
-						<h2>Kickboards</h2>
+				<section class="qs-pdf-section">
+					<h2>Doors &amp; Drawers</h2>
+					<p class="qs-pdf-note"><em>Grains run vertical (height)</em></p>
+					<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
+					<?php if ( $drawer_banks ) : ?>
+						<h3>Drawer Banks</h3>
+						<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
+					<?php endif; ?>
+				</section>
+
+				<section class="qs-pdf-section">
+					<h2>End Panels &amp; Fillers</h2>
+					<div class="qs-pdf-subsection">
+						<h3>End Panels</h3>
+						<?php qs_render_quote_component_table( $rows['end_panels'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
+					</div>
+					<div class="qs-pdf-subsection">
+						<h3>Fillers</h3>
+						<?php qs_render_quote_component_table( $rows['fillers'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
+					</div>
+				</section>
+
+				<section class="qs-pdf-section qs-pdf-kickboards">
+					<h2>Kickboards</h2>
+					<div class="qs-pdf-kickboard-intro">
 						<p class="qs-pdf-note"><em>* Grain runs long / horizontal<br>* Max 2400mm per piece<br>* 1 face / no edges finished</em></p>
 						<?php qs_render_quote_component_table( $rows['kickboards'], array( 'material' => 'Kick Material', 'item_specifications' => 'Specifications', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
-					</section>
+					</div>
+				</section>
 
-					<?php if ( $data['custom_requests'] ) : ?>
-						<section class="qs-pdf-section qs-pdf-small-section"><h2>Custom Requests</h2><p><?php echo nl2br( esc_html( $data['custom_requests'] ) ); ?></p></section>
-					<?php endif; ?>
+				<?php if ( $data['custom_requests'] ) : ?>
+					<section class="qs-pdf-section qs-pdf-small-section"><h2>Custom Requests</h2><p><?php echo nl2br( esc_html( $data['custom_requests'] ) ); ?></p></section>
+				<?php endif; ?>
 
-					<section class="qs-pdf-section qs-pdf-notes qs-pdf-small-section">
-						<h2>Project Notes</h2>
-						<p><?php echo nl2br( esc_html( $data['project_notes'] ? $data['project_notes'] : '-' ) ); ?></p>
-					</section>
-				</td>
-
-				<td class="qs-pdf-summary">
-					<h2>Items Breakdown</h2>
-					<?php foreach ( qs_quote_summary_groups( $quote_id ) as $group ) : ?>
-						<?php if ( ! $group['rows'] ) { continue; } ?>
-						<div class="qs-pdf-summary-group">
-							<strong><?php echo esc_html( $group['title'] . ' (' . count( $group['rows'] ) . ')' ); ?></strong>
-							<?php foreach ( $group['rows'] as $row ) : ?>
-								<p>
-									<span><?php echo esc_html( qs_quote_summary_primary( $group['component'], $row ) ); ?></span>
-									<em><?php echo esc_html( isset( $row['quantity'] ) ? absint( $row['quantity'] ) : 0 ); ?></em>
-									<?php if ( qs_quote_summary_secondary( $group['component'], $row ) ) : ?>
-										<small><?php echo nl2br( esc_html( qs_quote_summary_secondary( $group['component'], $row ) ) ); ?></small>
-									<?php endif; ?>
-								</p>
-							<?php endforeach; ?>
-						</div>
-					<?php endforeach; ?>
-
-					<div class="qs-pdf-lead-time"><strong>Estimated Lead Time</strong><span>4-6 Weeks</span></div>
-					<div class="qs-pdf-subtotal"><strong>Subtotal</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
-				</td>
-			</tr>
-		</table>
+				<section class="qs-pdf-section qs-pdf-notes qs-pdf-small-section">
+					<h2>Project Notes</h2>
+					<p><?php echo nl2br( esc_html( $data['project_notes'] ? $data['project_notes'] : '-' ) ); ?></p>
+				</section>
+			</div>
+			<div class="qs-pdf-clear"></div>
+		</div>
 	</main>
 
 	<footer class="qs-pdf-footer">
