@@ -1,5 +1,5 @@
 @page {
-	margin: 7mm 0 0;
+	margin: 7mm 7mm 41mm;
 	size: A4 portrait;
 }
 
@@ -25,14 +25,15 @@ body {
 	width: 100%;
 }
 
-/* Pull the first-page masthead into the page margin so it still reaches the
- * physical top edge. Continuation pages keep the 7mm @page top breathing room. */
+/* The page margin gives continuation pages the same 7mm top/left/right inset.
+ * Pull the first-page brand header back into the page margin so it remains
+ * full bleed while all page 2+ content starts at a comfortable 7mm inset. */
 .qs-pdf-header {
 	background: #501e2a;
 	color: #fff;
 	height: 16mm;
-	margin-top: -7mm;
-	padding: 5mm 7mm 0;
+	margin: -7mm -7mm 0;
+	padding: 5mm 14mm 0;
 }
 
 .qs-pdf-header strong {
@@ -41,11 +42,10 @@ body {
 }
 
 .qs-pdf-page {
-	padding: 4mm 7mm 52mm;
+	padding: 4mm 0 0;
 }
 
 .qs-pdf-project-header,
-.qs-pdf-main-layout,
 .qs-pdf-specifications,
 .qs-pdf-contact {
 	border-collapse: collapse;
@@ -86,35 +86,30 @@ body {
 	margin-top: 1.2mm;
 }
 
-/*
- * Do not keep the entire quotation body inside one Dompdf table row.
- * Dompdf cannot page-break an oversized table row reliably and can insert
- * multiple blank pages before finally rendering the row. Turning the outer
- * layout table into normal block flow lets each section/table paginate in
- * sequence while retaining tables only where they are useful for tabular data.
- */
-.qs-pdf-main-layout,
-.qs-pdf-main-layout > tbody,
-.qs-pdf-main-layout > tbody > tr,
-.qs-pdf-main-layout > tbody > tr > td {
-	display: block;
+/* Use a float for the summary instead of one giant two-column table row.
+ * Dompdf can then paginate the detailed left column normally without blank
+ * pages, while Items Breakdown remains in the intended right-hand column. */
+.qs-pdf-columns {
 	width: 100%;
-}
-
-.qs-pdf-main-layout > tbody > tr > td {
-	vertical-align: top;
 }
 
 .qs-pdf-content {
-	padding-right: 0;
-	width: 100%;
+	padding-right: 2mm;
+	width: 64%;
 }
 
 .qs-pdf-summary {
 	background: #f3f3f3;
-	margin-top: 4mm;
+	float: right;
 	padding: 4mm;
-	width: 100%;
+	width: 34%;
+	page-break-inside: avoid;
+	break-inside: avoid-page;
+}
+
+.qs-pdf-clear {
+	clear: both;
+	height: 0;
 }
 
 .qs-pdf-section {
@@ -124,10 +119,11 @@ body {
 	page-break-inside: auto;
 }
 
-/* Small sections should move as one unit instead of leaving their heading or
- * explanatory note at the bottom of one page and their table on the next. */
+/* Keep genuinely small blocks together, but do not force the entire Kickboards
+ * section to the next page. Only its note + table are kept together. */
 .qs-pdf-small-section,
-.qs-pdf-subsection {
+.qs-pdf-subsection,
+.qs-pdf-kickboard-intro {
 	page-break-inside: avoid;
 	break-inside: avoid-page;
 }
@@ -299,12 +295,14 @@ body {
 	padding-bottom: 2mm;
 }
 
+/* The footer occupies ~39mm. The 41mm @page bottom margin reserves room for
+ * it, while the negative offsets let its background extend to the paper edge. */
 .qs-pdf-footer {
-	bottom: 0;
-	left: 0;
+	bottom: -41mm;
+	left: -7mm;
 	page-break-inside: avoid;
 	position: fixed;
-	right: 0;
+	right: -7mm;
 }
 
 .qs-pdf-disclaimer {
