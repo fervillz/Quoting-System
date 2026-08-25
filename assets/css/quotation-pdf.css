@@ -1,5 +1,5 @@
 @page {
-	margin: 7mm 7mm 41mm;
+	margin: 8mm 8mm 41mm;
 	size: A4 portrait;
 }
 
@@ -17,23 +17,22 @@ body {
 	background: #fff;
 	color: #40586b;
 	font-family: DejaVu Sans, sans-serif;
-	font-size: 7.6px;
-	line-height: 1.35;
+	font-size: 7.4px;
+	line-height: 1.32;
 }
 
 .qs-pdf {
 	width: 100%;
 }
 
-/* The page margin gives continuation pages the same 7mm top/left/right inset.
- * Pull the first-page brand header back into the page margin so it remains
- * full bleed while all page 2+ content starts at a comfortable 7mm inset. */
+/* Keep page content inside an even 8mm page gutter. Only the brand header and
+ * fixed footer bleed back to the physical paper edge. */
 .qs-pdf-header {
 	background: #501e2a;
 	color: #fff;
 	height: 16mm;
-	margin: -7mm -7mm 0;
-	padding: 5mm 14mm 0;
+	margin: -8mm -8mm 0;
+	padding: 5mm 16mm 0;
 }
 
 .qs-pdf-header strong {
@@ -86,16 +85,14 @@ body {
 	margin-top: 1.2mm;
 }
 
-/* Use a float for the summary instead of one giant two-column table row.
- * Dompdf can then paginate the detailed left column normally without blank
- * pages, while Items Breakdown remains in the intended right-hand column. */
+/* Match the original visual balance: detailed quote on the left, a distinct
+ * gutter, then the Items Breakdown card on the right. */
 .qs-pdf-columns {
 	width: 100%;
 }
 
 .qs-pdf-content {
-	padding-right: 2mm;
-	width: 64%;
+	width: 62%;
 }
 
 .qs-pdf-summary {
@@ -114,18 +111,22 @@ body {
 
 .qs-pdf-section {
 	border-bottom: 1px solid #d2d2d2;
-	margin-bottom: 3mm;
-	padding-bottom: 3mm;
+	margin-bottom: 2.5mm;
+	padding-bottom: 2.5mm;
 	page-break-inside: auto;
 }
 
-/* Keep genuinely small blocks together, but do not force the entire Kickboards
- * section to the next page. Only its note + table are kept together. */
 .qs-pdf-small-section,
-.qs-pdf-subsection,
-.qs-pdf-kickboard-intro {
+.qs-pdf-subsection {
 	page-break-inside: avoid;
 	break-inside: avoid-page;
+}
+
+/* Do not force all of Kickboards onto the next page. Allow its compact table
+ * to use remaining page-one space when available. */
+.qs-pdf-kickboard-intro {
+	page-break-inside: auto;
+	break-inside: auto;
 }
 
 .qs-pdf-section h2,
@@ -144,21 +145,21 @@ body {
 	font-size: 10px;
 	font-weight: 600;
 	line-height: 1.2;
-	margin: 0 0 2.2mm;
+	margin: 0 0 2mm;
 }
 
 .qs-pdf-section h3 {
 	font-size: 7.5px;
 	font-weight: 700;
-	margin: 2mm 0 0.8mm;
+	margin: 1.7mm 0 0.7mm;
 }
 
 .qs-pdf-section p {
-	margin: 0 0 1mm;
+	margin: 0 0 0.8mm;
 }
 
 .qs-pdf-note {
-	font-size: 6px;
+	font-size: 5.8px;
 }
 
 .qs-pdf-specifications td {
@@ -191,7 +192,7 @@ body {
 
 .qs-pdf-table {
 	border-collapse: collapse;
-	margin: 1mm 0 2mm;
+	margin: 0.8mm 0 1.7mm;
 	table-layout: fixed;
 	width: 100%;
 }
@@ -207,25 +208,83 @@ body {
 .qs-pdf-table th,
 .qs-pdf-table td {
 	border: 0.35px solid #d9d9d9;
-	line-height: 1.15;
-	padding: 1.1mm 0.8mm;
+	line-height: 1.12;
+	padding: 0.75mm 0.55mm;
 	text-align: center;
 	vertical-align: middle;
 }
 
 .qs-pdf-table th {
-	font-size: 6px;
+	font-size: 5.7px;
 	font-weight: 700;
 }
 
 .qs-pdf-table td {
-	font-size: 6.2px;
+	font-size: 5.8px;
 }
 
 .qs-pdf-table th:first-child,
 .qs-pdf-table td:first-child {
-	width: 6%;
+	width: 5%;
 }
+
+/* Doors: dimensions and quantity are compact; specifications and notes get
+ * the space they actually need. */
+.qs-pdf-doors-table th:nth-child(2),
+.qs-pdf-doors-table td:nth-child(2) { width: 16%; }
+.qs-pdf-doors-table th:nth-child(3),
+.qs-pdf-doors-table td:nth-child(3) { width: 28%; }
+.qs-pdf-doors-table th:nth-child(4),
+.qs-pdf-doors-table td:nth-child(4) { width: 10%; }
+.qs-pdf-doors-table th:nth-child(5),
+.qs-pdf-doors-table td:nth-child(5) { width: 10%; }
+.qs-pdf-doors-table th:nth-child(6),
+.qs-pdf-doors-table td:nth-child(6) { width: 9%; }
+.qs-pdf-doors-table th:nth-child(7),
+.qs-pdf-doors-table td:nth-child(7) { width: 22%; }
+
+.qs-pdf-drawer-bank-table th:nth-child(2),
+.qs-pdf-drawer-bank-table td:nth-child(2) { width: 14%; }
+.qs-pdf-drawer-bank-table th:nth-child(3),
+.qs-pdf-drawer-bank-table td:nth-child(3) { width: 23%; }
+.qs-pdf-drawer-bank-table th:nth-child(4),
+.qs-pdf-drawer-bank-table td:nth-child(4) { width: 13%; }
+.qs-pdf-drawer-bank-table th:nth-child(5),
+.qs-pdf-drawer-bank-table td:nth-child(5) { width: 9%; }
+.qs-pdf-drawer-bank-table th:nth-child(6),
+.qs-pdf-drawer-bank-table td:nth-child(6) { width: 15%; }
+.qs-pdf-drawer-bank-table th:nth-child(7),
+.qs-pdf-drawer-bank-table td:nth-child(7) { width: 8%; }
+.qs-pdf-drawer-bank-table th:nth-child(8),
+.qs-pdf-drawer-bank-table td:nth-child(8) { width: 13%; }
+
+.qs-pdf-panel-table th:nth-child(2),
+.qs-pdf-panel-table td:nth-child(2) { width: 24%; }
+.qs-pdf-panel-table th:nth-child(3),
+.qs-pdf-panel-table td:nth-child(3) { width: 9%; }
+.qs-pdf-panel-table th:nth-child(4),
+.qs-pdf-panel-table td:nth-child(4) { width: 9%; }
+.qs-pdf-panel-table th:nth-child(5),
+.qs-pdf-panel-table td:nth-child(5) { width: 15%; }
+.qs-pdf-panel-table th:nth-child(6),
+.qs-pdf-panel-table td:nth-child(6) { width: 15%; }
+.qs-pdf-panel-table th:nth-child(7),
+.qs-pdf-panel-table td:nth-child(7) { width: 8%; }
+.qs-pdf-panel-table th:nth-child(8),
+.qs-pdf-panel-table td:nth-child(8) { width: 15%; }
+
+.qs-pdf-kickboard-table th:nth-child(2),
+.qs-pdf-kickboard-table td:nth-child(2) { width: 19%; }
+.qs-pdf-kickboard-table th:nth-child(3),
+.qs-pdf-kickboard-table td:nth-child(3) { width: 22%; }
+.qs-pdf-kickboard-table th:nth-child(4),
+.qs-pdf-kickboard-table td:nth-child(4) { width: 11%; }
+.qs-pdf-kickboard-table th:nth-child(5),
+.qs-pdf-kickboard-table td:nth-child(5) { width: 13%; }
+.qs-pdf-kickboard-table th:nth-child(6),
+.qs-pdf-kickboard-table td:nth-child(6) { width: 9%; }
+.qs-pdf-kickboard-table th:nth-child(7),
+.qs-pdf-kickboard-table td:nth-child(7) { width: 21%; }
 
 .qs-pdf-summary h2 {
 	font-size: 12px;
@@ -234,19 +293,19 @@ body {
 }
 
 .qs-pdf-summary-group {
-	margin: 0 0 2.2mm;
+	margin: 0 0 2mm;
 	page-break-inside: avoid;
 }
 
 .qs-pdf-summary-group > strong {
 	display: block;
 	font-size: 7px;
-	margin-bottom: 0.6mm;
+	margin-bottom: 0.5mm;
 }
 
 .qs-pdf-summary-group p {
-	margin: 0 0 0.7mm;
-	min-height: 3mm;
+	margin: 0 0 0.6mm;
+	min-height: 2.8mm;
 	overflow: hidden;
 }
 
@@ -264,9 +323,9 @@ body {
 
 .qs-pdf-summary-group p small {
 	display: block;
-	font-size: 5.3px;
-	line-height: 1.3;
-	margin: 0.4mm 0 0 2mm;
+	font-size: 5.2px;
+	line-height: 1.25;
+	margin: 0.35mm 0 0 1.5mm;
 }
 
 .qs-pdf-lead-time,
@@ -295,14 +354,14 @@ body {
 	padding-bottom: 2mm;
 }
 
-/* The footer occupies ~39mm. The 41mm @page bottom margin reserves room for
- * it, while the negative offsets let its background extend to the paper edge. */
+/* Footer backgrounds remain full bleed while content keeps the 8mm page
+ * gutter above. */
 .qs-pdf-footer {
 	bottom: -41mm;
-	left: -7mm;
+	left: -8mm;
 	page-break-inside: avoid;
 	position: fixed;
-	right: -7mm;
+	right: -8mm;
 }
 
 .qs-pdf-disclaimer {
@@ -310,7 +369,7 @@ body {
 	color: #fff;
 	font-size: 6.4px;
 	line-height: 1.5;
-	padding: 2.5mm 7mm;
+	padding: 2.5mm 8mm;
 	text-align: center;
 }
 
