@@ -84,7 +84,13 @@
       syncEdgeVisualState(selector);
     }
     selector.addEventListener('change', sync);
-    selector.querySelector('.qs-save-edges').addEventListener('click', sync);
+    selector.querySelector('.qs-save-edges').addEventListener('click', function () {
+      sync();
+      var button = selector.querySelector('.qs-save-edges');
+      if (!hidden.value || !button) return;
+      button.textContent = 'Saved';
+      window.setTimeout(function () { button.textContent = 'Save'; }, 900);
+    });
     syncEdgeVisualState(selector);
   }
 
