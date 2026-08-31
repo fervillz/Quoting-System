@@ -77,7 +77,7 @@ $has_legacy_specs = (bool) array_filter(
 			<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table qs-jobsheet-doors-table' ); ?>
 			<?php if ( $drawer_banks ) : ?>
 				<h3>Drawer Banks</h3>
-				<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
+				<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table qs-jobsheet-drawer-bank-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
 			<?php endif; ?>
 		</section>
 
@@ -85,7 +85,7 @@ $has_legacy_specs = (bool) array_filter(
 			<h2>End Panels &amp; Fillers</h2>
 			<h3>End Panels</h3>
 			<p><em>Flat panels / no profile</em></p>
-			<?php qs_render_quote_component_table( $rows['end_panels'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table qs-jobsheet-drawer-bank-table' ); ?>
+			<?php qs_render_quote_component_table( $rows['end_panels'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
 			<h3>Fillers</h3>
 			<?php qs_render_quote_component_table( $rows['fillers'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
 		</section>
