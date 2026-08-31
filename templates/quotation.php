@@ -109,7 +109,7 @@ $has_legacy_specs = (bool) array_filter(
 				<section class="qs-pdf-section qs-pdf-kickboards">
 					<h2>Kickboards</h2>
 					<div class="qs-pdf-kickboard-intro">
-						<p class="qs-pdf-note"><em>* Grain runs long / horizontal<br>* Max 2400mm per piece<br>* 1 face / no edges finished</em></p>
+						<p class="qs-pdf-note"><em>* Grain runs long / horizontal<br>* Max length 2400mm per piece<br>* Max height 200mm<br>* 1 face / no edges finished</em></p>
 						<?php qs_render_quote_component_table( $rows['kickboards'], array( 'material' => 'Kick Material', 'item_specifications' => 'Specifications', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table qs-pdf-kickboard-table' ); ?>
 					</div>
 				</section>

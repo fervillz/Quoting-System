@@ -102,7 +102,7 @@ function qs_review_component_sections( $quote_id, $data ) {
 
 	<section class="qs-review-section">
 		<h3>Kickboards</h3>
-		<p class="qs-review-note"><em>* Grain runs long / horizontal<br>* Max 2400mm per piece<br>* 1 face / no edges finished<br>* Cost at LM Rate - see kick tab</em></p>
+		<p class="qs-review-note"><em>* Grain runs long / horizontal<br>* Max length 2400mm per piece<br>* Max height 200mm<br>* 1 face / no edges finished</em></p>
 		<?php qs_render_quote_component_table( $data['component_rows']['kickboards'], array( 'material' => 'Kick Material', 'item_specifications' => 'Specifications', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity' ), 'qs-review-table' ); ?>
 	</section>
 	<?php

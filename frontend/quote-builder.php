@@ -497,9 +497,9 @@ function qs_builder_kickboards_editor( $rows ) {
 		<h3>Kickboards</h3>
 		<ul class="qs-kickboard-notes">
 			<li>Grain runs long / horizontal</li>
-			<li>Max 2400mm per piece</li>
+			<li>Max length 2400mm per piece</li>
+			<li>Max height 200mm</li>
 			<li>1 face / no edges finished</li>
-			<li>Cost at LM Rate – see kick tab</li>
 		</ul>
 
 		<div class="qs-component-editor">
