@@ -78,3 +78,43 @@
     width: 100%;
   }
 }
+
+
+body .qs-review-page .qs-review-lead-time.qs-estimated-lead-time-editable {
+  display: grid !important;
+  grid-template-columns: minmax(190px, 1fr) auto !important;
+  align-items: center !important;
+  gap: 18px !important;
+}
+
+body .qs-review-page .qs-review-lead-time .qs-estimated-lead-time-control {
+  display: flex !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+body .qs-review-page .qs-review-lead-time .qs-estimated-lead-time-control input[type="text"] {
+  width: 170px !important;
+  min-width: 0 !important;
+  min-height: 36px !important;
+  font-size: 13px !important;
+}
+
+body .qs-review-page .qs-review-lead-time .qs-estimated-lead-time-control button {
+  flex: 0 0 auto !important;
+  min-width: 74px !important;
+  min-height: 36px !important;
+}
+
+@media (max-width: 1050px) {
+  body .qs-review-page .qs-review-lead-time.qs-estimated-lead-time-editable {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .qs-review-page .qs-review-lead-time .qs-estimated-lead-time-control {
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+  }
+}

@@ -417,3 +417,335 @@
     margin-bottom: 8px;
   }
 }
+
+
+/* Keep Quote Review visually aligned with the Quote Builder.
+ * These selectors intentionally outrank older review CSS that may still be
+ * present in the site/theme cache. */
+body .qs-review-page {
+  display: block !important;
+  width: calc(100% - 40px) !important;
+  max-width: 1280px !important;
+  margin: 75px auto 110px !important;
+  color: var(--qs-ink) !important;
+  font-family: var(--qs-sans) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+body .qs-review-page .qs-review-page-header {
+  display: flex !important;
+  min-height: 0 !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin: 0 0 36px !important;
+  padding: 0 0 24px !important;
+  border-bottom: 1px solid var(--qs-line) !important;
+}
+
+body .qs-review-page .qs-review-page-header h1 {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--qs-ink) !important;
+  font-family: var(--qs-serif) !important;
+  font-size: 36px !important;
+  font-weight: 400 !important;
+  line-height: 1.15 !important;
+}
+
+body .qs-review-page .qs-review-page-header nav {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+
+body .qs-review-page .qs-review-page-header .qs-btn {
+  min-height: 38px !important;
+  padding: 0 22px !important;
+  font-size: 16px !important;
+}
+
+body .qs-review-page .qs-review-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 620px) 550px !important;
+  gap: 54px !important;
+  align-items: start !important;
+  width: 100% !important;
+}
+
+body .qs-review-page .qs-review-main {
+  display: block !important;
+  min-width: 0 !important;
+  width: auto !important;
+  flex: none !important;
+}
+
+body .qs-review-page .qs-review-intro {
+  margin: 0 0 30px !important;
+  padding: 0 0 32px !important;
+  border-bottom: 1px solid var(--qs-line) !important;
+}
+
+body .qs-review-page .qs-review-intro h2 {
+  margin: 0 0 4px !important;
+  color: var(--qs-ink) !important;
+  font-family: var(--qs-serif) !important;
+  font-size: 25px !important;
+  font-weight: 400 !important;
+  line-height: 1.25 !important;
+}
+
+body .qs-review-page .qs-review-intro p {
+  margin: 0 !important;
+  color: #6d7881 !important;
+  font-size: 16px !important;
+  font-style: italic !important;
+  line-height: 1.5 !important;
+}
+
+body .qs-review-page .qs-review-section {
+  margin: 0 0 30px !important;
+  padding: 0 0 32px !important;
+  border-bottom: 1px solid var(--qs-line) !important;
+}
+
+body .qs-review-page .qs-review-section h3 {
+  margin: 0 0 14px !important;
+  color: var(--qs-ink) !important;
+  font-family: var(--qs-sans) !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+}
+
+body .qs-review-page .qs-review-section h4 {
+  margin: 18px 0 8px !important;
+  color: var(--qs-ink) !important;
+  font-family: var(--qs-sans) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+}
+
+body .qs-review-page .qs-review-project dl {
+  grid-template-columns: 130px minmax(0, 1fr) !important;
+  gap: 8px 12px !important;
+  font-size: 14px !important;
+}
+
+body .qs-review-page .qs-review-table th,
+body .qs-review-page .qs-review-table td {
+  padding: 7px 6px !important;
+  font-family: var(--qs-sans) !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+}
+
+/* Quote Summary: same width, padding, rhythm and card treatment as Builder. */
+body .qs-review-page .qs-review-summary {
+  position: sticky !important;
+  top: 28px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  max-height: calc(100vh - 56px) !important;
+  overflow: auto !important;
+  flex: none !important;
+  box-sizing: border-box !important;
+  padding: 28px !important;
+  background: var(--qs-paper) !important;
+}
+
+body .qs-review-page .qs-review-summary > h2 {
+  margin: 0 0 20px !important;
+  color: var(--qs-ink) !important;
+  font-family: var(--qs-serif) !important;
+  font-size: 30px !important;
+  font-weight: 400 !important;
+  line-height: 1.15 !important;
+}
+
+body .qs-review-page .qs-review-summary > h3 {
+  margin: 18px 0 10px !important;
+  color: var(--qs-ink) !important;
+  font-family: var(--qs-sans) !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+}
+
+body .qs-review-page .qs-review-summary-items {
+  max-height: 290px !important;
+  overflow: auto !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+}
+
+body .qs-review-page .qs-review-summary-group {
+  margin: 10px 0 12px !important;
+}
+
+body .qs-review-page .qs-review-summary-group > strong {
+  display: block !important;
+  margin: 0 0 4px !important;
+  color: var(--qs-ink) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+body .qs-review-page .qs-review-summary-item {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto auto !important;
+  align-items: center !important;
+  column-gap: 12px !important;
+  min-height: 39px !important;
+  margin: 3px 0 !important;
+  padding: 7px 20px !important;
+  box-sizing: border-box !important;
+  background: #fff !important;
+  color: var(--qs-ink) !important;
+  font-size: 14px !important;
+}
+
+body .qs-review-page .qs-review-summary-description {
+  min-width: 0 !important;
+}
+
+body .qs-review-page .qs-review-summary-description > span {
+  display: block !important;
+  overflow: hidden !important;
+  color: var(--qs-ink) !important;
+  font-size: 16px !important;
+  line-height: 1.3 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body .qs-review-page .qs-review-summary-description small {
+  display: block !important;
+  overflow: hidden !important;
+  margin-top: 5px !important;
+  color: #667786 !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  text-overflow: ellipsis !important;
+}
+
+body .qs-review-page .qs-review-summary-item > span:nth-child(2) {
+  color: #667786 !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+}
+
+body .qs-review-page .qs-review-summary-controls {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 11px !important;
+}
+
+body .qs-review-page .qs-review-summary-controls a,
+body .qs-review-page .qs-review-summary-controls button {
+  display: inline-flex !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+body .qs-review-page .qs-review-summary-controls img {
+  display: block !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+body .qs-review-page .qs-review-lead-time,
+body .qs-review-page .qs-review-subtotal {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin-top: 15px !important;
+  padding: 14px 0 !important;
+  border-top: 1px solid #aaa !important;
+}
+
+body .qs-review-page .qs-review-lead-time {
+  font-size: 16px !important;
+}
+
+body .qs-review-page .qs-review-lead-time > strong {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+}
+
+body .qs-review-page .qs-review-subtotal {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-size: 20px !important;
+}
+
+body .qs-review-page .qs-review-subtotal > span {
+  font-size: 20px !important;
+}
+
+body .qs-review-page .qs-review-subtotal > strong {
+  color: var(--qs-ink) !important;
+  font-family: var(--qs-sans) !important;
+  font-size: 30px !important;
+  font-weight: 400 !important;
+  line-height: 1.15 !important;
+  white-space: nowrap !important;
+}
+
+body .qs-review-page .qs-review-summary-actions {
+  gap: 14px !important;
+  margin-top: 10px !important;
+}
+
+body .qs-review-page .qs-review-admin-actions {
+  margin-top: 10px !important;
+  padding-top: 18px !important;
+}
+
+body .qs-review-page .qs-review-admin-actions h3 {
+  margin: 0 0 2px !important;
+  font-size: 20px !important;
+}
+
+@media (max-width: 1050px) {
+  body .qs-review-page .qs-review-layout {
+    grid-template-columns: minmax(0, 1fr) 430px !important;
+    gap: 35px !important;
+  }
+}
+
+@media (max-width: 800px) {
+  body .qs-review-page {
+    margin-top: 35px !important;
+  }
+
+  body .qs-review-page .qs-review-page-header {
+    display: block !important;
+  }
+
+  body .qs-review-page .qs-review-page-header nav {
+    margin-top: 22px !important;
+  }
+
+  body .qs-review-page .qs-review-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .qs-review-page .qs-review-summary {
+    position: relative !important;
+    top: auto !important;
+    order: -1 !important;
+    max-height: none !important;
+  }
+}

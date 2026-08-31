@@ -216,6 +216,9 @@ function qs_quote_review_shortcode() {
 	}
 
 	$data     = qs_get_quote_data( $quote_id );
+	$uses_item_config = function_exists( 'qs_item_config_has_row_configuration' )
+		? qs_item_config_has_row_configuration( $quote_id )
+		: false;
 	$is_draft = 'draft' === get_post_status( $quote_id );
 	$status   = get_post_status( $quote_id );
 	$subtotal = (float) $data['subtotal'];
@@ -250,10 +253,12 @@ function qs_quote_review_shortcode() {
 					</dl>
 				</section>
 
-				<section class="qs-review-section">
-					<h3>Selected Specifications</h3>
-					<?php qs_review_specification_cards( $data ); ?>
-				</section>
+				<?php if ( ! $uses_item_config ) : ?>
+					<section class="qs-review-section">
+						<h3>Selected Specifications</h3>
+						<?php qs_review_specification_cards( $data ); ?>
+					</section>
+				<?php endif; ?>
 
 				<?php qs_review_component_sections( $quote_id, $data ); ?>
 
@@ -266,14 +271,16 @@ function qs_quote_review_shortcode() {
 
 			<aside class="qs-review-summary">
 				<h2>Quote Summary</h2>
-				<h3>Selected Specifications</h3>
-				<dl>
-					<dt>Profile</dt><dd><?php echo esc_html( $data['door_profile'] ? $data['door_profile'] : '—' ); ?></dd>
-					<dt>Timber</dt><dd><?php echo esc_html( $data['timber'] ? $data['timber'] : '—' ); ?></dd>
-					<dt>Finish</dt><dd><?php echo esc_html( $data['finish'] ? $data['finish'] : '—' ); ?></dd>
-					<dt>Door / Drawer Handle</dt><dd><?php echo esc_html( $data['handle_profile'] ? $data['handle_profile'] : '—' ); ?></dd>
-					<dt>Paint Colour</dt><dd><?php echo esc_html( $data['paint_colour'] ? $data['paint_colour'] : '—' ); ?></dd>
-				</dl>
+				<?php if ( ! $uses_item_config ) : ?>
+					<h3>Selected Specifications</h3>
+					<dl>
+						<dt>Profile</dt><dd><?php echo esc_html( $data['door_profile'] ? $data['door_profile'] : '—' ); ?></dd>
+						<dt>Timber</dt><dd><?php echo esc_html( $data['timber'] ? $data['timber'] : '—' ); ?></dd>
+						<dt>Finish</dt><dd><?php echo esc_html( $data['finish'] ? $data['finish'] : '—' ); ?></dd>
+						<dt>Door / Drawer Handle</dt><dd><?php echo esc_html( $data['handle_profile'] ? $data['handle_profile'] : '—' ); ?></dd>
+						<dt>Paint Colour</dt><dd><?php echo esc_html( $data['paint_colour'] ? $data['paint_colour'] : '—' ); ?></dd>
+					</dl>
+				<?php endif; ?>
 				<h3>Items Breakdown</h3>
 				<div class="qs-review-summary-items"><?php qs_review_summary_items( $quote_id, $is_draft ); ?></div>
 				<div class="qs-review-lead-time"><strong>Estimated Lead Time</strong><span>4-6 Weeks</span></div>
