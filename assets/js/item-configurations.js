@@ -518,7 +518,9 @@
       section.dataset.editingIndex = '';
       editor.querySelectorAll('[data-component-field]').forEach(function (input) {
         if (input.type === 'hidden' && input.dataset.componentField === 'edges_seen') input.value = '';
-        else if (input.tagName === 'SELECT') {
+        else if (component === 'kickboards' && input.dataset.componentField === 'material') {
+          input.value = values.material || input.dataset.defaultValue || '';
+        } else if (input.tagName === 'SELECT') {
           var defaultValue = input.dataset.defaultValue || '';
           input.value = defaultValue;
         } else input.value = '';
