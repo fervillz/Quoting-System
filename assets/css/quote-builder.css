@@ -864,6 +864,10 @@ body .qs-builder-shell .qs-component-editor select {
   background: #fff;
   box-sizing: border-box;
 }
+.qs-summary-item.is-summary-editing {
+  box-shadow: 0 0 0 4px #cfa096;
+  transition: box-shadow 0.28s ease;
+}
 .qs-summary-item-content {
   min-width: 0;
 }
