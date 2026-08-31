@@ -93,24 +93,9 @@ body {
 	margin-top: 1.2mm;
 }
 
-/* Match the original visual balance: detailed quote on the left, a fixed
- * 17px gutter, then the Items Breakdown card on the right. */
-.qs-pdf-columns {
-	width: 100%;
-}
-
+.qs-pdf-columns,
 .qs-pdf-content {
-	margin-right: 17px;
-	width: calc(66% - 17px);
-}
-
-.qs-pdf-summary {
-	background: #f3f3f3;
-	float: right;
-	padding: 4mm;
-	width: 34%;
-	page-break-inside: avoid;
-	break-inside: avoid-page;
+	width: 100%;
 }
 
 .qs-pdf-clear {
@@ -150,217 +135,28 @@ body {
 }
 
 .qs-pdf-section h2,
-.qs-pdf-summary h2 {
-	font-size: 10px;
-	font-weight: 600;
-	line-height: 1.2;
-	margin: 0 0 2mm;
-}
 
-.qs-pdf-section h3 {
-	font-size: 7.5px;
-	font-weight: 700;
-	margin: 1.7mm 0 0.7mm;
-}
-
-.qs-pdf-section p {
-	margin: 0 0 0.8mm;
-}
-
-.qs-pdf-note {
-	font-size: 5.8px;
-}
-
-.qs-pdf-specifications td {
-	height: 10mm;
-	padding: 0 1.5mm 1.7mm 0;
-	vertical-align: top;
-}
-
-.qs-pdf-specifications .qs-pdf-swatch-cell {
-	width: 9mm;
-}
-
-.qs-pdf-swatch {
-	background: #d8d8d8;
-	display: block;
-	height: 9mm;
-	width: 8mm;
-}
-
-.qs-pdf-specifications strong,
-.qs-pdf-specifications span,
-.qs-pdf-specifications small {
-	display: block;
-}
-
-.qs-pdf-specifications small {
-	font-size: 5.5px;
-	margin-top: 0.4mm;
-}
-
-.qs-pdf-table {
-	border-collapse: collapse;
-	margin: 0.8mm 0 1.7mm;
-	table-layout: fixed;
-	width: 100%;
-}
-
-.qs-pdf-table thead {
-	display: table-header-group;
-}
-
-.qs-pdf-table tr {
-	page-break-inside: avoid;
-}
-
-.qs-pdf-table th,
-.qs-pdf-table td {
-	border: 0.35px solid #d9d9d9;
-	line-height: 1.12;
-	padding: 0.75mm 0.55mm;
-	text-align: center;
-	vertical-align: middle;
-}
-
-.qs-pdf-table th {
-	font-size: 5.7px;
-	font-weight: 700;
-}
-
-.qs-pdf-table td {
-	font-size: 5.8px;
-}
-
-.qs-pdf-table th:first-child,
-.qs-pdf-table td:first-child {
-	width: 5%;
-}
-
-/* Doors: dimensions and quantity are compact; specifications and notes get
- * the space they actually need. */
-.qs-pdf-doors-table th:nth-child(2),
-.qs-pdf-doors-table td:nth-child(2) { width: 16%; }
-.qs-pdf-doors-table th:nth-child(3),
-.qs-pdf-doors-table td:nth-child(3) { width: 28%; }
-.qs-pdf-doors-table th:nth-child(4),
-.qs-pdf-doors-table td:nth-child(4) { width: 10%; }
-.qs-pdf-doors-table th:nth-child(5),
-.qs-pdf-doors-table td:nth-child(5) { width: 10%; }
-.qs-pdf-doors-table th:nth-child(6),
-.qs-pdf-doors-table td:nth-child(6) { width: 9%; }
-.qs-pdf-doors-table th:nth-child(7),
-.qs-pdf-doors-table td:nth-child(7) { width: 22%; }
-
-.qs-pdf-drawer-bank-table th:nth-child(2),
-.qs-pdf-drawer-bank-table td:nth-child(2) { width: 14%; }
-.qs-pdf-drawer-bank-table th:nth-child(3),
-.qs-pdf-drawer-bank-table td:nth-child(3) { width: 23%; }
-.qs-pdf-drawer-bank-table th:nth-child(4),
-.qs-pdf-drawer-bank-table td:nth-child(4) { width: 13%; }
-.qs-pdf-drawer-bank-table th:nth-child(5),
-.qs-pdf-drawer-bank-table td:nth-child(5) { width: 9%; }
-.qs-pdf-drawer-bank-table th:nth-child(6),
-.qs-pdf-drawer-bank-table td:nth-child(6) { width: 15%; }
-.qs-pdf-drawer-bank-table th:nth-child(7),
-.qs-pdf-drawer-bank-table td:nth-child(7) { width: 8%; }
-.qs-pdf-drawer-bank-table th:nth-child(8),
-.qs-pdf-drawer-bank-table td:nth-child(8) { width: 13%; }
-
-.qs-pdf-panel-table th:nth-child(2),
-.qs-pdf-panel-table td:nth-child(2) { width: 24%; }
-.qs-pdf-panel-table th:nth-child(3),
-.qs-pdf-panel-table td:nth-child(3) { width: 9%; }
-.qs-pdf-panel-table th:nth-child(4),
-.qs-pdf-panel-table td:nth-child(4) { width: 9%; }
-.qs-pdf-panel-table th:nth-child(5),
-.qs-pdf-panel-table td:nth-child(5) { width: 15%; }
-.qs-pdf-panel-table th:nth-child(6),
-.qs-pdf-panel-table td:nth-child(6) { width: 15%; }
-.qs-pdf-panel-table th:nth-child(7),
-.qs-pdf-panel-table td:nth-child(7) { width: 8%; }
-.qs-pdf-panel-table th:nth-child(8),
-.qs-pdf-panel-table td:nth-child(8) { width: 15%; }
-
-.qs-pdf-kickboard-table th:nth-child(2),
-.qs-pdf-kickboard-table td:nth-child(2) { width: 19%; }
-.qs-pdf-kickboard-table th:nth-child(3),
-.qs-pdf-kickboard-table td:nth-child(3) { width: 22%; }
-.qs-pdf-kickboard-table th:nth-child(4),
-.qs-pdf-kickboard-table td:nth-child(4) { width: 11%; }
-.qs-pdf-kickboard-table th:nth-child(5),
-.qs-pdf-kickboard-table td:nth-child(5) { width: 13%; }
-.qs-pdf-kickboard-table th:nth-child(6),
-.qs-pdf-kickboard-table td:nth-child(6) { width: 9%; }
-.qs-pdf-kickboard-table th:nth-child(7),
-.qs-pdf-kickboard-table td:nth-child(7) { width: 21%; }
-
-.qs-pdf-summary h2 {
-	font-size: 12px;
-	font-weight: 400;
-	margin-bottom: 3mm;
-}
-
-.qs-pdf-summary-group {
-	margin: 0 0 2mm;
-	page-break-inside: avoid;
-}
-
-.qs-pdf-summary-group > strong {
-	display: block;
-	font-size: 7px;
-	margin-bottom: 0.5mm;
-}
-
-.qs-pdf-summary-group p {
-	margin: 0 0 0.6mm;
-	min-height: 2.8mm;
-	overflow: hidden;
-}
-
-.qs-pdf-summary-group p span {
-	display: inline-block;
-	width: 78%;
-}
-
-.qs-pdf-summary-group p em {
-	float: right;
-	font-style: normal;
-	text-align: right;
-	width: 18%;
-}
-
-.qs-pdf-summary-group p small {
-	display: block;
-	font-size: 5.2px;
-	line-height: 1.25;
-	margin: 0.35mm 0 0 1.5mm;
-}
-
-.qs-pdf-lead-time,
-.qs-pdf-subtotal {
+.qs-pdf-quote-totals {
 	border-top: 1px solid #bcbcbc;
-	clear: both;
 	margin-top: 3mm;
-	overflow: hidden;
-	padding-top: 3mm;
+	padding-top: 2.5mm;
+	page-break-inside: avoid;
 }
 
-.qs-pdf-lead-time strong,
-.qs-pdf-subtotal strong {
+.qs-pdf-quote-totals div {
+	display: block;
+	min-height: 4mm;
+	overflow: hidden;
+}
+
+.qs-pdf-quote-totals strong {
 	float: left;
 }
 
-.qs-pdf-lead-time span,
-.qs-pdf-subtotal span {
+.qs-pdf-quote-totals span {
 	float: right;
+	font-weight: 600;
 	text-align: right;
-}
-
-.qs-pdf-subtotal {
-	font-size: 7px;
-	margin-top: 3mm;
-	padding-bottom: 2mm;
 }
 
 /* Footer backgrounds remain full bleed. */

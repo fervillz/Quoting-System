@@ -57,28 +57,6 @@ $has_legacy_specs = (bool) array_filter(
 		</table>
 
 		<div class="qs-pdf-columns">
-			<aside class="qs-pdf-summary">
-				<h2>Items Breakdown</h2>
-				<?php foreach ( qs_quote_summary_groups( $quote_id ) as $group ) : ?>
-					<?php if ( ! $group['rows'] ) { continue; } ?>
-					<div class="qs-pdf-summary-group">
-						<strong><?php echo esc_html( $group['title'] . ' (' . count( $group['rows'] ) . ')' ); ?></strong>
-						<?php foreach ( $group['rows'] as $row ) : ?>
-							<p>
-								<span><?php echo esc_html( qs_quote_summary_primary( $group['component'], $row ) ); ?></span>
-								<em><?php echo esc_html( isset( $row['quantity'] ) ? absint( $row['quantity'] ) : 0 ); ?></em>
-								<?php if ( qs_quote_summary_secondary( $group['component'], $row ) ) : ?>
-									<small><?php echo nl2br( esc_html( qs_quote_summary_secondary( $group['component'], $row ) ) ); ?></small>
-								<?php endif; ?>
-							</p>
-						<?php endforeach; ?>
-					</div>
-				<?php endforeach; ?>
-
-				<div class="qs-pdf-lead-time"><strong>Estimated Lead Time</strong><span><?php echo esc_html( function_exists( 'qs_get_estimated_lead_time' ) ? qs_get_estimated_lead_time( $quote_id ) : '4–6 Weeks' ); ?></span></div>
-				<div class="qs-pdf-subtotal"><strong>Subtotal</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
-			</aside>
-
 			<div class="qs-pdf-content">
 				<section class="qs-pdf-section qs-pdf-project-details">
 					<h2>Project Details</h2>
@@ -144,6 +122,11 @@ $has_legacy_specs = (bool) array_filter(
 					<h2>Project Notes</h2>
 					<p><?php echo nl2br( esc_html( $data['project_notes'] ? $data['project_notes'] : '-' ) ); ?></p>
 				</section>
+
+				<div class="qs-pdf-quote-totals">
+					<div><strong>Estimated Lead Time</strong><span><?php echo esc_html( function_exists( 'qs_get_estimated_lead_time' ) ? qs_get_estimated_lead_time( $quote_id ) : '4–6 Weeks' ); ?></span></div>
+					<div><strong>Subtotal</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
+				</div>
 			</div>
 			<div class="qs-pdf-clear"></div>
 		</div>
