@@ -1011,3 +1011,39 @@ body .qs-builder-shell .qs-component-editor select {
     grid-column: 1 / -1;
   }
 }
+
+
+.qs-summary-item.is-summary-editing.is-summary-pulse {
+  box-shadow: 0 0 0 6px #cfa096;
+}
+
+.qs-summary-item.is-summary-arrival {
+  animation: qs-summary-arrival 650ms ease;
+}
+
+.qs-fly-to-summary {
+  position: fixed !important;
+  z-index: 999999 !important;
+  margin: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 8px 24px rgba(64, 88, 107, 0.2) !important;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+@keyframes qs-summary-arrival {
+  0% { box-shadow: 0 0 0 0 rgba(207, 160, 150, 0); }
+  35% { box-shadow: 0 0 0 6px #cfa096; }
+  100% { box-shadow: 0 0 0 0 rgba(207, 160, 150, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qs-fly-to-summary {
+    display: none !important;
+  }
+  .qs-summary-item.is-summary-arrival {
+    animation-duration: 1ms;
+  }
+}

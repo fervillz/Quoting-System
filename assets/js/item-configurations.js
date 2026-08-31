@@ -411,6 +411,95 @@
       if (input) input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    function summaryTarget(component, index) {
+      return document.querySelector(
+        '.qs-summary-item[data-summary-component="' + component + '"][data-summary-row-index="' + index + '"]'
+      );
+    }
+
+    function pulseSummaryTarget(target, keepSelected) {
+      if (!target) return;
+      if (keepSelected) target.classList.add('is-summary-editing');
+      target.classList.remove('is-summary-pulse');
+      window.requestAnimationFrame(function () {
+        target.classList.add('is-summary-pulse');
+        window.setTimeout(function () {
+          target.classList.remove('is-summary-pulse');
+        }, 360);
+      });
+    }
+
+    function flyToSummary(source, target) {
+      if (!source || !target) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        target.classList.add('is-summary-arrival');
+        window.setTimeout(function () { target.classList.remove('is-summary-arrival'); }, 650);
+        return;
+      }
+
+      var container = target.closest('.qs-summary-items');
+      if (container) {
+        var targetBefore = target.getBoundingClientRect();
+        var containerRect = container.getBoundingClientRect();
+        if (targetBefore.bottom > containerRect.bottom || targetBefore.top < containerRect.top) {
+          target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        }
+      }
+
+      var sourceRect = source.getBoundingClientRect();
+      var targetRect = target.getBoundingClientRect();
+      if (!sourceRect.width || !sourceRect.height || !targetRect.width || !targetRect.height) return;
+
+      var flyer = target.cloneNode(true);
+      flyer.classList.remove('is-summary-editing', 'is-summary-pulse', 'is-summary-arrival');
+      flyer.classList.add('qs-fly-to-summary');
+      flyer.querySelectorAll('button').forEach(function (button) { button.remove(); });
+      var startLeft = sourceRect.left + Math.max(0, (sourceRect.width - targetRect.width) / 2);
+      var startTop = sourceRect.top + Math.max(0, Math.min(sourceRect.height - targetRect.height, 24));
+      flyer.style.left = startLeft + 'px';
+      flyer.style.top = startTop + 'px';
+      flyer.style.width = targetRect.width + 'px';
+      flyer.style.height = targetRect.height + 'px';
+      document.body.appendChild(flyer);
+
+      var dx = targetRect.left - startLeft;
+      var dy = targetRect.top - startTop;
+      var done = function () {
+        flyer.remove();
+        target.classList.add('is-summary-arrival');
+        window.setTimeout(function () { target.classList.remove('is-summary-arrival'); }, 650);
+      };
+
+      if (flyer.animate) {
+        var animation = flyer.animate(
+          [
+            { transform: 'translate3d(0,0,0) scale(.82)', opacity: .92 },
+            { transform: 'translate3d(' + dx + 'px,' + dy + 'px,0) scale(1)', opacity: .18 }
+          ],
+          { duration: 680, easing: 'cubic-bezier(.22,.8,.22,1)', fill: 'forwards' }
+        );
+        animation.addEventListener('finish', done, { once: true });
+      } else {
+        flyer.style.transition = 'transform 680ms cubic-bezier(.22,.8,.22,1), opacity 680ms ease';
+        window.requestAnimationFrame(function () {
+          flyer.style.transform = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
+          flyer.style.opacity = '.18';
+        });
+        window.setTimeout(done, 700);
+      }
+    }
+
+    function animateSummaryCommit(section, row, source, wasUpdate) {
+      if (!section || !row) return;
+      var rows = Array.prototype.slice.call(section.querySelectorAll('.qs-repeater-row'));
+      var index = rows.indexOf(row);
+      if (index < 0) return;
+      var target = summaryTarget(section.dataset.component, index);
+      if (!target) return;
+      if (wasUpdate) pulseSummaryTarget(target, true);
+      else flyToSummary(source, target);
+    }
+
     function selectedEdges(section) {
       var checks = section.querySelectorAll('[data-edge-position]:checked, [data-filler-edge-position]:checked');
       if (checks.length) return Array.prototype.map.call(checks, function (input) { return input.value; }).join(' + ');
@@ -475,7 +564,9 @@
 
       var rows = Array.prototype.slice.call(section.querySelectorAll('.qs-repeater-row'));
       var editing = section.dataset.editingIndex;
-      var row = editing !== '' ? rows[Number(editing)] : null;
+      var wasUpdate = editing !== '';
+      var animationSource = panel;
+      var row = wasUpdate ? rows[Number(editing)] : null;
       if (!row) {
         var desiredSignature = signature(values);
         row = rows.find(function (candidate) {
@@ -506,6 +597,7 @@
       var button = section.querySelector('.qs-commit-item');
       if (button) button.textContent = 'Add Item';
       triggerRefresh(row);
+      animateSummaryCommit(section, row, animationSource, wasUpdate);
     }
 
     function coreComponentValues(section) {
@@ -568,7 +660,9 @@
 
       var rows = Array.prototype.slice.call(section.querySelectorAll('.qs-repeater-row'));
       var editing = section.dataset.editingIndex;
-      var row = editing !== '' ? rows[Number(editing)] : null;
+      var wasUpdate = editing !== '';
+      var animationSource = editor;
+      var row = wasUpdate ? rows[Number(editing)] : null;
       if (!row) {
         var desiredSignature = signature(values);
         row = rows.find(function (candidate) {
@@ -605,6 +699,7 @@
       var button = section.querySelector('.qs-commit-component');
       if (button) button.textContent = 'Add Item';
       triggerRefresh(row);
+      animateSummaryCommit(section, row, animationSource, wasUpdate);
     }
 
     form.addEventListener('input', function (event) {
