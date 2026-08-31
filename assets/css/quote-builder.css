@@ -868,6 +868,10 @@ body .qs-builder-shell .qs-component-editor select {
   box-shadow: 0 0 0 4px #cfa096;
   transition: box-shadow 0.28s ease;
 }
+.qs-summary-item.is-summary-editing.is-summary-edit-fading {
+  box-shadow: 0 0 0 0 rgba(207, 160, 150, 0);
+  transition: box-shadow 500ms ease;
+}
 .qs-summary-item-content {
   min-width: 0;
 }
