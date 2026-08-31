@@ -84,6 +84,7 @@ $has_legacy_specs = (bool) array_filter(
 		<section class="qs-pdf-section">
 			<h2>End Panels &amp; Fillers</h2>
 			<h3>End Panels</h3>
+			<p><em>Flat panels / no profile</em></p>
 			<?php qs_render_quote_component_table( $rows['end_panels'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>
 			<h3>Fillers</h3>
 			<?php qs_render_quote_component_table( $rows['fillers'], array( 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-pdf-table' ); ?>

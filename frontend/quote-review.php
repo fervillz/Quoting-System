@@ -95,6 +95,7 @@ function qs_review_component_sections( $quote_id, $data ) {
 	<section class="qs-review-section">
 		<h3>End Panels &amp; Fillers</h3>
 		<h4>End Panels</h4>
+		<p class="qs-review-note"><em>Flat panels / no profile</em></p>
 		<?php qs_render_quote_component_table( $data['component_rows']['end_panels'], array( 'item_specifications' => 'Specifications', 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-review-table' ); ?>
 		<h4>Fillers</h4>
 		<?php qs_render_quote_component_table( $data['component_rows']['fillers'], array( 'item_specifications' => 'Specifications', 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-review-table' ); ?>
