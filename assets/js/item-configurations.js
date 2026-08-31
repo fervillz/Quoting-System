@@ -210,6 +210,26 @@
     }
 
     var componentLast = {};
+    var sharedComponentLast = globalDefaults(false);
+
+    function sharedComponentConfig(values) {
+      return {
+        timber: values && values.timber ? values.timber : '',
+        finish: values && values.finish ? values.finish : '',
+        paint_colour: values && values.paint_colour ? values.paint_colour : '',
+        notes: ''
+      };
+    }
+
+    function propagateSharedComponentConfig(sourceSection) {
+      document.querySelectorAll('.qs-configured-component').forEach(function (section) {
+        if (section === sourceSection || section.dataset.editingIndex !== '') return;
+        if (section.querySelectorAll('.qs-repeater-row').length) return;
+        var editor = section.querySelector('.qs-component-editor');
+        if (editor) setConfig(editor, sharedComponentLast, false);
+      });
+    }
+
     document.querySelectorAll('.qs-configured-component').forEach(function (section) {
       var component = section.dataset.component;
       var editor = section.querySelector('.qs-component-editor');
@@ -225,15 +245,21 @@
       }
       editor.appendChild(makeNotes());
 
-      var fallback = globalDefaults(false);
       var rows = section.querySelectorAll('.qs-repeater-row');
-      componentLast[component] = rows.length ? rowConfig(rows[rows.length - 1], false, fallback) : fallback;
+      componentLast[component] = rows.length ? rowConfig(rows[rows.length - 1], false, sharedComponentLast) : sharedComponentLast;
+      if (rows.length) sharedComponentLast = sharedComponentConfig(componentLast[component]);
       setConfig(editor, componentLast[component], false);
     });
 
     form.addEventListener('change', function (event) {
       var root = event.target.closest('.qs-item-editor, .qs-component-editor');
       if (root && event.target.matches('[data-item-config-field="timber"]')) syncPaintFields(root);
+
+      var componentEditor = event.target.closest('.qs-configured-component .qs-component-editor');
+      if (componentEditor && event.target.matches('[data-item-config-field="timber"], [data-item-config-field="finish"], [data-item-config-field="paint_colour"]')) {
+        sharedComponentLast = sharedComponentConfig(getConfig(componentEditor, false));
+        propagateSharedComponentConfig(componentEditor.closest('.qs-configured-component'));
+      }
     });
 
     function field(root, selector) {
@@ -484,6 +510,8 @@
         paint_colour: values.paint_colour,
         notes: ''
       };
+      sharedComponentLast = sharedComponentConfig(componentLast[component]);
+      propagateSharedComponentConfig(section);
       section.dataset.editingIndex = '';
       editor.querySelectorAll('[data-component-field]').forEach(function (input) {
         if (input.type === 'hidden' && input.dataset.componentField === 'edges_seen') input.value = '';
