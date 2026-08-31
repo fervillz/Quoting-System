@@ -296,6 +296,140 @@ function qs_item_config_restore_admin_rows( $post_id ) {
 }
 add_action( 'save_post_quote', 'qs_item_config_restore_admin_rows', 30 );
 
+/**
+ * Return the supported dimensional range for a matrix-priced Quote Product.
+ * Linked matrix sources are followed so shared pricing tables work too.
+ */
+function qs_item_config_matrix_bounds( $product_id, $visited = array() ) {
+	$product_id = absint( $product_id );
+	if ( ! $product_id || isset( $visited[ $product_id ] ) ) {
+		return array();
+	}
+	$visited[ $product_id ] = true;
+
+	$rows = qs_product_matrix_rows( $product_id );
+	if ( ! $rows ) {
+		$source_id = qs_product_pricing_source( $product_id );
+		return $source_id ? qs_item_config_matrix_bounds( $source_id, $visited ) : array();
+	}
+
+	$width_mins  = array();
+	$width_maxes = array();
+	$height_mins = array();
+	$height_maxes = array();
+
+	foreach ( $rows as $row ) {
+		if ( isset( $row['width_min'] ) && '' !== $row['width_min'] ) {
+			$width_mins[] = (float) $row['width_min'];
+		}
+		if ( isset( $row['width_max'] ) && '' !== $row['width_max'] ) {
+			$width_maxes[] = (float) $row['width_max'];
+		}
+		if ( isset( $row['height_min'] ) && '' !== $row['height_min'] ) {
+			$height_mins[] = (float) $row['height_min'];
+		}
+		if ( isset( $row['height_max'] ) && '' !== $row['height_max'] ) {
+			$height_maxes[] = (float) $row['height_max'];
+		}
+	}
+
+	if ( ! $width_mins || ! $width_maxes || ! $height_mins || ! $height_maxes ) {
+		return array();
+	}
+
+	return array(
+		'min_width'  => min( $width_mins ),
+		'max_width'  => max( $width_maxes ),
+		'min_height' => min( $height_mins ),
+		'max_height' => max( $height_maxes ),
+	);
+}
+
+/** Check one width/height pair against a product's pricing range. */
+function qs_item_config_dimensions_in_bounds( $width, $height, $bounds ) {
+	if ( ! is_array( $bounds ) || ! $bounds ) {
+		return true;
+	}
+
+	$width  = (float) $width;
+	$height = (float) $height;
+
+	return $width >= (float) $bounds['min_width']
+		&& $width <= (float) $bounds['max_width']
+		&& $height >= (float) $bounds['min_height']
+		&& $height <= (float) $bounds['max_height'];
+}
+
+/**
+ * Reject saved rows that cannot match a pricing matrix. This is the server
+ * safeguard behind the Builder's inline red validation.
+ */
+function qs_validate_quote_pricing_dimensions( $quote_id ) {
+	$errors = array();
+	$row_mode = qs_item_config_has_row_configuration( $quote_id );
+
+	foreach ( qs_component_rows( $quote_id, 'doors_drawers' ) as $index => $row ) {
+		$profile_id = $row_mode
+			? qs_item_config_product_id( $quote_id, $row, 'door_profile', '_door_profile', 'door-profile' )
+			: qs_resolve_quote_product( get_post_meta( $quote_id, '_door_profile', true ), 'door-profile' );
+		$bounds = qs_item_config_matrix_bounds( $profile_id );
+		if ( ! $bounds ) {
+			continue;
+		}
+
+		$width = isset( $row['width'] ) ? (float) $row['width'] : 0;
+		$type  = isset( $row['type'] ) ? strtolower( trim( (string) $row['type'] ) ) : 'door';
+		$heights = 'drawer bank' === $type
+			? qs_drawer_bank_heights( $row )
+			: array( isset( $row['height'] ) ? (float) $row['height'] : 0 );
+
+		foreach ( $heights as $height ) {
+			if ( ! qs_item_config_dimensions_in_bounds( $width, $height, $bounds ) ) {
+				$label = $profile_id ? get_the_title( $profile_id ) : 'Selected profile';
+				$errors[] = sprintf(
+					'%s supports widths %s–%smm and heights %s–%smm.',
+					$label,
+					$bounds['min_width'],
+					$bounds['max_width'],
+					$bounds['min_height'],
+					$bounds['max_height']
+				);
+				break;
+			}
+		}
+	}
+
+	$evans_id = qs_find_quote_product( 'Evans', 'door-profile' );
+	$panel_bounds = qs_item_config_matrix_bounds( $evans_id );
+	if ( $panel_bounds ) {
+		foreach ( array( 'end_panels', 'fillers' ) as $component ) {
+			foreach ( qs_component_rows( $quote_id, $component ) as $row ) {
+				$width  = isset( $row['width'] ) ? (float) $row['width'] : 0;
+				$height = isset( $row['height'] ) ? (float) $row['height'] : 0;
+				if ( ! qs_item_config_dimensions_in_bounds( $width, $height, $panel_bounds ) ) {
+					$errors[] = sprintf(
+						'End Panels and Fillers support widths %s–%smm and heights %s–%smm.',
+						$panel_bounds['min_width'],
+						$panel_bounds['max_width'],
+						$panel_bounds['min_height'],
+						$panel_bounds['max_height']
+					);
+					break;
+				}
+			}
+		}
+	}
+
+	if ( $errors ) {
+		return new WP_Error(
+			'qs_invalid_pricing_dimensions',
+			implode( ' ', array_unique( $errors ) ) . ' Please adjust the highlighted measurements before continuing.'
+		);
+	}
+
+	return true;
+}
+
 function qs_item_config_product_options( $type ) {
 	$products = get_posts(
 		array(
@@ -325,7 +459,11 @@ function qs_item_config_product_options( $type ) {
 				if ( 'timber' === $type && false !== stripos( $label, 'paint' ) ) {
 					$label = 'Painted Oak';
 				}
-				return array( 'id' => (string) $product->ID, 'label' => $label );
+				$option = array( 'id' => (string) $product->ID, 'label' => $label );
+				if ( 'door-profile' === $type ) {
+					$option['bounds'] = qs_item_config_matrix_bounds( $product->ID );
+				}
+				return $option;
 			},
 			$products
 		)
@@ -358,7 +496,8 @@ function qs_enqueue_item_configuration_assets() {
 			'profiles' => qs_item_config_product_options( 'door-profile' ),
 			'timbers'  => qs_item_config_product_options( 'timber' ),
 			'handles'  => qs_item_config_product_options( 'accessory' ),
-			'finishes' => qs_item_config_product_options( 'finish' ),
+			'finishes'     => qs_item_config_product_options( 'finish' ),
+			'panelBounds' => qs_item_config_matrix_bounds( qs_find_quote_product( 'Evans', 'door-profile' ) ),
 		)
 	);
 }

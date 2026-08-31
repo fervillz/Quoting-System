@@ -63,3 +63,23 @@ body .qs-builder-shell .qs-item-notes {
     grid-template-columns: 1fr;
   }
 }
+
+
+.qs-item-config-block .qs-pricing-invalid,
+.qs-item-editor .qs-pricing-invalid,
+.qs-component-editor .qs-pricing-invalid {
+  border-color: #c62828 !important;
+  box-shadow: 0 0 0 1px #c62828 !important;
+}
+
+.qs-pricing-error {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border-left: 3px solid #c62828;
+  background: #fff3f2;
+  color: #a61b1b;
+  font-size: 13px;
+  line-height: 1.4;
+}

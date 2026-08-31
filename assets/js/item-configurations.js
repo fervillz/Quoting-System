@@ -29,6 +29,11 @@
       handle_profile: data.handles || [],
       finish: data.finishes || []
     };
+    var profileBounds = {};
+    (data.profiles || []).forEach(function (item) {
+      if (item && item.id && item.bounds) profileBounds[String(item.id)] = item.bounds;
+    });
+    var panelBounds = data.panelBounds || null;
 
     function storedValue(row, key) {
       var input = row && row.querySelector('[name$="[' + key + ']"]');
@@ -279,6 +284,61 @@
       return false;
     }
 
+    function clearPricingError(root) {
+      if (!root) return;
+      root.querySelectorAll('.qs-pricing-invalid').forEach(function (input) {
+        input.classList.remove('qs-pricing-invalid');
+        input.removeAttribute('aria-invalid');
+      });
+      var error = root.querySelector('.qs-pricing-error');
+      if (error) error.remove();
+    }
+
+    function rangeText(bounds) {
+      return 'width ' + bounds.min_width + '–' + bounds.max_width + 'mm and height ' +
+        bounds.min_height + '–' + bounds.max_height + 'mm';
+    }
+
+    function showPricingError(root, inputs, message) {
+      clearPricingError(root);
+      (inputs || []).forEach(function (input) {
+        if (!input) return;
+        input.classList.add('qs-pricing-invalid');
+        input.setAttribute('aria-invalid', 'true');
+      });
+      var error = document.createElement('div');
+      error.className = 'qs-pricing-error';
+      error.setAttribute('role', 'alert');
+      error.textContent = message;
+      var button = root.querySelector('.qs-commit-item, .qs-commit-component');
+      if (button && button.parentNode === root) root.insertBefore(error, button);
+      else root.appendChild(error);
+      if (inputs && inputs[0]) inputs[0].focus();
+      return false;
+    }
+
+    function validatePricingRange(root, bounds, widthInput, heightInputs, label) {
+      if (!bounds || !widthInput) return true;
+      var invalid = [];
+      var width = Number(widthInput.value);
+      if (width < Number(bounds.min_width) || width > Number(bounds.max_width)) invalid.push(widthInput);
+      (heightInputs || []).forEach(function (input) {
+        if (!input) return;
+        var height = Number(input.value);
+        if (height < Number(bounds.min_height) || height > Number(bounds.max_height)) invalid.push(input);
+      });
+      if (!invalid.length) {
+        clearPricingError(root);
+        return true;
+      }
+      return showPricingError(
+        root,
+        invalid,
+        (label || 'This item') + ' pricing supports ' + rangeText(bounds) +
+          '. Please adjust the highlighted measurement.'
+      );
+    }
+
     function validateConfig(root, includeProfile) {
       var required = includeProfile ? ['door_profile', 'timber', 'handle_profile'] : ['timber'];
       if (!isPainted(root)) required.push('finish');
@@ -385,6 +445,14 @@
       }
 
       var config = getConfig(panel, true);
+      var bounds = profileBounds[String(config.door_profile)] || null;
+      var widthInput = field(panel, '[data-editor-field="width"]');
+      var heightInputs = type === 'Drawer Bank'
+        ? Array.prototype.slice.call(panel.querySelectorAll('[data-bank-counts]:not([hidden]):not([disabled])'))
+        : [field(panel, '[data-editor-field="height"]')];
+      var profileLabel = labels.door_profile[String(config.door_profile)] || 'Selected profile';
+      if (!validatePricingRange(panel, bounds, widthInput, heightInputs, profileLabel)) return;
+
       var values = {
         type: type,
         door_profile: config.door_profile,
@@ -480,6 +548,13 @@
 
       if (component === 'end_panels' || component === 'fillers') {
         if (!values.width || Number(values.width) <= 0) return report(field(editor, '[data-component-field="width"]'), 'Please enter the width.');
+        if (!validatePricingRange(
+          editor,
+          panelBounds,
+          field(editor, '[data-component-field="width"]'),
+          [field(editor, '[data-component-field="height"]')],
+          component === 'end_panels' ? 'End Panel' : 'Filler'
+        )) return;
         if (!values.faces_seen) return report(field(editor, '[data-component-field="faces_seen"]'), 'Please select the face seen.');
         if (!values.edges_seen) {
           var edge = section.querySelector('[data-edge-position], [data-filler-edge-position]');
@@ -531,6 +606,12 @@
       if (button) button.textContent = 'Add Item';
       triggerRefresh(row);
     }
+
+    form.addEventListener('input', function (event) {
+      if (!event.target.matches('[data-editor-field], [data-component-field]')) return;
+      var root = event.target.closest('.qs-item-editor, .qs-component-editor');
+      if (root && event.target.classList.contains('qs-pricing-invalid')) clearPricingError(root);
+    });
 
     // Intercept before the legacy document-capture quantity handlers so rows
     // with identical dimensions but different finishes are never merged.

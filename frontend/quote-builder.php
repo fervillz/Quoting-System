@@ -192,6 +192,13 @@ function qs_builder_save_quote( $quote_id, $handle_uploads = true ) {
 	}
 
 	qs_save_component_rows( $quote_id, isset( $_POST['components'] ) ? $_POST['components'] : array() );
+	$pricing_validation = function_exists( 'qs_validate_quote_pricing_dimensions' )
+		? qs_validate_quote_pricing_dimensions( $quote_id )
+		: true;
+	if ( is_wp_error( $pricing_validation ) ) {
+		return $pricing_validation;
+	}
+
 	$pricing_type = isset( $_POST['pricing_type'] ) && 'retail' === $_POST['pricing_type'] ? 'retail' : 'trade';
 	update_post_meta( $quote_id, '_pricing_type', $pricing_type );
 
@@ -202,7 +209,21 @@ function qs_builder_save_quote( $quote_id, $handle_uploads = true ) {
 		}
 	}
 
-	qs_recalculate_quote_pricing( $quote_id );
+	$subtotal = qs_recalculate_quote_pricing( $quote_id );
+	$has_items = false;
+	foreach ( array( 'doors_drawers', 'end_panels', 'fillers', 'kickboards' ) as $component ) {
+		if ( qs_component_rows( $quote_id, $component ) ) {
+			$has_items = true;
+			break;
+		}
+	}
+	if ( $has_items && $subtotal <= 0 ) {
+		return new WP_Error(
+			'qs_zero_subtotal',
+			__( 'The quote contains an item that does not match a pricing range. Please correct the highlighted measurements before continuing.', 'quote-system' )
+		);
+	}
+
 	return $quote_id;
 }
 
