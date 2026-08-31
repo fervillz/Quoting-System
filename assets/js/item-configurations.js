@@ -474,6 +474,9 @@
       ['quantity', 'height'].forEach(function () {});
       if (!values.quantity || Number(values.quantity) <= 0) return report(field(editor, '[data-component-field="quantity"]'), 'Please enter a quantity.');
       if (!values.height || Number(values.height) <= 0) return report(field(editor, '[data-component-field="height"]'), 'Please enter the height.');
+      if (component === 'kickboards' && Number(values.height) > 200) {
+        return report(field(editor, '[data-component-field="height"]'), 'Kickboard height cannot exceed 200mm.');
+      }
 
       if (component === 'end_panels' || component === 'fillers') {
         if (!values.width || Number(values.width) <= 0) return report(field(editor, '[data-component-field="width"]'), 'Please enter the width.');
