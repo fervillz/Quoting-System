@@ -120,6 +120,12 @@
 
     document.querySelectorAll('.qs-configured-component').forEach(clearDefaultQuantityValues);
 
+    form.addEventListener('wheel', function (event) {
+      if (event.target && event.target.matches('input[type="number"]') && document.activeElement === event.target) {
+        event.target.blur();
+      }
+    }, { passive: true });
+
     document.addEventListener('click', function (event) {
       var doorButton = event.target.closest('.qs-commit-item');
       if (doorButton) {
