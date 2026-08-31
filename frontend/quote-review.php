@@ -85,10 +85,10 @@ function qs_review_component_sections( $quote_id, $data ) {
 	<section class="qs-review-section">
 		<h3>Doors &amp; Drawers</h3>
 		<p class="qs-review-note"><em>Grains run vertical (height)</em></p>
-		<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity' ), 'qs-review-table' ); ?>
+		<?php qs_render_quote_component_table( $fronts, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'width' => 'Width', 'height' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-review-table' ); ?>
 		<?php if ( $drawer_banks ) : ?>
 			<h4>Drawer Banks</h4>
-			<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity' ), 'qs-review-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
+			<?php qs_render_quote_component_table( $drawer_banks, array( 'type' => 'Item Type', 'item_specifications' => 'Specifications', 'configuration' => 'Configuration', 'width' => 'Width', 'height_details' => 'Height', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-review-table', 'No drawer banks supplied.', count( $fronts ) + 1 ); ?>
 		<?php endif; ?>
 	</section>
 
@@ -96,15 +96,15 @@ function qs_review_component_sections( $quote_id, $data ) {
 		<h3>End Panels &amp; Fillers</h3>
 		<h4>End Panels</h4>
 		<p class="qs-review-note"><em>Flat panels / no profile</em></p>
-		<?php qs_render_quote_component_table( $data['component_rows']['end_panels'], array( 'item_specifications' => 'Specifications', 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-review-table' ); ?>
+		<?php qs_render_quote_component_table( $data['component_rows']['end_panels'], array( 'item_specifications' => 'Specifications', 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-review-table' ); ?>
 		<h4>Fillers</h4>
-		<?php qs_render_quote_component_table( $data['component_rows']['fillers'], array( 'item_specifications' => 'Specifications', 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity' ), 'qs-review-table' ); ?>
+		<?php qs_render_quote_component_table( $data['component_rows']['fillers'], array( 'item_specifications' => 'Specifications', 'height' => 'Height', 'width' => 'Width', 'faces_seen' => 'Face Seen', 'edges_seen' => 'Edge/s Seen', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-review-table' ); ?>
 	</section>
 
 	<section class="qs-review-section">
 		<h3>Kickboards</h3>
 		<p class="qs-review-note"><em>* Grain runs long / horizontal<br>* Max length 2400mm per piece<br>* Max height 200mm<br>* 1 face / no edges finished</em></p>
-		<?php qs_render_quote_component_table( $data['component_rows']['kickboards'], array( 'material' => 'Kick Material', 'item_specifications' => 'Specifications', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity' ), 'qs-review-table' ); ?>
+		<?php qs_render_quote_component_table( $data['component_rows']['kickboards'], array( 'material' => 'Kick Material', 'item_specifications' => 'Specifications', 'height' => 'Kick Height', 'length' => 'Kick Length', 'quantity' => 'Quantity', 'notes' => 'Notes' ), 'qs-review-table' ); ?>
 	</section>
 	<?php
 }
