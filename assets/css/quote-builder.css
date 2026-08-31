@@ -396,6 +396,10 @@ body .qs-builder-shell .qs-door-entry-editor select {
 body .qs-builder-shell .qs-door-entry-editor select {
   margin-bottom: 10px;
 }
+body .qs-builder-shell .qs-bank-editor-fields input[hidden],
+body .qs-builder-shell .qs-bank-editor-fields input[disabled][hidden] {
+  display: none !important;
+}
 .qs-bank-editor-fields {
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
