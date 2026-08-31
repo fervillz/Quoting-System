@@ -589,9 +589,6 @@
         if (!row || !content) return;
 
         var old = content.querySelector('.qs-item-config-summary');
-        if (old) old.remove();
-        var detail = document.createElement('small');
-        detail.className = 'qs-item-config-summary';
         var parts = [];
         if (component === 'doors_drawers') {
           parts.push('Profile: ' + productLabel('door_profile', storedValue(row, 'door_profile') || globalValue('door_profile')));
@@ -606,8 +603,19 @@
         }
         if (storedValue(row, 'paint_colour')) parts.push('Paint: ' + storedValue(row, 'paint_colour'));
         if (storedValue(row, 'notes')) parts.push('Notes: ' + storedValue(row, 'notes'));
-        detail.textContent = parts.filter(function (part) { return !/: $/.test(part); }).join(' · ');
-        if (detail.textContent) content.appendChild(detail);
+        var detailText = parts.filter(function (part) { return !/: $/.test(part); }).join(' · ');
+        if (!detailText) {
+          if (old) old.remove();
+          return;
+        }
+        if (old) {
+          if (old.textContent !== detailText) old.textContent = detailText;
+          return;
+        }
+        var detail = document.createElement('small');
+        detail.className = 'qs-item-config-summary';
+        detail.textContent = detailText;
+        content.appendChild(detail);
       });
     }
 
@@ -616,8 +624,12 @@
       var summaryObserver = new MutationObserver(function () { window.setTimeout(appendSummaryDetails, 0); });
       summaryObserver.observe(summary, { childList: true, subtree: true });
     }
-    form.addEventListener('input', function () { window.setTimeout(appendSummaryDetails, 0); });
-    form.addEventListener('change', function () { window.setTimeout(appendSummaryDetails, 0); });
+    form.addEventListener('input', function (event) {
+      if (event.target.closest('.qs-repeater-row')) window.setTimeout(appendSummaryDetails, 0);
+    });
+    form.addEventListener('change', function (event) {
+      if (event.target.closest('.qs-repeater-row')) window.setTimeout(appendSummaryDetails, 0);
+    });
 
     hideLegacySpecifications();
     appendSummaryDetails();
