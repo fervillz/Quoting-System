@@ -234,11 +234,13 @@ function qs_item_config_sync_pricing( $meta_id, $quote_id, $meta_key, $meta_valu
 	}
 
 	$GLOBALS['qs_item_config_pricing_sync'] = true;
-	$trade_subtotal = qs_item_config_calculate_trade_subtotal( $quote_id );
-	$subtotal       = 'retail' === get_post_meta( $quote_id, '_pricing_type', true )
-		? qs_apply_retail_markup( $trade_subtotal )
+	$retail_subtotal = qs_item_config_calculate_trade_subtotal( $quote_id );
+	$trade_subtotal  = qs_apply_trade_discount( $retail_subtotal );
+	$subtotal        = 'retail' === get_post_meta( $quote_id, '_pricing_type', true )
+		? $retail_subtotal
 		: $trade_subtotal;
 
+	update_post_meta( $quote_id, '_retail_subtotal', $retail_subtotal );
 	update_post_meta( $quote_id, '_trade_subtotal', $trade_subtotal );
 	update_post_meta( $quote_id, '_calculated_subtotal', $subtotal );
 	update_post_meta( $quote_id, '_subtotal', $subtotal );
