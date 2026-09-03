@@ -1081,3 +1081,7 @@ body .qs-builder-shell .qs-component-editor select {
   font-size: 11px !important;
   font-style: italic;
 }
+
+.qs-dev-tools [hidden] {
+  display: none !important;
+}

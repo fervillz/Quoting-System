@@ -632,8 +632,8 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 						<div class="qs-dev-tools" aria-label="Developer test helpers">
 							<strong>Developer Test Tools</strong>
 							<button type="button" class="qs-btn qs-btn-outline" data-dev-fill-details>Fill Details</button>
-							<button type="button" class="qs-btn qs-btn-outline" data-dev-build-test-quote>Build Test Quote</button>
-							<small>Admin-only helpers. They do not appear for Joiners.</small>
+							<button type="button" class="qs-btn qs-btn-outline" data-dev-build-test-quote hidden>Build Test Quote</button>
+							<small>Admin-only helpers. Fill Details uses rotating test data; Build Test Quote appears after details are populated.</small>
 						</div>
 					<?php endif; ?>
 				</section>
@@ -905,16 +905,33 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 			select.dispatchEvent(new Event('change',{bubbles:true}));
 			return select;
 		}
+		let qsDevDetailsIndex=-1;
+		const qsDevDetailSets=[
+			{company:'Coastal Joinery Co',project:'Avoca Kitchen',name:'Alex Mercer',email:'alex.mercer@example.com',phone:'0401 101 201',address:'18 Ocean View Road\nAvoca Beach NSW 2251',custom:'Island bench with matching timber end panels. Please confirm grain direction before production.',notes:'DEV TEST – kitchen quote with doors, panels and kicks. Safe to delete.'},
+			{company:'Northside Cabinetry',project:'Terrigal Pantry',name:'Jordan Lee',email:'jordan.lee@example.com',phone:'0402 202 302',address:'42 Scenic Highway\nTerrigal NSW 2260',custom:'Include two feature panels beside the pantry tower. Client is considering a finger pull detail.',notes:'DEV TEST – pantry project. Check review page, PDF and job sheet.'},
+			{company:'Harbour Custom Joinery',project:'Wamberal Ensuite',name:'Casey Morgan',email:'casey.morgan@example.com',phone:'0403 303 403',address:'7 Pacific Street\nWamberal NSW 2260',custom:'Vanity fronts to match adjacent cabinetry. Please flag anything outside the standard matrix.',notes:'DEV TEST – small-room quote used for pricing validation.'},
+			{company:'Central Coast Interiors',project:'Erina Media Wall',name:'Taylor Brooks',email:'taylor.brooks@example.com',phone:'0404 404 504',address:'105 Karalta Road\nErina NSW 2250',custom:'Long media cabinet with mixed drawer fronts and doors. Maintain continuous grain where practical.',notes:'DEV TEST – mixed door and drawer configuration.'},
+			{company:'Lakeside Joinery',project:'Toukley Laundry',name:'Morgan Reed',email:'morgan.reed@example.com',phone:'0405 505 605',address:'12 Main Road\nToukley NSW 2263',custom:'Laundry cabinetry including overhead doors, tall end panels and kickboards.',notes:'DEV TEST – use for carry-forward Timber/Finish checks.'},
+			{company:'Peninsula Cabinets',project:'Ettalong Wardrobe',name:'Jamie Quinn',email:'jamie.quinn@example.com',phone:'0406 606 706',address:'31 Broken Bay Road\nEttalong Beach NSW 2257',custom:'Wardrobe fronts with multiple drawer banks. Please confirm all drawer-bank heights on the job sheet.',notes:'DEV TEST – drawer bank visibility and summary editing.'},
+			{company:'Summit Joinery Works',project:'Gosford Office Fitout',name:'Riley Parker',email:'riley.parker@example.com',phone:'0407 707 807',address:'66 Mann Street\nGosford NSW 2250',custom:'Office joinery with repeated door sizes and several fillers. Group like items where applicable.',notes:'DEV TEST – quantity merging and repeated items.'},
+			{company:'Timberline Cabinets',project:'Killcare Beach House',name:'Sam Ellis',email:'sam.ellis@example.com',phone:'0408 808 908',address:'9 Beach Drive\nKillcare NSW 2257',custom:'Premium timber finish throughout. Include notes for visible edges and kickboard finish.',notes:'DEV TEST – full quote with detailed per-item specifications.'}
+		];
 		function qsDevFillDetails(){
+			qsDevDetailsIndex=(qsDevDetailsIndex+1)%qsDevDetailSets.length;
+			const sample=qsDevDetailSets[qsDevDetailsIndex];
 			const stamp=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-			qsDevSetValue('[name="company_name"]','Drip Creative Test');
-			qsDevSetValue('[name="project_name"]','DEV Test Quote '+stamp);
-			qsDevSetValue('[name="customer_name"]','Test Joiner');
-			qsDevSetValue('[name="customer_email"]','test@example.com');
-			qsDevSetValue('[name="customer_phone"]','0400 000 000');
-			qsDevSetValue('[name="delivery_address"]','1 Test Street\nCentral Coast NSW');
-			qsDevSetValue('[name="custom_requests"]','Developer test quote – safe to delete.');
-			qsDevSetValue('[name="project_notes"]','Auto-populated for portal testing.');
+			qsDevSetValue('[name="company_name"]',sample.company);
+			qsDevSetValue('[name="project_name"]',sample.project+' – DEV '+stamp);
+			qsDevSetValue('[name="customer_name"]',sample.name);
+			qsDevSetValue('[name="customer_email"]',sample.email);
+			qsDevSetValue('[name="customer_phone"]',sample.phone);
+			qsDevSetValue('[name="delivery_address"]',sample.address);
+			qsDevSetValue('[name="custom_requests"]',sample.custom);
+			qsDevSetValue('[name="project_notes"]',sample.notes);
+			const fillButton=document.querySelector('[data-dev-fill-details]');
+			const buildButton=document.querySelector('[data-dev-build-test-quote]');
+			if(fillButton)fillButton.textContent='Random Details';
+			if(buildButton)buildButton.hidden=false;
 		}
 		function qsDevFillConfig(root,includeProfile){
 			if(!root)return;
@@ -924,7 +941,7 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 			qsDevChooseSelect(root,'[data-item-config-field="finish"]','Finished');
 		}
 		function qsDevBuildTestQuote(){
-			qsDevFillDetails();
+			if(qsDevDetailsIndex<0)qsDevFillDetails();
 
 			const doors=form.querySelector('.qs-doors-drawers');
 			if(doors){
@@ -935,6 +952,40 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="width"]','400');
 				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="height"]','600');
 				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="quantity"]','2');
+				doors.querySelector('.qs-commit-item')?.click();
+
+				const drawerButton=doors.querySelector('[data-select-type="Drawer"]');
+				if(drawerButton)drawerButton.click();
+				const drawerPanel=doors.querySelector('.qs-item-editor[data-editor-type="Drawer"]');
+				qsDevFillConfig(drawerPanel,true);
+				qsDevChooseSelect(drawerPanel,'[data-item-config-field="handle_profile"]','Square Edge');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Drawer"] [data-editor-field="width"]','500');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Drawer"] [data-editor-field="height"]','250');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Drawer"] [data-editor-field="quantity"]','3');
+				doors.querySelector('.qs-commit-item')?.click();
+
+				const bankButton=doors.querySelector('[data-select-type="Drawer Bank"]');
+				if(bankButton)bankButton.click();
+				const bankPanel=doors.querySelector('.qs-item-editor[data-editor-type="Drawer Bank"]');
+				qsDevFillConfig(bankPanel,true);
+				qsDevChooseSelect(bankPanel,'[data-item-config-field="door_profile"]','60 Shaker');
+				const bankCount=bankPanel?.querySelector('[data-editor-field="drawer_count"]');
+				if(bankCount){bankCount.value='3';bankCount.dispatchEvent(new Event('change',{bubbles:true}));}
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Drawer Bank"] [data-editor-field="top_height"]','200');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Drawer Bank"] [data-editor-field="middle_height"]','250');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Drawer Bank"] [data-editor-field="bottom_height"]','300');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Drawer Bank"] [data-editor-field="width"]','600');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Drawer Bank"] [data-editor-field="quantity"]','1');
+				doors.querySelector('.qs-commit-item')?.click();
+
+				const profileEndButton=doors.querySelector('[data-select-type="Profile End Panel"]');
+				if(profileEndButton)profileEndButton.click();
+				const profileEndPanel=doors.querySelector('.qs-item-editor[data-editor-type="Profile End Panel"]');
+				qsDevFillConfig(profileEndPanel,true);
+				qsDevChooseSelect(profileEndPanel,'[data-item-config-field="door_profile"]','Evans');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Profile End Panel"] [data-editor-field="width"]','450');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Profile End Panel"] [data-editor-field="height"]','700');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Profile End Panel"] [data-editor-field="quantity"]','1');
 				doors.querySelector('.qs-commit-item')?.click();
 			}
 
@@ -973,6 +1024,18 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 				qsDevSetValue('.qs-kickboards [data-component-field="height"]','150');
 				qsDevSetValue('.qs-kickboards [data-component-field="length"]','1200');
 				qsDevSetValue('.qs-kickboards [data-component-field="quantity"]','2');
+				kicks.querySelector('.qs-commit-component')?.click();
+
+				const material=kicks.querySelector('[data-component-field="material"]');
+				if(material){
+					const veneer=[...material.options].find(option=>/veneer/i.test(option.textContent));
+					if(veneer){material.value=veneer.value;material.dispatchEvent(new Event('change',{bubbles:true}));}
+				}
+				qsDevFillConfig(editor,false);
+				qsDevChooseSelect(editor,'[data-item-config-field="timber"]','Blackbutt');
+				qsDevSetValue('.qs-kickboards [data-component-field="height"]','100');
+				qsDevSetValue('.qs-kickboards [data-component-field="length"]','1800');
+				qsDevSetValue('.qs-kickboards [data-component-field="quantity"]','1');
 				kicks.querySelector('.qs-commit-component')?.click();
 			}
 
