@@ -694,7 +694,7 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 				<h4>Items Breakdown</h4>
 				<div class="qs-summary-items"></div>
 				<div class="qs-lead-time"><strong>Estimated Lead Time</strong><span>4–6 Weeks</span></div>
-				<div class="qs-subtotal"><span>Subtotal</span><strong data-qs-subtotal>$<?php echo esc_html( number_format_i18n( $builder_subtotal, 2 ) ); ?> AUD</strong></div>
+				<div class="qs-subtotal"><span>Subtotal (Ex GST)</span><strong data-qs-subtotal>$<?php echo esc_html( number_format_i18n( $builder_subtotal, 2 ) ); ?> AUD</strong></div>
 				<div class="qs-summary-actions"><button class="qs-btn qs-btn-outline" type="submit" name="qs_save_draft">Save Draft</button><button class="qs-btn" type="submit" name="qs_review_quote">Review Quote</button></div>
 			</aside>
 		</form>

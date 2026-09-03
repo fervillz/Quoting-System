@@ -284,7 +284,7 @@ function qs_quote_review_shortcode() {
 				<h3>Items Breakdown</h3>
 				<div class="qs-review-summary-items"><?php qs_review_summary_items( $quote_id, $is_draft ); ?></div>
 				<div class="qs-review-lead-time"><strong>Estimated Lead Time</strong><span>4-6 Weeks</span></div>
-				<div class="qs-review-subtotal"><span>Subtotal</span><strong>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</strong></div>
+				<div class="qs-review-subtotal"><span>Subtotal (Ex GST)</span><strong>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</strong></div>
 				<?php if ( $is_admin ) : ?>
 					<?php qs_review_admin_summary_actions( $quote_id, $status ); ?>
 				<?php else : ?>

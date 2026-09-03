@@ -513,17 +513,16 @@ function qs_calculate_component_subtotal( $quote_id ) {
 
 /** Save the current product calculation so every screen and PDF agrees. */
 function qs_recalculate_quote_pricing( $quote_id ) {
-	// New quotes keep Profile / Timber / Handle / Finish on each component row.
-	// Use the row-aware calculator directly when it is available instead of
-	// relying on a later post-meta hook to replace the legacy quote-level total.
-	// The row-aware calculator also contains the legacy fallback, so old quotes
-	// continue to calculate exactly as before.
-	$trade_subtotal = function_exists( 'qs_item_config_calculate_trade_subtotal' )
+	// The supplied pricing matrices are RRP / Retail prices, Ex GST.
+	// Trade pricing is 18.18% less than those spreadsheet values.
+	$retail_subtotal = function_exists( 'qs_item_config_calculate_trade_subtotal' )
 		? qs_item_config_calculate_trade_subtotal( $quote_id )
 		: qs_calculate_component_subtotal( $quote_id );
 	$pricing_type   = get_post_meta( $quote_id, '_pricing_type', true );
-	$subtotal       = 'retail' === $pricing_type ? qs_apply_retail_markup( $trade_subtotal ) : $trade_subtotal;
+	$trade_subtotal = qs_apply_trade_discount( $retail_subtotal );
+	$subtotal       = 'retail' === $pricing_type ? $retail_subtotal : $trade_subtotal;
 
+	update_post_meta( $quote_id, '_retail_subtotal', $retail_subtotal );
 	update_post_meta( $quote_id, '_trade_subtotal', $trade_subtotal );
 	update_post_meta( $quote_id, '_calculated_subtotal', $subtotal );
 	update_post_meta( $quote_id, '_subtotal', $subtotal );
@@ -531,9 +530,17 @@ function qs_recalculate_quote_pricing( $quote_id ) {
 	return $subtotal;
 }
 
-/** Retail pricing is the trade subtotal plus 22.22%. */
+/** Trade pricing is 18.18% less than the RRP / Retail Ex GST subtotal. */
+function qs_apply_trade_discount( $amount ) {
+	return round( (float) $amount * 0.8182, 2 );
+}
+
+/**
+ * Legacy compatibility for any older code that still asks for a retail markup.
+ * The supplied matrix is already Retail/RRP, so no markup should be applied.
+ */
 function qs_apply_retail_markup( $amount ) {
-	return round( (float) $amount * 1.2222, 2 );
+	return round( (float) $amount, 2 );
 }
 
 /** Calculate the customer total after office adjustments. */
