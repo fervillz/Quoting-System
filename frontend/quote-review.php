@@ -206,7 +206,11 @@ function qs_quote_review_shortcode() {
 		}
 		qs_update_quote_status( $quote_id, 'pending_review' );
 		qs_email_quote_submitted( $quote_id );
-		wp_safe_redirect( add_query_arg( 'quote_id', $quote_id, site_url( '/quote-thank-you/' ) ) );
+		wp_safe_redirect(
+			function_exists( 'qs_page_url' )
+				? qs_page_url( 'quote_submitted', array( 'quote_id' => $quote_id ) )
+				: add_query_arg( 'quote_id', $quote_id, site_url( '/quote-submitted/' ) )
+		);
 		exit;
 	}
 
