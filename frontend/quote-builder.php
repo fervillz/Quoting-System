@@ -1108,7 +1108,13 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 		if(uploadList)uploadList.addEventListener('click',event=>{const removeExisting=event.target.closest('[data-remove-upload]');if(removeExisting){const row=removeExisting.closest('[data-existing-upload]');if(row){const hidden=document.createElement('input');hidden.type='hidden';hidden.name='remove_supporting_documents[]';hidden.value=row.dataset.existingUpload;form.appendChild(hidden);row.remove();if(!uploadList.querySelector('.qs-upload-file'))uploadList.querySelector('.qs-upload-list-heading')?.remove();}return;}const removeStaged=event.target.closest('[data-remove-staged-upload]');if(removeStaged){const index=stagedUploads.findIndex(entry=>entry.id===removeStaged.dataset.removeStagedUpload);if(index>=0)stagedUploads.splice(index,1);syncUploadInput();renderStagedUploads();}});
 		form.addEventListener('submit',()=>uploadList?.querySelectorAll('[data-staged-upload]').forEach(row=>row.classList.add('is-submitting')));
 		form.addEventListener('input',event=>{if(event.target.closest('.qs-repeater-row'))refresh();if(!event.target.classList.contains('qs-product-search')&&!event.target.matches('[data-editor-field],[data-component-field],[data-edge-position],#qs-supporting-documents'))scheduleCalculation();});
-		form.addEventListener('change',event=>{if(!event.target.classList.contains('qs-product-search')&&!event.target.matches('[data-editor-field],[data-component-field],[data-edge-position],#qs-supporting-documents'))scheduleCalculation();});
+		form.addEventListener('change',event=>{
+			if(event.target.matches('[name="pricing_type"]')){
+				scheduleCalculation();
+				return;
+			}
+			if(!event.target.classList.contains('qs-product-search')&&!event.target.matches('[data-editor-field],[data-component-field],[data-edge-position],#qs-supporting-documents'))scheduleCalculation();
+		});
 		document.querySelectorAll('.qs-doors-drawers').forEach(section=>updateBankHeightFields(section));
 		updateSpecificationAvailability();
 		refresh();
