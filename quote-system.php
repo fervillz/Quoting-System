@@ -216,6 +216,14 @@ function qs_enqueue_assets() {
 		true
 	);
 
+	wp_enqueue_script(
+		'qs-subtotal-animation',
+		QS_URL . 'assets/js/subtotal-animation.js',
+		array( 'qs-quote-builder-ux' ),
+		$asset_version( 'assets/js/subtotal-animation.js' ),
+		true
+	);
+
 	wp_enqueue_style(
 		'qs-quote-review',
 		QS_URL . 'assets/css/quote-review.css',
