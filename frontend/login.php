@@ -16,7 +16,12 @@ function qs_quote_login_shortcode( $atts ) {
 	);
 
 	if ( is_user_logged_in() ) {
-		return '<div class="qs-container qs-login-already"><p>You are already logged in.</p><a class="qs-btn" href="' . esc_url( $atts['redirect'] ) . '">Open My Quotes</a></div>';
+		$current_user = wp_get_current_user();
+		$redirect     = function_exists( 'qs_user_is_joiner' ) && qs_user_is_joiner( $current_user )
+			? qs_joiner_dashboard_url()
+			: $atts['redirect'];
+
+		return '<div class="qs-container qs-login-already"><p>You are already logged in.</p><a class="qs-btn" href="' . esc_url( $redirect ) . '">Open My Quotes</a></div>';
 	}
 
 	$error = '';
@@ -34,7 +39,10 @@ function qs_quote_login_shortcode( $atts ) {
 			if ( is_wp_error( $user ) ) {
 				$error = 'The email address or password is incorrect.';
 			} else {
-				wp_safe_redirect( $atts['redirect'] );
+				$redirect = function_exists( 'qs_user_is_joiner' ) && qs_user_is_joiner( $user )
+					? qs_joiner_dashboard_url()
+					: $atts['redirect'];
+				wp_safe_redirect( $redirect );
 				exit;
 			}
 		}

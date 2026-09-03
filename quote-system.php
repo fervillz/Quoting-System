@@ -24,6 +24,7 @@ define( 'QS_URL', plugin_dir_url( __FILE__ ) );
 require_once QS_PATH . 'post-type.php';
 require_once QS_PATH . 'taxonomies.php';
 require_once QS_PATH . 'statuses.php';
+require_once QS_PATH . 'roles.php';
 require_once QS_PATH . 'pricing.php';
 require_once QS_PATH . 'quote-number.php';
 require_once QS_PATH . 'repeaters.php';
@@ -283,6 +284,7 @@ register_activation_hook(
 	__FILE__,
 	function () {
 		qs_register_post_type();
+		qs_register_joiner_role();
 		qs_create_default_product_types();
 		add_option( 'qs_setup_completed_version', '' );
 		flush_rewrite_rules();
