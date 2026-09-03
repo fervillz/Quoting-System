@@ -1052,7 +1052,7 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 		let subtotalAnimationFrame=0;
 		function subtotalNumericValue(){
 			if(!subtotal)return 0;
-			const match=subtotal.textContent.replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);
+			const match=subtotal.textContent.replace(/,/g,'').match(/-?\\d+(?:\\.\\d+)?/);
 			return match?Number(match[0]):0;
 		}
 		function renderSubtotalValue(value){
@@ -1141,10 +1141,7 @@ add_shortcode( 'quote_builder', 'qs_quote_builder_shortcode' );
 			if(!Number.isFinite(end))return;
 			const start=subtotalNumericValue();
 			if(subtotalAnimationFrame)window.cancelAnimationFrame(subtotalAnimationFrame);
-			if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-				renderSubtotalValue(end);
-				return;
-			}
+			if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){renderSubtotalValue(end);return;}
 			const duration=500;
 			const started=performance.now();
 			const delta=end-start;
@@ -1152,16 +1149,10 @@ add_shortcode( 'quote_builder', 'qs_quote_builder_shortcode' );
 				const progress=Math.min(1,(now-started)/duration);
 				const eased=1-Math.pow(1-progress,3);
 				renderSubtotalValue(start+(delta*eased));
-				if(progress<1){
-					subtotalAnimationFrame=window.requestAnimationFrame(tick);
-				}else{
-					subtotalAnimationFrame=0;
-					renderSubtotalValue(end);
-				}
+				if(progress<1){subtotalAnimationFrame=window.requestAnimationFrame(tick);}else{subtotalAnimationFrame=0;renderSubtotalValue(end);}
 			}
 			subtotalAnimationFrame=window.requestAnimationFrame(tick);
 		}
-
 		function recalculateSubtotal(){
 			const projectName=form.querySelector('[name="project_name"]');
 			if(!projectName||!projectName.value.trim())return;
