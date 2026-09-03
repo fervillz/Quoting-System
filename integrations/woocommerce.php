@@ -48,10 +48,27 @@ function qs_get_quote_payment_url( $quote_id, $payment_type ) {
 function qs_handle_payment_complete( $order_id ) {
 	$order = wc_get_order( $order_id );
 	if ( ! $order ) { return; }
+
 	$quote_id = absint( $order->get_meta( '_qs_quote_id' ) );
-	$type = $order->get_meta( '_qs_payment_type' );
+	$type     = $order->get_meta( '_qs_payment_type' );
 	if ( ! $quote_id || ! in_array( $type, array( 'deposit', 'balance' ), true ) ) { return; }
-	qs_update_quote_status( $quote_id, 'deposit' === $type ? 'deposit_paid' : 'paid_in_full' );
+
+	$target_status = 'deposit' === $type ? 'deposit_paid' : 'paid_in_full';
+	qs_update_quote_status( $quote_id, $target_status );
+
+	// WooCommerce can fire payment/status hooks more than once. Keep the
+	// Quote System notification emails idempotent for each payment stage.
+	$notice_key = '_qs_' . $type . '_payment_notifications_sent';
+	if ( get_post_meta( $quote_id, $notice_key, true ) ) {
+		return;
+	}
+
+	update_post_meta( $quote_id, $notice_key, current_time( 'mysql' ) );
+	qs_email_admin_payment_received( $quote_id, $type, $order_id );
+
+	if ( 'balance' === $type ) {
+		qs_email_quote_paid_in_full( $quote_id );
+	}
 }
 add_action( 'woocommerce_payment_complete', 'qs_handle_payment_complete' );
 add_action( 'woocommerce_order_status_processing', 'qs_handle_payment_complete' );

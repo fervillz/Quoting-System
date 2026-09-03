@@ -191,8 +191,9 @@ function qs_admin_dashboard_handle_action() {
 				return 'The deposit request could not be created: ' . $order_id->get_error_message();
 			}
 			qs_update_quote_status( $quote_id, 'awaiting_deposit' );
-			qs_email_quote_approved( $quote_id );
-			return ( 'resend_deposit' === $action ? 'Deposit request resent for order #' : 'Deposit order #' ) . $order_id . '.';
+			$email_sent = qs_email_payment_request( $quote_id, 'deposit' );
+			return ( 'resend_deposit' === $action ? 'Deposit request resent for order #' : 'Deposit order #' ) . $order_id .
+				( $email_sent ? ' and payment email sent.' : ', but the payment email could not be sent.' );
 
 		case 'mark_deposit_paid':
 			if ( 'awaiting_deposit' !== $status ) {
@@ -212,7 +213,9 @@ function qs_admin_dashboard_handle_action() {
 				return 'The final invoice could not be created: ' . $order_id->get_error_message();
 			}
 			qs_update_quote_status( $quote_id, 'final_balance' );
-			return 'Final-balance order #' . $order_id . ' is ready.';
+			$email_sent = qs_email_payment_request( $quote_id, 'balance' );
+			return 'Final-balance order #' . $order_id .
+				( $email_sent ? ' is ready and payment email sent.' : ' is ready, but the payment email could not be sent.' );
 
 		case 'mark_in_production':
 			if ( ! in_array( $status, array( 'deposit_paid', 'final_balance' ), true ) ) {
