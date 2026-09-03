@@ -62,6 +62,7 @@ add_shortcode(
  */
 require_once QS_PATH . 'admin/quotes.php';
 require_once QS_PATH . 'admin/pricing-settings.php';
+require_once QS_PATH . 'admin/test-joiner.php';
 
 /**
  * Return true when the current request is one of the Quote System frontend
