@@ -1051,3 +1051,33 @@ body .qs-builder-shell .qs-component-editor select {
     animation-duration: 1ms;
   }
 }
+
+
+.qs-dev-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  margin-top: 18px;
+  padding: 12px;
+  border: 1px dashed #cfa096;
+  background: #fff8f6;
+}
+.qs-dev-tools > strong {
+  flex: 0 0 100%;
+  color: #501e2a;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.qs-dev-tools .qs-btn {
+  min-height: 30px !important;
+  padding: 0 12px !important;
+  font-size: 11px !important;
+}
+.qs-dev-tools > small {
+  margin: 0 !important;
+  color: #7a838a;
+  font-size: 11px !important;
+  font-style: italic;
+}

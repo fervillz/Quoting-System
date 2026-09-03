@@ -627,7 +627,16 @@ function qs_quote_builder_shortcode() {
 			<?php wp_nonce_field( 'qs_save_quote', 'qs_builder_nonce' ); ?>
 			<main class="qs-builder-main">
 				<section class="qs-builder-intro"><h2>Create a New Quote</h2><p>Select your cabinet profile, timber, finishes and quantities to generate a quote. <br>
-Pricing updates automatically as you configure your selections.</p><div class="qs-pricing-mode"><span>Pricing Mode*</span><label>Trade Pricing <input type="checkbox" name="pricing_type" value="retail" <?php checked( $pricing_type, 'retail' ); ?>><i></i> Retail Pricing</label></div><small>Select the pricing structure for this quote.</small></section>
+Pricing updates automatically as you configure your selections.</p><div class="qs-pricing-mode"><span>Pricing Mode*</span><label>Trade Pricing <input type="checkbox" name="pricing_type" value="retail" <?php checked( $pricing_type, 'retail' ); ?>><i></i> Retail Pricing</label></div><small>Select the pricing structure for this quote.</small>
+					<?php if ( current_user_can( 'manage_options' ) ) : ?>
+						<div class="qs-dev-tools" aria-label="Developer test helpers">
+							<strong>Developer Test Tools</strong>
+							<button type="button" class="qs-btn qs-btn-outline" data-dev-fill-details>Fill Details</button>
+							<button type="button" class="qs-btn qs-btn-outline" data-dev-build-test-quote>Build Test Quote</button>
+							<small>Admin-only helpers. They do not appear for Joiners.</small>
+						</div>
+					<?php endif; ?>
+				</section>
 				<section class="qs-form-section"><h3>Project Details</h3>
 					<?php qs_builder_input( 'company_name', 'Company', $meta['company_name'], 'text', true, 'This is your business name.' ); ?>
 					<?php qs_builder_input( 'project_name', 'Project Name', $meta['project_name'], 'text', true, 'This name will be used to identify the quote.' ); ?>
@@ -877,6 +886,102 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 		function addSummaryGroup(title,component,items){if(!items.length)return;const group=document.createElement('div');group.className='qs-summary-group';const heading=document.createElement('strong');heading.className='qs-summary-group-title';heading.textContent=title+' ('+items.length+')';group.appendChild(heading);items.forEach(item=>addSummaryRow(group,component,item));summaryItems.appendChild(group);}
 		function refresh(){document.querySelectorAll('.qs-repeater-row').forEach(syncRowType);['door_profile','timber','finish','handle_profile','paint_colour'].forEach(name=>{const target=document.querySelector('[data-summary="'+name+'"]');if(target)target.textContent=labelFor(name)||'—';});summaryItems.innerHTML='';document.querySelectorAll('.qs-component').forEach(section=>{const component=section.dataset.component;const items=[...section.querySelectorAll('.qs-repeater-row')].map((row,index)=>({row,index})).filter(item=>Number(fieldValue(item.row,'quantity'))>0);if(!items.length)return;if(component==='doors_drawers'){addSummaryGroup('Doors',component,items.filter(item=>fieldValue(item.row,'type')==='Door'));addSummaryGroup('Drawers',component,items.filter(item=>fieldValue(item.row,'type')==='Drawer'));addSummaryGroup('Drawer Banks',component,items.filter(item=>fieldValue(item.row,'type')==='Drawer Bank'));}else{addSummaryGroup(section.querySelector('h3').textContent,component,items);}});}
 		if(summaryItems)summaryItems.addEventListener('click',event=>{const button=event.target.closest('[data-summary-action]');if(!button)return;const section=document.querySelector('.qs-component[data-component="'+button.dataset.component+'"]');const row=section&&section.querySelectorAll('.qs-repeater-row')[Number(button.dataset.rowIndex)];if(!row)return;if(button.dataset.summaryAction==='remove'){if(activeSummaryEdit&&activeSummaryEdit.component===button.dataset.component&&activeSummaryEdit.rowIndex===Number(button.dataset.rowIndex))activeSummaryEdit=null;removeRow(section,row);return;}activeSummaryEdit={component:button.dataset.component,rowIndex:Number(button.dataset.rowIndex)};if(activeSummaryEditTimer)window.clearTimeout(activeSummaryEditTimer);summaryItems.querySelectorAll('.qs-summary-item.is-summary-editing,.qs-summary-item.is-summary-edit-fading').forEach(item=>item.classList.remove('is-summary-editing','is-summary-edit-fading'));const activeItem=button.closest('.qs-summary-item');activeItem?.classList.add('is-summary-editing');activeSummaryEditTimer=window.setTimeout(()=>{if(!activeItem)return;activeItem.classList.add('is-summary-edit-fading');window.setTimeout(()=>{activeItem.classList.remove('is-summary-editing','is-summary-edit-fading');activeSummaryEdit=null;},500);},3000);if(section.dataset.component==='doors_drawers'){loadDoorEditor(section,row,Number(button.dataset.rowIndex));return;}if(section.classList.contains('qs-configured-component')){loadComponentEditor(section,row,Number(button.dataset.rowIndex));return;}row.classList.add('qs-summary-editing');row.scrollIntoView({behavior:'smooth',block:'center'});const focusTarget=row.querySelector('input,select,textarea');if(focusTarget)focusTarget.focus({preventScroll:true});window.setTimeout(()=>row.classList.remove('qs-summary-editing'),1300);});
+		<?php if ( current_user_can( 'manage_options' ) ) : ?>
+		function qsDevSetValue(selector,value){
+			const input=form.querySelector(selector);
+			if(!input)return null;
+			input.value=value;
+			input.dispatchEvent(new Event('input',{bubbles:true}));
+			input.dispatchEvent(new Event('change',{bubbles:true}));
+			return input;
+		}
+		function qsDevChooseSelect(root,selector,preferredLabel){
+			const select=root&&root.querySelector(selector);
+			if(!select)return null;
+			let option=[...select.options].find(option=>option.textContent.trim()===preferredLabel);
+			if(!option)option=[...select.options].find(option=>option.value);
+			if(!option)return null;
+			select.value=option.value;
+			select.dispatchEvent(new Event('change',{bubbles:true}));
+			return select;
+		}
+		function qsDevFillDetails(){
+			const stamp=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+			qsDevSetValue('[name="company_name"]','Drip Creative Test');
+			qsDevSetValue('[name="project_name"]','DEV Test Quote '+stamp);
+			qsDevSetValue('[name="customer_name"]','Test Joiner');
+			qsDevSetValue('[name="customer_email"]','test@example.com');
+			qsDevSetValue('[name="customer_phone"]','0400 000 000');
+			qsDevSetValue('[name="delivery_address"]','1 Test Street\nCentral Coast NSW');
+			qsDevSetValue('[name="custom_requests"]','Developer test quote – safe to delete.');
+			qsDevSetValue('[name="project_notes"]','Auto-populated for portal testing.');
+		}
+		function qsDevFillConfig(root,includeProfile){
+			if(!root)return;
+			if(includeProfile)qsDevChooseSelect(root,'[data-item-config-field="door_profile"]','30 Shaker');
+			qsDevChooseSelect(root,'[data-item-config-field="timber"]','American Oak Natural');
+			if(includeProfile)qsDevChooseSelect(root,'[data-item-config-field="handle_profile"]','Finger Pull');
+			qsDevChooseSelect(root,'[data-item-config-field="finish"]','Finished');
+		}
+		function qsDevBuildTestQuote(){
+			qsDevFillDetails();
+
+			const doors=form.querySelector('.qs-doors-drawers');
+			if(doors){
+				const typeButton=doors.querySelector('[data-select-type="Door"]');
+				if(typeButton)typeButton.click();
+				const panel=doors.querySelector('.qs-item-editor[data-editor-type="Door"]');
+				qsDevFillConfig(panel,true);
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="width"]','400');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="height"]','600');
+				qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="quantity"]','2');
+				doors.querySelector('.qs-commit-item')?.click();
+			}
+
+			const endPanel=form.querySelector('.qs-end-panels');
+			if(endPanel){
+				const editor=endPanel.querySelector('.qs-component-editor');
+				qsDevFillConfig(editor,false);
+				qsDevSetValue('.qs-end-panels [data-component-field="width"]','400');
+				qsDevSetValue('.qs-end-panels [data-component-field="height"]','600');
+				qsDevSetValue('.qs-end-panels [data-component-field="quantity"]','1');
+				const face=endPanel.querySelector('[data-component-field="faces_seen"]');
+				if(face){face.value='2 Faces';face.dispatchEvent(new Event('change',{bubbles:true}));}
+				['Top','Right'].forEach(edge=>{const input=endPanel.querySelector('[data-edge-position="'+edge+'"]');if(input){input.checked=true;input.dispatchEvent(new Event('change',{bubbles:true}));}});
+				endPanel.querySelector('.qs-commit-component')?.click();
+			}
+
+			const filler=form.querySelector('.qs-fillers');
+			if(filler){
+				const editor=filler.querySelector('.qs-component-editor');
+				qsDevFillConfig(editor,false);
+				qsDevSetValue('.qs-fillers [data-component-field="width"]','200');
+				qsDevSetValue('.qs-fillers [data-component-field="height"]','600');
+				qsDevSetValue('.qs-fillers [data-component-field="quantity"]','1');
+				const face=filler.querySelector('[data-component-field="faces_seen"]');
+				if(face){face.value='2 Faces';face.dispatchEvent(new Event('change',{bubbles:true}));}
+				['Top','Left'].forEach(edge=>{const input=filler.querySelector('[data-filler-edge-position="'+edge+'"]');if(input){input.checked=true;input.dispatchEvent(new Event('change',{bubbles:true}));}});
+				const edgeStore=filler.querySelector('[data-component-field="edges_seen"]');
+				if(edgeStore)edgeStore.value='Top + Left';
+				filler.querySelector('.qs-commit-component')?.click();
+			}
+
+			const kicks=form.querySelector('.qs-kickboards');
+			if(kicks){
+				const editor=kicks.querySelector('.qs-component-editor');
+				qsDevFillConfig(editor,false);
+				qsDevSetValue('.qs-kickboards [data-component-field="height"]','150');
+				qsDevSetValue('.qs-kickboards [data-component-field="length"]','1200');
+				qsDevSetValue('.qs-kickboards [data-component-field="quantity"]','2');
+				kicks.querySelector('.qs-commit-component')?.click();
+			}
+
+			window.setTimeout(()=>scheduleCalculation(),100);
+		}
+		document.querySelector('[data-dev-fill-details]')?.addEventListener('click',qsDevFillDetails);
+		document.querySelector('[data-dev-build-test-quote]')?.addEventListener('click',qsDevBuildTestQuote);
+		<?php endif; ?>
+
 		function scheduleCalculation(){
 			clearTimeout(calculateTimer);
 			calculateTimer=setTimeout(recalculateSubtotal,700);
