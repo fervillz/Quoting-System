@@ -365,7 +365,6 @@ function qs_builder_doors_drawers_editor( $rows ) {
 					<input type="number" min="1" step="1" data-editor-field="width" placeholder="Width mm" aria-label="Door width in millimetres">
 					<input type="number" min="1" step="1" data-editor-field="height" placeholder="Height mm" aria-label="Door height in millimetres">
 				</div>
-				<p class="qs-item-instruction">Enter the size and quantity for each door or drawer required.</p>
 			</div>
 
 			<div class="qs-item-editor" data-editor-type="Drawer"<?php echo 'Drawer' === $active_type ? '' : ' hidden'; ?>>
@@ -373,7 +372,6 @@ function qs_builder_doors_drawers_editor( $rows ) {
 					<input type="number" min="1" step="1" data-editor-field="width" placeholder="Width mm" aria-label="Drawer width in millimetres">
 					<input type="number" min="1" step="1" data-editor-field="height" placeholder="Height mm" aria-label="Drawer height in millimetres">
 				</div>
-				<p class="qs-item-instruction">Enter the size and quantity for each door or drawer required.</p>
 			</div>
 
 			<div class="qs-item-editor" data-editor-type="Drawer Bank"<?php echo 'Drawer Bank' === $active_type ? '' : ' hidden'; ?>>
@@ -392,7 +390,6 @@ function qs_builder_doors_drawers_editor( $rows ) {
 					<input class="qs-bank-width" type="number" min="1" step="1" data-editor-field="width" placeholder="Width (mm)" aria-label="Drawer bank width in millimetres">
 					<input class="qs-bank-quantity" type="number" min="1" step="1" value="1" data-editor-field="quantity" placeholder="Quantity" aria-label="Drawer bank quantity">
 				</div>
-				<p class="qs-item-instruction">Enter the size and quantity for each door or drawer required.</p>
 			</div>
 
 			<button class="qs-commit-item" type="button">Add Item</button>
