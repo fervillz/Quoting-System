@@ -524,12 +524,10 @@ function qs_builder_kickboards_editor( $rows ) {
 		</ul>
 
 		<div class="qs-component-editor">
-			<label class="qs-editor-label" for="qs-kickboard-material">Kick Material<sup>*</sup></label>
-			<p class="qs-editor-help">Add kickboards if required.</p>
-			<select id="qs-kickboard-material" data-component-field="material"<?php echo $products ? ' data-default-value="' . esc_attr( $products[0]->ID ) . '"' : ''; ?>>
-				<?php if ( ! $products ) : ?><option value="">Select kick material</option><?php endif; ?>
-				<?php foreach ( $products as $product_index => $product ) : ?>
-					<option value="<?php echo esc_attr( $product->ID ); ?>" <?php selected( 0, $product_index ); ?>><?php echo esc_html( $product->post_title ); ?></option>
+			<select id="qs-kickboard-material" data-component-field="material" aria-label="Kick Material">
+				<option value="">Kick Material</option>
+				<?php foreach ( $products as $product ) : ?>
+					<option value="<?php echo esc_attr( $product->ID ); ?>"><?php echo esc_html( $product->post_title ); ?></option>
 				<?php endforeach; ?>
 			</select>
 
