@@ -615,6 +615,10 @@ function qs_quote_builder_shortcode() {
 	foreach ( $keys as $key ) {
 		$meta[ $key ] = $quote_id ? get_post_meta( $quote_id, '_' . $key, true ) : '';
 	}
+	$is_joiner           = function_exists( 'qs_user_is_joiner' ) && qs_user_is_joiner();
+	if ( $is_joiner && '' === trim( (string) $meta['company_name'] ) ) {
+		$meta['company_name'] = (string) get_user_meta( get_current_user_id(), 'company_name', true );
+	}
 	$pricing_type        = $quote_id && 'retail' === get_post_meta( $quote_id, '_pricing_type', true ) ? 'retail' : 'trade';
 	$builder_subtotal    = $quote_id ? qs_recalculate_quote_pricing( $quote_id ) : 0;
 	$supporting_document_ids = $quote_id ? qs_builder_supporting_document_ids( $quote_id ) : array();
@@ -638,7 +642,11 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 					<?php endif; ?>
 				</section>
 				<section class="qs-form-section"><h3>Project Details</h3>
-					<?php qs_builder_input( 'company_name', 'Company', $meta['company_name'], 'text', true, 'This is your business name.' ); ?>
+					<?php if ( $is_joiner ) : ?>
+						<input type="hidden" name="company_name" value="<?php echo esc_attr( $meta['company_name'] ); ?>">
+					<?php else : ?>
+						<?php qs_builder_input( 'company_name', 'Company', $meta['company_name'], 'text', true, 'This is your business name.' ); ?>
+					<?php endif; ?>
 					<?php qs_builder_input( 'project_name', 'Project Name', $meta['project_name'], 'text', true, 'This name will be used to identify the quote.' ); ?>
 					<?php qs_builder_input( 'customer_name', 'Contact Name', $meta['customer_name'], 'text', true ); ?>
 					<?php qs_builder_input( 'customer_email', 'Email', $meta['customer_email'], 'email', true ); ?>
