@@ -6,14 +6,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function qs_my_quotes_status_display( $status ) {
+function qs_my_quotes_status_display( $status, $quote_id = 0 ) {
+	if ( 'final_balance' === $status ) {
+		return 'Final payment required';
+	}
+
+	if ( 'deposit_paid' === $status && $quote_id && get_post_meta( $quote_id, '_qs_in_production', true ) ) {
+		return 'In Production';
+	}
+
 	$labels = array(
 		'draft'            => 'Draft',
 		'pending'          => 'Pending Review',
 		'pending_review'   => 'Pending Review',
 		'awaiting_deposit' => 'Deposit Requested',
 		'deposit_paid'     => 'Approved',
-		'final_balance'    => 'Approved',
 		'paid_in_full'     => 'Completed',
 	);
 
@@ -76,7 +83,7 @@ function qs_my_quotes_table( $quotes, $drafts = false ) {
 						<td class="qs-project-name"><?php echo esc_html( $quote->post_title ); ?></td>
 						<td><?php echo esc_html( get_the_author_meta( 'display_name', $quote->post_author ) ); ?></td>
 						<td><?php echo esc_html( get_the_modified_date( 'd M Y', $quote->ID ) ); ?></td>
-						<td><span class="qs-status qs-status-<?php echo esc_attr( $status ); ?>"><?php echo esc_html( qs_my_quotes_status_display( $status ) ); ?></span></td>
+						<td><span class="qs-status qs-status-<?php echo esc_attr( $status ); ?>"><?php echo esc_html( qs_my_quotes_status_display( $status, $quote->ID ) ); ?></span></td>
 						<td class="qs-my-quotes-actions">
 							<a class="qs-table-action" href="<?php echo esc_url( $action['url'] ); ?>"><?php echo esc_html( $action['label'] ); ?></a>
 							<?php if ( $drafts ) : ?>
