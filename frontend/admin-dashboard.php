@@ -6,14 +6,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function qs_admin_dashboard_status_display( $status ) {
+function qs_admin_dashboard_status_display( $status, $quote_id = 0 ) {
+	if ( 'final_balance' === $status ) {
+		return 'Final payment required';
+	}
+
+	if ( 'deposit_paid' === $status && $quote_id && get_post_meta( $quote_id, '_qs_in_production', true ) ) {
+		return 'In Production';
+	}
+
 	$labels = array(
 		'draft'            => 'Draft',
 		'pending'          => 'Pending Review',
 		'pending_review'   => 'Pending Review',
 		'awaiting_deposit' => 'Deposit Requested',
 		'deposit_paid'     => 'Approved',
-		'final_balance'    => 'Approved',
 		'paid_in_full'     => 'Completed',
 	);
 
@@ -526,7 +533,7 @@ function qs_admin_dashboard_shortcode() {
 							<thead>
 								<tr>
 									<th>Quote Ref</th>
-									<th>Company</th>
+									<th>Project Name</th>
 									<th>Created By</th>
 									<th>Last Updated</th>
 									<th>Status</th>
@@ -539,16 +546,18 @@ function qs_admin_dashboard_shortcode() {
 									$status       = get_post_status( $quote->ID );
 									$status_class = 'pending' === $status ? 'pending_review' : $status;
 									$quote_number = get_post_meta( $quote->ID, '_quote_number', true );
+									$project_name = trim( (string) get_post_meta( $quote->ID, '_project_name', true ) );
+									$project_name = $project_name ? $project_name : $quote->post_title;
 									$created_by   = get_the_author_meta( 'display_name', $quote->post_author );
 									$total        = qs_calculate_total( $quote->ID );
 									$expand_id    = 'qs-admin-actions-' . $quote->ID;
 									?>
 									<tr class="qs-admin-quote-row" data-admin-quote-row>
 										<td><?php echo esc_html( $quote_number ? $quote_number : 'LF-' . $quote->ID ); ?></td>
-										<td><?php echo esc_html( $company ); ?></td>
+										<td><?php echo esc_html( $project_name ); ?></td>
 										<td><?php echo esc_html( $created_by ); ?></td>
 										<td><?php echo esc_html( get_the_modified_date( 'd M Y', $quote->ID ) ); ?></td>
-										<td><span class="qs-status qs-status-<?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( qs_admin_dashboard_status_display( $status ) ); ?></span></td>
+										<td><span class="qs-status qs-status-<?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( qs_admin_dashboard_status_display( $status, $quote->ID ) ); ?></span></td>
 										<td class="qs-admin-total">$<?php echo esc_html( number_format_i18n( $total, 0 ) ); ?></td>
 										<td class="qs-expand-cell">
 											<button type="button" class="qs-expand-btn" aria-expanded="false" aria-controls="<?php echo esc_attr( $expand_id ); ?>" aria-label="<?php echo esc_attr( 'Show actions for ' . $quote_number ); ?>">
