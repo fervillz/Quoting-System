@@ -303,7 +303,10 @@ function qs_workflow_dashboard_editing_script() {
 			var actions=row.querySelector('.qs-my-quotes-actions');
 			if(!actions||hasEditLink(actions))return;
 			var link=document.createElement('a');
+			actions.style.whiteSpace='normal';
 			link.className='qs-table-action qs-workflow-edit-quote';
+			link.style.display='flex';
+			link.style.marginTop='6px';
 			link.href=info.editUrl;
 			link.textContent='Edit Quote';
 			actions.appendChild(link);
