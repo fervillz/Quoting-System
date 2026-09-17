@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Quote System
  * Description: Frontend quotation system for Loughlin Furniture.
- * Version: 1.6.9
+ * Version: 1.7.0
  * Author: Loughlin Furniture
  * Text Domain: quote-system
  */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Plugin Constants
  */
-define( 'QS_VERSION', '1.6.9' );
+define( 'QS_VERSION', '1.7.0' );
 define( 'QS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'QS_URL', plugin_dir_url( __FILE__ ) );
 
@@ -52,6 +52,7 @@ require_once QS_PATH . 'frontend/payment-priority.php';
 require_once QS_PATH . 'frontend/my-quotes.php';
 require_once QS_PATH . 'frontend/quote-submitted.php';
 require_once QS_PATH . 'frontend/login.php';
+require_once QS_PATH . 'workflow-editing.php';
 require_once QS_PATH . 'dompdf/autoload.inc.php';
 
 add_shortcode(
