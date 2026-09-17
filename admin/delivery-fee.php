@@ -11,11 +11,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Replace the original Pricing & Workflow box with the same content plus the
+ * Delivery Fee immediately after Additional Charges.
+ */
 function qs_register_delivery_fee_metabox() {
+	remove_meta_box( 'qs_pricing_workflow', 'quote', 'side' );
+
 	add_meta_box(
-		'qs_delivery_fee',
-		'Delivery Fee',
-		'qs_delivery_fee_metabox',
+		'qs_pricing_workflow',
+		'Pricing & Workflow',
+		'qs_pricing_workflow_with_delivery_metabox',
 		'quote',
 		'side',
 		'high'
@@ -23,12 +29,17 @@ function qs_register_delivery_fee_metabox() {
 }
 add_action( 'add_meta_boxes', 'qs_register_delivery_fee_metabox', 20 );
 
-function qs_delivery_fee_metabox( $post ) {
+function qs_pricing_workflow_with_delivery_metabox( $post ) {
 	$delivery_fee = (float) get_post_meta( $post->ID, '_shipping', true );
 
+	ob_start();
+	qs_pricing_workflow_metabox( $post );
+	$pricing_html = ob_get_clean();
+
+	ob_start();
 	wp_nonce_field( 'qs_save_delivery_fee_' . $post->ID, 'qs_delivery_fee_nonce' );
 	?>
-	<p>
+	<p class="qs-delivery-fee-field">
 		<label for="qs_delivery_fee_amount"><strong>Delivery Fee</strong></label>
 		<input
 			type="number"
@@ -39,9 +50,19 @@ function qs_delivery_fee_metabox( $post ) {
 			value="<?php echo esc_attr( $delivery_fee ); ?>"
 			class="widefat"
 		/>
+		<span class="description">Added to the quote total and included in deposit/final-balance calculations.</span>
 	</p>
-	<p class="description">Added to the quote total and included in deposit/final-balance calculations.</p>
 	<?php
+	$delivery_html = ob_get_clean();
+
+	$pattern = '/(<p>\s*<label for="additional_charges"><strong>Additional Charges<\/strong><\/label>.*?<\/p>)/s';
+	if ( preg_match( $pattern, $pricing_html ) ) {
+		$pricing_html = preg_replace( $pattern, '$1' . $delivery_html, $pricing_html, 1 );
+	} else {
+		$pricing_html .= $delivery_html;
+	}
+
+	echo $pricing_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Original metabox HTML plus escaped local field markup.
 }
 
 function qs_save_delivery_fee( $post_id ) {
