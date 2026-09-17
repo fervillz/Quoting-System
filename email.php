@@ -5,17 +5,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Get admin email address.
- *
- * Future:
- * Could come from plugin settings.
+ * Return true only on the production Loughlin Furniture hostname.
+ * Staging/subdomains continue using their own WordPress admin email so testing
+ * cannot accidentally send Quote System admin notifications to the live inbox.
  */
+function qs_is_live_loughlin_site() {
+	$host = wp_parse_url( home_url( '/' ), PHP_URL_HOST );
+	$host = strtolower( preg_replace( '/^www\./', '', (string) $host ) );
+
+	return 'loughlinfurniture.com.au' === $host;
+}
+
+/** Get the recipient for Quote System admin notifications. */
 function qs_get_admin_email() {
+	if ( qs_is_live_loughlin_site() ) {
+		return 'info@loughlinfurniture.com.au';
+	}
 
-	return get_option(
-		'admin_email'
-	);
-
+	return get_option( 'admin_email' );
 }
 
 /**
