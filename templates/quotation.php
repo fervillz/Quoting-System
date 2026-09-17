@@ -21,10 +21,14 @@ $fronts       = array_values(
 		}
 	)
 );
-$drawer_banks = qs_component_rows_by_type( $rows['doors_drawers'], 'Drawer Bank' );
-$subtotal     = (float) $data['subtotal'];
-$created_by   = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
-$specs        = array(
+$drawer_banks      = qs_component_rows_by_type( $rows['doors_drawers'], 'Drawer Bank' );
+$subtotal          = (float) $data['subtotal'];
+$discount          = (float) $data['discount'];
+$additional_charge = (float) $data['additional_charges'];
+$delivery_fee      = (float) $data['shipping'];
+$total             = (float) $data['total'];
+$created_by        = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
+$specs             = array(
 	array( 'Timber', $data['timber'], $data['paint_colour'] ? 'Paint Colour: ' . $data['paint_colour'] : '' ),
 	array( 'Finish', $data['finish'], '' ),
 	array( 'Profile', $data['door_profile'], '' ),
@@ -127,6 +131,10 @@ $has_legacy_specs = (bool) array_filter(
 				<div class="qs-pdf-quote-totals">
 					<div><strong>Estimated Lead Time</strong><span><?php echo esc_html( function_exists( 'qs_get_estimated_lead_time' ) ? qs_get_estimated_lead_time( $quote_id ) : '4–6 Weeks' ); ?></span></div>
 					<div><strong>Subtotal</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
+					<?php if ( $discount ) : ?><div><strong>Discount</strong><span>-$<?php echo esc_html( number_format_i18n( $discount, 2 ) ); ?> AUD</span></div><?php endif; ?>
+					<div><strong>Additional Charges</strong><span>$<?php echo esc_html( number_format_i18n( $additional_charge, 2 ) ); ?> AUD</span></div>
+					<div><strong>Delivery Fee</strong><span>$<?php echo esc_html( number_format_i18n( $delivery_fee, 2 ) ); ?> AUD</span></div>
+					<div><strong>Total</strong><span>$<?php echo esc_html( number_format_i18n( $total, 2 ) ); ?> AUD</span></div>
 				</div>
 			</div>
 			<div class="qs-pdf-clear"></div>
