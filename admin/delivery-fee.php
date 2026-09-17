@@ -1,6 +1,6 @@
 <?php
 /**
- * Delivery Fee field for Quote pricing.
+ * Delivery Fee field and manual office pricing overrides for Quotes.
  *
  * The Quote System already uses _shipping in qs_calculate_total(). This file
  * exposes that existing adjustment as the office-facing "Delivery Fee" field
@@ -75,3 +75,48 @@ function qs_save_delivery_fee( $post_id ) {
 	update_post_meta( $post_id, '_balance_amount', qs_calculate_balance( $post_id ) );
 }
 add_action( 'save_post_quote', 'qs_save_delivery_fee', 40 );
+
+/**
+ * Keep an office-entered Subtotal as the final backend pricing override.
+ *
+ * item-configurations.php recalculates component pricing after wp-admin rows
+ * are restored (priority 30). That is correct for component edits, but it also
+ * used to replace the explicit Subtotal entered in the Pricing & Workflow
+ * metabox. Re-apply the posted office value afterwards while temporarily
+ * suppressing the automatic _subtotal meta synchroniser.
+ */
+function qs_restore_admin_manual_subtotal( $post_id ) {
+	if ( ! is_admin() || ! isset( $_POST['subtotal'] ) ) {
+		return;
+	}
+
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	if (
+		empty( $_POST['qs_project_details_nonce'] ) ||
+		! wp_verify_nonce(
+			sanitize_text_field( wp_unslash( $_POST['qs_project_details_nonce'] ) ),
+			'qs_save_project_details'
+		)
+	) {
+		return;
+	}
+
+	$manual_subtotal = (float) wp_unslash( $_POST['subtotal'] );
+	$sync_was_active = ! empty( $GLOBALS['qs_item_config_pricing_sync'] );
+
+	$GLOBALS['qs_item_config_pricing_sync'] = true;
+	update_post_meta( $post_id, '_subtotal', $manual_subtotal );
+	$GLOBALS['qs_item_config_pricing_sync'] = $sync_was_active;
+
+	update_post_meta( $post_id, '_total', qs_calculate_total( $post_id ) );
+	update_post_meta( $post_id, '_deposit_amount', qs_calculate_deposit( $post_id ) );
+	update_post_meta( $post_id, '_balance_amount', qs_calculate_balance( $post_id ) );
+}
+add_action( 'save_post_quote', 'qs_restore_admin_manual_subtotal', 50 );
