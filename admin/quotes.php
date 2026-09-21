@@ -265,3 +265,38 @@ function qs_quote_quick_edit_apply_test_state( $post_id, $post ) {
 	}
 }
 add_action( 'save_post_quote', 'qs_quote_quick_edit_apply_test_state', 120, 2 );
+
+
+/**
+ * Add a frontend View Quote row action for the private Quote CPT.
+ *
+ * Quotes are intentionally not public WordPress posts, so get_permalink()
+ * is not useful here. Link administrators to the Quote System review page
+ * instead, using the same frontend screen used throughout the workflow.
+ */
+function qs_quote_frontend_row_action( $actions, $post ) {
+	if ( ! $post instanceof WP_Post || 'quote' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+		return $actions;
+	}
+
+	$review_url = function_exists( 'qs_page_url' )
+		? qs_page_url( 'quote_review', array( 'quote_id' => $post->ID ) )
+		: add_query_arg( 'quote_id', $post->ID, site_url( '/quote-review/' ) );
+
+	$view_action = '<a href="' . esc_url( $review_url ) . '" target="_blank" rel="noopener">View Quote</a>';
+
+	$new_actions = array();
+	foreach ( $actions as $key => $action ) {
+		$new_actions[ $key ] = $action;
+		if ( 'edit' === $key ) {
+			$new_actions['qs_view_quote'] = $view_action;
+		}
+	}
+
+	if ( ! isset( $new_actions['qs_view_quote'] ) ) {
+		$new_actions['qs_view_quote'] = $view_action;
+	}
+
+	return $new_actions;
+}
+add_filter( 'post_row_actions', 'qs_quote_frontend_row_action', 20, 2 );
