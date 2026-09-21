@@ -157,12 +157,6 @@ function qs_review_admin_summary_actions( $quote_id, $status ) {
 	$quotation_url = add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) );
 	$jobsheet_url  = add_query_arg( 'download_jobsheet_pdf', $quote_id, home_url( '/' ) );
 	?>
-	<?php if ( in_array( $workflow_label, array( 'In Production', 'Final payment required', 'Completed' ), true ) ) : ?>
-		<div class="qs-review-workflow-pill qs-review-workflow-pill-<?php echo esc_attr( sanitize_html_class( strtolower( str_replace( ' ', '-', $workflow_label ) ) ) ); ?>">
-			<span class="qs-review-workflow-dot" aria-hidden="true"></span>
-			<?php echo esc_html( strtoupper( $workflow_label ) ); ?>
-		</div>
-	<?php endif; ?>
 	<div class="qs-review-summary-actions qs-review-admin-actions">
 		<h3>Admin Actions</h3>
 		<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( $dashboard_url ); ?>">Admin Dashboard</a>
@@ -234,8 +228,9 @@ function qs_quote_review_shortcode() {
 		? qs_item_config_has_row_configuration( $quote_id )
 		: false;
 	$is_draft = 'draft' === get_post_status( $quote_id );
-	$status   = get_post_status( $quote_id );
-	$subtotal = (float) $data['subtotal'];
+	$status         = get_post_status( $quote_id );
+	$workflow_label = function_exists( 'qs_workflow_quote_status_label' ) ? qs_workflow_quote_status_label( $quote_id ) : '';
+	$subtotal       = (float) $data['subtotal'];
 
 	ob_start();
 	?>
@@ -243,6 +238,12 @@ function qs_quote_review_shortcode() {
 		<header class="qs-review-page-header">
 			<h1>Quote Builder</h1>
 			<nav aria-label="Quote account actions">
+				<?php if ( $is_admin && in_array( $workflow_label, array( 'In Production', 'Final payment required', 'Completed' ), true ) ) : ?>
+					<span class="qs-review-workflow-pill qs-review-workflow-pill-header qs-review-workflow-pill-<?php echo esc_attr( sanitize_html_class( strtolower( str_replace( ' ', '-', $workflow_label ) ) ) ); ?>">
+						<span class="qs-review-workflow-dot" aria-hidden="true"></span>
+						<?php echo esc_html( strtoupper( $workflow_label ) ); ?>
+					</span>
+				<?php endif; ?>
 				<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( site_url( $is_admin ? '/quote-admin-dashboard/' : '/my-quotes/' ) ); ?>"><?php echo esc_html( $is_admin ? 'Admin Dashboard' : 'My Quotes' ); ?></a>
 				<a class="qs-btn" href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>">Logout</a>
 			</nav>
