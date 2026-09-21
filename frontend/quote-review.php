@@ -150,11 +150,19 @@ function qs_review_summary_items( $quote_id, $can_edit ) {
  */
 function qs_review_admin_summary_actions( $quote_id, $status ) {
 	$dashboard_url = site_url( '/quote-admin-dashboard/' );
+	$workflow_label = function_exists( 'qs_workflow_quote_status_label' ) ? qs_workflow_quote_status_label( $quote_id ) : '';
+	$is_in_production = (bool) get_post_meta( $quote_id, '_qs_in_production', true );
 	$builder_url   = add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) );
 	$pricing_url   = admin_url( 'post.php?post=' . $quote_id . '&action=edit' );
 	$quotation_url = add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) );
 	$jobsheet_url  = add_query_arg( 'download_jobsheet_pdf', $quote_id, home_url( '/' ) );
 	?>
+	<?php if ( in_array( $workflow_label, array( 'In Production', 'Final payment required', 'Completed' ), true ) ) : ?>
+		<div class="qs-review-workflow-pill qs-review-workflow-pill-<?php echo esc_attr( sanitize_html_class( strtolower( str_replace( ' ', '-', $workflow_label ) ) ) ); ?>">
+			<span class="qs-review-workflow-dot" aria-hidden="true"></span>
+			<?php echo esc_html( strtoupper( $workflow_label ) ); ?>
+		</div>
+	<?php endif; ?>
 	<div class="qs-review-summary-actions qs-review-admin-actions">
 		<h3>Admin Actions</h3>
 		<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( $dashboard_url ); ?>">Admin Dashboard</a>
@@ -175,7 +183,9 @@ function qs_review_admin_summary_actions( $quote_id, $status ) {
 			<?php qs_admin_dashboard_action_button( $quote_id, 'mark_deposit_paid', 'Mark Deposit Paid', 'Confirm that this deposit was received outside WooCommerce?' ); ?>
 		<?php elseif ( in_array( $status, array( 'deposit_paid', 'final_balance' ), true ) ) : ?>
 			<?php qs_admin_dashboard_action_button( $quote_id, 'create_final_invoice', 'Create Final Invoice' ); ?>
-			<?php qs_admin_dashboard_action_button( $quote_id, 'mark_in_production', 'Mark In Production' ); ?>
+			<?php if ( ! $is_in_production ) : ?>
+				<?php qs_admin_dashboard_action_button( $quote_id, 'mark_in_production', 'Mark In Production' ); ?>
+			<?php endif; ?>
 		<?php elseif ( 'paid_in_full' === $status ) : ?>
 			<?php qs_admin_dashboard_action_button( $quote_id, 'duplicate_quote', 'Duplicate Quote' ); ?>
 			<?php qs_admin_dashboard_action_button( $quote_id, 'archive_quote', 'Archive Quote', 'Archive this completed quote?' ); ?>
