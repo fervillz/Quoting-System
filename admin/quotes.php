@@ -50,7 +50,7 @@ function qs_quote_column_content( $column, $post_id ) {
 
 			if ( function_exists( 'qs_quote_admin_workflow_status' ) ) {
 				list( $workflow_status, $workflow_label ) = qs_quote_admin_workflow_status( $post_id );
-				echo '<span class="qs-admin-workflow-status" data-workflow-status="' . esc_attr( $workflow_status ) . '">' . esc_html( $workflow_label ) . '</span>';
+				echo '<span class="qs-admin-workflow-status qs-admin-status-badge qs-admin-status-' . esc_attr( sanitize_html_class( $workflow_status ) ) . '" data-workflow-status="' . esc_attr( $workflow_status ) . '">' . esc_html( $workflow_label ) . '</span>';
 			} else {
 				$status = get_post_status_object( get_post_status( $post_id ) );
 				echo esc_html( $status ? $status->label : '' );
@@ -300,3 +300,58 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 	return $new_actions;
 }
 add_filter( 'post_row_actions', 'qs_quote_frontend_row_action', 20, 2 );
+
+
+/**
+ * Make Quote workflow states scannable in the WordPress list table.
+ * Text remains visible so color is only a secondary cue.
+ */
+function qs_quote_admin_status_badge_styles() {
+	$screen = get_current_screen();
+	if ( ! $screen || 'edit-quote' !== $screen->id ) {
+		return;
+	}
+	?>
+	<style>
+	.column-status .qs-admin-status-badge {
+		display: inline-flex;
+		align-items: center;
+		min-height: 24px;
+		padding: 3px 9px;
+		border-radius: 999px;
+		font-weight: 600;
+		line-height: 1.2;
+		white-space: nowrap;
+	}
+	.column-status .qs-admin-status-draft {
+		background: #e5e7eb;
+		color: #4b5563;
+	}
+	.column-status .qs-admin-status-pending_review {
+		background: #fff1d6;
+		color: #8a5a00;
+	}
+	.column-status .qs-admin-status-awaiting_deposit {
+		background: #f7e2dc;
+		color: #7a3529;
+	}
+	.column-status .qs-admin-status-deposit_paid {
+		background: #e6eef9;
+		color: #275a8e;
+	}
+	.column-status .qs-admin-status-qs_in_production {
+		background: #def3e6;
+		color: #1f6f3d;
+	}
+	.column-status .qs-admin-status-final_balance {
+		background: #fff0c9;
+		color: #7b5400;
+	}
+	.column-status .qs-admin-status-paid_in_full {
+		background: #dff2e5;
+		color: #245b35;
+	}
+	</style>
+	<?php
+}
+add_action( 'admin_head-edit.php', 'qs_quote_admin_status_badge_styles' );
