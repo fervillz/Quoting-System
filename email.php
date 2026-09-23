@@ -276,3 +276,56 @@ function qs_email_quote_paid_in_full( $quote_id ) {
 
 	return qs_send_customer_email( $quote_id, $subject, $message );
 }
+
+
+/**
+ * Return the Direct Bank Transfer accounts configured in WooCommerce.
+ */
+function qs_get_bacs_accounts() {
+	$accounts = get_option( 'woocommerce_bacs_accounts', array() );
+	return is_array( $accounts ) ? $accounts : array();
+}
+
+/**
+ * Send Quote System-branded bank-transfer instructions after a Joiner chooses
+ * BACS at WooCommerce checkout. This replaces WooCommerce's generic
+ * customer_on_hold_order email for Quote System payment orders.
+ */
+function qs_email_quote_bacs_instructions( $quote_id, $payment_type, $order_id ) {
+	if ( ! in_array( $payment_type, array( 'deposit', 'balance' ), true ) || ! function_exists( 'wc_get_order' ) ) {
+		return false;
+	}
+
+	$order = wc_get_order( $order_id );
+	if ( ! $order || 'bacs' !== $order->get_payment_method() ) {
+		return false;
+	}
+
+	$quote_number = get_post_meta( $quote_id, '_quote_number', true );
+	$subject      = sprintf(
+		'Bank Transfer Instructions - %s',
+		$quote_number
+	);
+
+	$gateway_instructions = '';
+	if ( function_exists( 'WC' ) && WC() && WC()->payment_gateways() ) {
+		$gateways = WC()->payment_gateways()->payment_gateways();
+		if ( isset( $gateways['bacs'] ) && is_object( $gateways['bacs'] ) && isset( $gateways['bacs']->instructions ) ) {
+			$gateway_instructions = (string) $gateways['bacs']->instructions;
+		}
+	}
+
+	$message = qs_render_email_template(
+		'email-bank-transfer.php',
+		array(
+			'quote_id'            => $quote_id,
+			'payment_type'        => $payment_type,
+			'order_id'            => $order_id,
+			'payment_amount'      => (float) $order->get_total(),
+			'bank_accounts'       => qs_get_bacs_accounts(),
+			'gateway_instructions'=> $gateway_instructions,
+		)
+	);
+
+	return qs_send_customer_email( $quote_id, $subject, $message );
+}
