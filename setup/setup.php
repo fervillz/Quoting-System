@@ -427,7 +427,7 @@ function qs_setup_admin_page() {
 	?>
 	<div class="wrap qs-setup-wrap">
 		<h1>Quote System Setup</h1>
-		<p class="description">Run this once after installing Quote System. The installer is safe to run again: existing pages, products and customised pricing values are preserved.</p>
+		<p class="description">For a fresh standalone install you can use Install Everything. For the approved staging → live launch, use the configuration Export / Import section below so the current staging ACF structure and pricing are the source of truth.</p>
 
 		<?php if ( $message ) : ?><div class="notice notice-success inline"><p><?php echo esc_html( $message ); ?></p></div><?php endif; ?>
 		<?php if ( $error ) : ?><div class="notice notice-error inline"><p><?php echo esc_html( $error ); ?></p></div><?php endif; ?>
@@ -462,11 +462,13 @@ function qs_setup_admin_page() {
 			</section>
 
 			<section class="qs-setup-card">
-				<h2>Default Pricing Data <?php echo qs_setup_status_badge( $status['default_data'] ); // phpcs:ignore ?></h2>
-				<p>Seeds the approved starter Quote Products and pricing matrices. Existing products and existing meta values are never overwritten.</p>
+				<h2>Bundled Default Pricing Data <?php echo qs_setup_status_badge( $status['default_data'] ); // phpcs:ignore ?></h2>
+				<p>Fallback starter data for a brand-new install. For staging → live, prefer Import &amp; Configure so the approved staging configuration is copied instead.</p>
 				<?php qs_setup_action_button( 'install_data', $status['default_data'] ? 'Check / Fill Missing Data' : 'Install Default Data' ); ?>
 			</section>
 		</div>
+
+		<?php do_action( 'qs_setup_after_grid' ); ?>
 
 		<form method="post" class="qs-setup-all-form">
 			<?php wp_nonce_field( 'qs_setup_action', 'qs_setup_nonce' ); ?>
@@ -476,7 +478,7 @@ function qs_setup_admin_page() {
 		</form>
 	</div>
 	<style>
-		.qs-setup-wrap{max-width:1100px}.qs-setup-overall{display:flex;align-items:center;justify-content:space-between;background:#fff;border-left:4px solid #dba617;padding:16px 18px;margin:20px 0}.qs-setup-overall.is-ready{border-left-color:#16803c}.qs-setup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.qs-setup-card{background:#fff;border:1px solid #dcdcde;padding:20px}.qs-setup-card h2{display:flex;align-items:center;justify-content:space-between;margin-top:0}.qs-setup-card p{line-height:1.55}.qs-setup-badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600;background:#f0f0f1;color:#50575e}.qs-setup-badge.is-ready{background:#e6f4ea;color:#146c2e}.qs-setup-badge.is-missing{background:#fff3cd;color:#7a5b00}.qs-setup-page-list{margin:12px 0 18px}.qs-setup-page-list li{margin:7px 0}.qs-setup-page-list span{color:#646970;margin:0 8px}.qs-setup-all-form{margin-top:22px;padding:22px;background:#f6f7f7;border:1px solid #dcdcde}@media(max-width:782px){.qs-setup-grid{grid-template-columns:1fr}.qs-setup-overall{align-items:flex-start;gap:10px;flex-direction:column}}
+		.qs-setup-wrap{max-width:1100px}.qs-setup-overall{display:flex;align-items:center;justify-content:space-between;background:#fff;border-left:4px solid #dba617;padding:16px 18px;margin:20px 0}.qs-setup-overall.is-ready{border-left-color:#16803c}.qs-setup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.qs-setup-card{background:#fff;border:1px solid #dcdcde;padding:20px}.qs-setup-card h2{display:flex;align-items:center;justify-content:space-between;margin-top:0}.qs-setup-card p{line-height:1.55}.qs-setup-badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600;background:#f0f0f1;color:#50575e}.qs-setup-badge.is-ready{background:#e6f4ea;color:#146c2e}.qs-setup-badge.is-missing{background:#fff3cd;color:#7a5b00}.qs-setup-page-list{margin:12px 0 18px}.qs-setup-page-list li{margin:7px 0}.qs-setup-page-list span{color:#646970;margin:0 8px}.qs-setup-transfer{margin-top:22px;padding:22px;background:#fff;border:1px solid #dcdcde;border-left:4px solid #2271b1}.qs-setup-transfer h2{margin-top:0}.qs-setup-transfer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:18px 0}.qs-setup-transfer-grid>div{padding:18px;background:#f6f7f7;border:1px solid #dcdcde}.qs-setup-transfer-grid h3{margin-top:0}.qs-setup-transfer input[type=file]{display:block;max-width:100%;margin:0 0 12px}.qs-setup-all-form{margin-top:22px;padding:22px;background:#f6f7f7;border:1px solid #dcdcde}@media(max-width:782px){.qs-setup-grid,.qs-setup-transfer-grid{grid-template-columns:1fr}.qs-setup-overall{align-items:flex-start;gap:10px;flex-direction:column}}
 	</style>
 	<?php
 }
