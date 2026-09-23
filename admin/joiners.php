@@ -316,10 +316,13 @@ function qs_joiners_admin_page() {
 		<p class="description qs-joiners-intro">A Quote System view of each Joiner account, their quote activity and payments received.</p>
 
 		<div class="qs-joiner-summary">
-			<div><span>Joiners</span><strong><?php echo esc_html( $total_joiners ); ?></strong></div>
-			<div><span>Open Quotes</span><strong><?php echo esc_html( $total_open ); ?></strong></div>
-			<div><span>Completed Quotes</span><strong><?php echo esc_html( $total_completed ); ?></strong></div>
-			<div><span>Total Paid</span><strong><?php echo esc_html( qs_joiners_money( $total_paid ) ); ?></strong></div>
+			<span><strong>Joiners:</strong> <?php echo esc_html( $total_joiners ); ?></span>
+			<span class="qs-joiner-summary-divider" aria-hidden="true">|</span>
+			<span><strong>Open Quotes:</strong> <?php echo esc_html( $total_open ); ?></span>
+			<span class="qs-joiner-summary-divider" aria-hidden="true">|</span>
+			<span><strong>Completed Quotes:</strong> <?php echo esc_html( $total_completed ); ?></span>
+			<span class="qs-joiner-summary-divider" aria-hidden="true">|</span>
+			<span><strong>Total Paid:</strong> <?php echo esc_html( qs_joiners_money( $total_paid ) ); ?></span>
 		</div>
 
 		<form method="get" class="search-form qs-joiners-search">
@@ -454,10 +457,10 @@ function qs_joiners_admin_page() {
 	<style>
 		.qs-joiners-wrap{max-width:1500px}
 		.qs-joiners-intro{margin:8px 0 18px}
-		.qs-joiner-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0 22px}
-		.qs-joiner-summary>div{background:#fff;border:1px solid #c3c4c7;padding:16px 18px}
-		.qs-joiner-summary span{display:block;color:#646970;margin-bottom:6px}
-		.qs-joiner-summary strong{font-size:22px;line-height:1.2}
+		.qs-joiner-summary{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:14px 0 18px;color:#50575e}
+		.qs-joiner-summary span{display:inline}
+		.qs-joiner-summary strong{color:#1d2327;font-weight:600}
+		.qs-joiner-summary-divider{color:#a7aaad;margin:0 2px}
 		.qs-joiners-search{min-height:38px}
 		.qs-joiners-search .search-box{float:right;margin:0 0 8px}
 		.qs-joiners-table th{font-weight:600}
@@ -484,8 +487,8 @@ function qs_joiners_admin_page() {
 		.qs-joiner-status-pending-review{background:#fff1d6;color:#8a5a00}
 		.qs-joiner-status-approved,.qs-joiner-status-deposit-paid{background:#e6eef9;color:#275a8e}
 		.qs-joiners-table td[data-colname="Last Activity"] strong,.qs-joiners-table td[data-colname="Last Activity"] small{display:block}
-		@media(max-width:1100px){.qs-joiner-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.qs-col-money{width:auto}}
-		@media(max-width:782px){.qs-joiner-summary{grid-template-columns:1fr 1fr}.qs-joiners-search .search-box{float:none}.qs-col-quotes{text-align:left;width:auto}.qs-joiner-tooltip{left:0;transform:none}.qs-joiner-tooltip:after{left:18px}}
+		@media(max-width:1100px){.qs-col-money{width:auto}}
+		@media(max-width:782px){.qs-joiners-search .search-box{float:none}.qs-col-quotes{text-align:left;width:auto}.qs-joiner-tooltip{left:0;transform:none}.qs-joiner-tooltip:after{left:18px}}
 	</style>
 	<?php
 }
