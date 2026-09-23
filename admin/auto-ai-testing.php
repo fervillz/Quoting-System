@@ -242,19 +242,49 @@ function qs_auto_ai_product_id( $type, $preferred_title = '' ) {
 	return $products ? (int) $products[0]->ID : 0;
 }
 
-function qs_auto_ai_test_dimensions( $profile_id ) {
-	$width  = 600;
-	$height = 800;
+function qs_auto_ai_test_dimensions( $profile_id, $preferred_width = 600, $preferred_height = 800 ) {
+	$width  = max( 1, absint( $preferred_width ) );
+	$height = max( 1, absint( $preferred_height ) );
 
 	if ( function_exists( 'qs_item_config_matrix_bounds' ) ) {
 		$bounds = qs_item_config_matrix_bounds( $profile_id );
 		if ( $bounds ) {
-			$width  = max( (int) ceil( $bounds['min_width'] ), min( 600, (int) floor( $bounds['max_width'] ) ) );
-			$height = max( (int) ceil( $bounds['min_height'] ), min( 800, (int) floor( $bounds['max_height'] ) ) );
+			$width  = max( (int) ceil( $bounds['min_width'] ), min( $width, (int) floor( $bounds['max_width'] ) ) );
+			$height = max( (int) ceil( $bounds['min_height'] ), min( $height, (int) floor( $bounds['max_height'] ) ) );
 		}
 	}
 
 	return array( max( 1, $width ), max( 1, $height ) );
+}
+
+/** Pick a real priced kickboard height from the current product configuration. */
+function qs_auto_ai_kickboard_dimensions( $product_id ) {
+	$height = 150;
+	$length = 1200;
+
+	if ( $product_id && function_exists( 'qs_pricing_repeater_rows' ) ) {
+		$rows = qs_pricing_repeater_rows(
+			$product_id,
+			'linear_pricing',
+			array(
+				'min'   => array( 'height_min', 'min' ),
+				'max'   => array( 'height_max', 'max' ),
+				'price' => array( 'price_per_lm', 'price' ),
+			)
+		);
+
+		foreach ( $rows as $row ) {
+			$minimum = isset( $row['min'] ) ? max( 1, (int) ceil( (float) $row['min'] ) ) : 1;
+			$maximum = isset( $row['max'] ) ? min( 200, (int) floor( (float) $row['max'] ) ) : 200;
+			$price   = isset( $row['price'] ) ? (float) $row['price'] : 0;
+			if ( $maximum >= $minimum && $price > 0 ) {
+				$height = (int) floor( ( $minimum + $maximum ) / 2 );
+				break;
+			}
+		}
+	}
+
+	return array( $length, max( 1, min( 200, $height ) ) );
 }
 
 function qs_auto_ai_joiner_defaults( $user ) {
@@ -521,17 +551,29 @@ function qs_auto_ai_step_create_quote( $run_id ) {
 		return qs_auto_ai_fail( $run_id, 'joiner', 'Selected Joiner account is no longer available.' );
 	}
 
-	$profile_id = qs_auto_ai_product_id( 'door-profile', 'Evans' );
-	$timber_id  = qs_auto_ai_product_id( 'timber' );
-	$finish_id  = qs_auto_ai_product_id( 'finish' );
-	$handle_id  = qs_auto_ai_product_id( 'accessory' );
+	// Use real currently-configured Quote Products so this tests the same
+	// selections a Joiner can make in Quote Builder.
+	$profile_id   = qs_auto_ai_product_id( 'door-profile', 'Evans' );
+	$timber_id    = qs_auto_ai_product_id( 'timber', 'Tasmanian Oak' );
+	$finish_id    = qs_auto_ai_product_id( 'finish', 'Finished' );
+	$handle_id    = qs_auto_ai_product_id( 'accessory', 'Square Edge' );
+	$kickboard_id = qs_auto_ai_product_id( 'kickboard', 'Veneer Kickboard' );
+
 	if ( ! $profile_id ) {
 		return qs_auto_ai_fail( $run_id, 'joiner', 'No active Door Profile is available, so Quote Builder cannot create a priced test quote.' );
 	}
+	if ( ! $kickboard_id ) {
+		return qs_auto_ai_fail( $run_id, 'joiner', 'No active Kickboard product is available, so the full Quote Builder component test cannot run.' );
+	}
 
-	list( $width, $height ) = qs_auto_ai_test_dimensions( $profile_id );
+	list( $door_width, $door_height )       = qs_auto_ai_test_dimensions( $profile_id, 600, 800 );
+	list( $drawer_width, $drawer_height )   = qs_auto_ai_test_dimensions( $profile_id, 600, 200 );
+	list( $panel_width, $panel_height )     = qs_auto_ai_test_dimensions( qs_find_quote_product( 'Evans', 'door-profile' ), 600, 800 );
+	list( $filler_width, $filler_height )   = qs_auto_ai_test_dimensions( qs_find_quote_product( 'Evans', 'door-profile' ), 200, 800 );
+	list( $kick_length, $kick_height )      = qs_auto_ai_kickboard_dimensions( $kickboard_id );
+
 	$defaults = qs_auto_ai_joiner_defaults( $joiner );
-	$project  = '[AUTO AI TEST] ' . current_time( 'Y-m-d H:i:s' );
+	$project  = 'Kitchen Renovation';
 	$old_post = $_POST;
 
 	$profile_defaults_hook = has_action( 'save_post_quote', 'qs_save_customer_quote_defaults' );
@@ -542,48 +584,160 @@ function qs_auto_ai_step_create_quote( $run_id ) {
 	try {
 		$result = qs_auto_ai_with_user(
 			$joiner_id,
-			static function () use ( $profile_id, $timber_id, $finish_id, $handle_id, $width, $height, $defaults, $project ) {
-			$_POST = array(
-				'qs_builder_nonce' => wp_create_nonce( 'qs_save_quote' ),
-				'project_name'     => $project,
-				'company_name'     => $defaults['company'],
-				'customer_name'    => $defaults['name'],
-				'customer_email'   => $defaults['email'],
-				'customer_phone'   => $defaults['phone'],
-				'delivery_address' => $defaults['address'],
-				'door_profile'     => (string) $profile_id,
-				'timber'           => (string) $timber_id,
-				'finish'           => (string) $finish_id,
-				'handle_profile'   => (string) $handle_id,
-				'paint_colour'     => '',
-				'custom_requests'  => 'Auto AI Testing — real end-to-end workflow check.',
-				'project_notes'    => 'Created automatically by Quote System Auto AI Testing.',
-				'pricing_type'     => 'trade',
-				'components'       => array(
-					'doors_drawers' => array(
-						array(
-							'type'           => 'Door',
-							'door_profile'   => (string) $profile_id,
-							'timber'         => (string) $timber_id,
-							'finish'         => (string) $finish_id,
-							'handle_profile' => (string) $handle_id,
-							'paint_colour'   => '',
-							'width'          => $width,
-							'height'         => $height,
-							'quantity'       => 2,
-							'edge_profile'   => '',
-							'drawer_count'   => 0,
-							'top_height'     => 0,
-							'middle_height'  => 0,
-							'bottom_height'  => 0,
-							'notes'          => 'Auto AI test door.',
+			static function () use (
+				$profile_id,
+				$timber_id,
+				$finish_id,
+				$handle_id,
+				$kickboard_id,
+				$door_width,
+				$door_height,
+				$drawer_width,
+				$drawer_height,
+				$panel_width,
+				$panel_height,
+				$filler_width,
+				$filler_height,
+				$kick_length,
+				$kick_height,
+				$defaults,
+				$project
+			) {
+				$_POST = array(
+					'qs_builder_nonce' => wp_create_nonce( 'qs_save_quote' ),
+					'project_name'     => $project,
+					'company_name'     => $defaults['company'],
+					'customer_name'    => $defaults['name'],
+					'customer_email'   => $defaults['email'],
+					'customer_phone'   => $defaults['phone'],
+					'delivery_address' => $defaults['address'],
+					'door_profile'     => (string) $profile_id,
+					'timber'           => (string) $timber_id,
+					'finish'           => (string) $finish_id,
+					'handle_profile'   => (string) $handle_id,
+					'paint_colour'     => '',
+					'custom_requests'  => 'Please confirm grain direction before production.',
+					'project_notes'    => 'Kitchen cabinetry renovation.',
+					'pricing_type'     => 'trade',
+					'components'       => array(
+						'doors_drawers' => array(
+							array(
+								'type'                 => 'Door',
+								'door_profile'         => (string) $profile_id,
+								'timber'               => (string) $timber_id,
+								'finish'               => (string) $finish_id,
+								'handle_profile'       => (string) $handle_id,
+								'paint_colour'         => '',
+								'width'                => $door_width,
+								'height'               => $door_height,
+								'quantity'             => 2,
+								'edge_profile'         => '',
+								'drawer_count'         => 0,
+								'top_height'           => 0,
+								'top_middle_height'    => 0,
+								'middle_height'        => 0,
+								'bottom_middle_height' => 0,
+								'bottom_height'        => 0,
+								'notes'                => 'Kitchen doors.',
+							),
+							array(
+								'type'                 => 'Drawer',
+								'door_profile'         => (string) $profile_id,
+								'timber'               => (string) $timber_id,
+								'finish'               => (string) $finish_id,
+								'handle_profile'       => (string) $handle_id,
+								'paint_colour'         => '',
+								'width'                => $drawer_width,
+								'height'               => $drawer_height,
+								'quantity'             => 2,
+								'edge_profile'         => '',
+								'drawer_count'         => 0,
+								'top_height'           => 0,
+								'top_middle_height'    => 0,
+								'middle_height'        => 0,
+								'bottom_middle_height' => 0,
+								'bottom_height'        => 0,
+								'notes'                => 'Drawer fronts.',
+							),
+							array(
+								'type'                 => 'Drawer Bank',
+								'door_profile'         => (string) $profile_id,
+								'timber'               => (string) $timber_id,
+								'finish'               => (string) $finish_id,
+								'handle_profile'       => (string) $handle_id,
+								'paint_colour'         => '',
+								'width'                => $drawer_width,
+								'height'               => 0,
+								'quantity'             => 1,
+								'edge_profile'         => '',
+								'drawer_count'         => 3,
+								'top_height'           => $drawer_height,
+								'top_middle_height'    => 0,
+								'middle_height'        => $drawer_height,
+								'bottom_middle_height' => 0,
+								'bottom_height'        => $drawer_height,
+								'notes'                => 'Three-drawer bank.',
+							),
+							array(
+								'type'                 => 'Profile End Panel',
+								'door_profile'         => (string) $profile_id,
+								'timber'               => (string) $timber_id,
+								'finish'               => (string) $finish_id,
+								'handle_profile'       => '',
+								'paint_colour'         => '',
+								'width'                => $door_width,
+								'height'               => $door_height,
+								'quantity'             => 1,
+								'edge_profile'         => '',
+								'drawer_count'         => 0,
+								'top_height'           => 0,
+								'top_middle_height'    => 0,
+								'middle_height'        => 0,
+								'bottom_middle_height' => 0,
+								'bottom_height'        => 0,
+								'notes'                => 'Profile end panel.',
+							),
+						),
+						'end_panels' => array(
+							array(
+								'timber'       => (string) $timber_id,
+								'finish'       => (string) $finish_id,
+								'paint_colour' => '',
+								'height'       => $panel_height,
+								'width'        => $panel_width,
+								'quantity'     => 1,
+								'faces_seen'   => '2 Faces',
+								'edges_seen'   => 'Top + Right',
+								'notes'        => 'Flat end panel.',
+							),
+						),
+						'fillers' => array(
+							array(
+								'timber'       => (string) $timber_id,
+								'finish'       => (string) $finish_id,
+								'paint_colour' => '',
+								'height'       => $filler_height,
+								'width'        => $filler_width,
+								'quantity'     => 1,
+								'faces_seen'   => '2 Faces',
+								'edges_seen'   => '1 Long / 2 Short',
+								'notes'        => 'Kitchen filler.',
+							),
+						),
+						'kickboards' => array(
+							array(
+								'material'     => (string) $kickboard_id,
+								'timber'       => (string) $timber_id,
+								'finish'       => (string) $finish_id,
+								'paint_colour' => '',
+								'height'       => $kick_height,
+								'length'       => $kick_length,
+								'quantity'     => 2,
+								'notes'        => 'Kitchen kickboards.',
+							),
 						),
 					),
-					'end_panels' => array(),
-					'fillers'    => array(),
-					'kickboards' => array(),
-				),
-			);
+				);
 
 				return qs_builder_save_quote( 0, false );
 			}
@@ -605,6 +759,25 @@ function qs_auto_ai_step_create_quote( $run_id ) {
 		return qs_auto_ai_fail( $run_id, 'joiner', 'A Quote record was created, but pricing returned zero. Check Quote Product pricing configuration.' );
 	}
 
+	// Full Auto AI coverage should prove all major Builder component groups are
+	// both saved and contributing to the real pricing calculation.
+	$breakdown = get_post_meta( $quote_id, '_pricing_breakdown', true );
+	$breakdown = is_array( $breakdown ) ? $breakdown : array();
+	$required_components = array(
+		'doors_drawers' => 'Doors / Drawers / Profile End Panel',
+		'end_panels'    => 'End Panels',
+		'fillers'       => 'Fillers',
+		'kickboards'    => 'Kickboards',
+	);
+	foreach ( $required_components as $component => $label ) {
+		if ( ! qs_component_rows( $quote_id, $component ) ) {
+			return qs_auto_ai_fail( $run_id, 'joiner', $label . ' were not saved by Quote Builder.' );
+		}
+		if ( empty( $breakdown[ $component ] ) || (float) $breakdown[ $component ] <= 0 ) {
+			return qs_auto_ai_fail( $run_id, 'joiner', $label . ' were saved but did not produce a positive price.' );
+		}
+	}
+
 	update_post_meta( $quote_id, '_qs_auto_ai_test', '1' );
 	update_post_meta( $quote_id, '_qs_auto_ai_test_run', $run_id );
 	update_post_meta( $quote_id, '_qs_auto_ai_test_admin', absint( qs_auto_ai_meta( $run_id, 'admin_id', 0 ) ) );
@@ -619,10 +792,33 @@ function qs_auto_ai_step_create_quote( $run_id ) {
 	);
 
 	$review_url = function_exists( 'qs_page_url' ) ? qs_page_url( 'quote_review', array( 'quote_id' => $quote_id ) ) : add_query_arg( 'quote_id', $quote_id, site_url( '/quote-review/' ) );
+	$builder_url = function_exists( 'qs_page_url' ) ? qs_page_url( 'quote_builder', array( 'quote_id' => $quote_id ) ) : add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) );
+
 	qs_auto_ai_log(
 		$run_id,
 		'joiner',
-		sprintf( 'Real quote %s created through the Quote Builder save handler. Subtotal: %s.', $quote_number, qs_auto_ai_money( $subtotal ) ),
+		sprintf(
+			'Real quote %s created as "%s" with Doors, Drawer, Drawer Bank, Profile End Panel, End Panel, Filler and Kickboards. Subtotal: %s.',
+			$quote_number,
+			$project,
+			qs_auto_ai_money( $subtotal )
+		),
+		'success',
+		$builder_url,
+		'Open Builder'
+	);
+
+	qs_auto_ai_log(
+		$run_id,
+		'joiner',
+		sprintf(
+			'Selections saved: %s / %s / %s / %s / %s.',
+			get_the_title( $profile_id ),
+			$timber_id ? get_the_title( $timber_id ) : 'No timber',
+			$finish_id ? get_the_title( $finish_id ) : 'No finish',
+			$handle_id ? get_the_title( $handle_id ) : 'No handle',
+			get_the_title( $kickboard_id )
+		),
 		'success',
 		$review_url,
 		'Open Quote'
