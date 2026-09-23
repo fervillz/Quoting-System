@@ -43,6 +43,26 @@ function qs_auto_ai_admin_menu() {
 }
 add_action( 'admin_menu', 'qs_auto_ai_admin_menu', 35 );
 
+/** Deployment-verification shortcut shown directly on Quote System → Setup. */
+function qs_auto_ai_render_setup_shortcut() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$mode = function_exists( 'qs_portal_mode' ) ? qs_portal_mode() : 'test';
+	?>
+	<section class="qs-setup-transfer" style="border-left-color:#7c3aed">
+		<h2>Automatic Workflow Test <?php echo function_exists( 'qs_setup_status_badge' ) ? qs_setup_status_badge( 'live' !== $mode, 'Ready to test', 'Switch out of Live Mode' ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></h2>
+		<p>After setup/import, run a real end-to-end Quote System test with two live logs: Joiner on the left and LF Admin on the right. It creates a real Quote, WooCommerce deposit/final orders and sends real emails.</p>
+		<p>
+			<a class="button button-primary button-hero" href="<?php echo esc_url( admin_url( 'edit.php?post_type=quote&page=qs-auto-ai-testing' ) ); ?>">Open Auto AI Testing</a>
+		</p>
+		<p class="description">Run this while Portal Mode is <strong>Setup</strong> or <strong>Test</strong>. The runner is locked in Live Mode.</p>
+	</section>
+	<?php
+}
+add_action( 'qs_setup_after_grid', 'qs_auto_ai_render_setup_shortcut', 30 );
+
 function qs_auto_ai_meta( $run_id, $key, $default = '' ) {
 	$value = get_post_meta( $run_id, '_qs_auto_ai_' . $key, true );
 	return '' === $value ? $default : $value;
