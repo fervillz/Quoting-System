@@ -9,12 +9,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 function qs_settings_tabs() {
 	return array(
-		'portal'  => 'Portal Access',
-		'testing' => 'Automatic Testing',
+		'settings' => 'Settings',
+		'testing'  => 'AI Testing',
+		'setup'    => 'Setup',
 	);
 }
 
-function qs_settings_url( $tab = 'portal' ) {
+function qs_settings_url( $tab = 'settings' ) {
 	return add_query_arg(
 		array(
 			'post_type' => 'quote',
@@ -43,14 +44,14 @@ function qs_settings_admin_page() {
 	}
 
 	$tabs   = qs_settings_tabs();
-	$active = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'portal';
+	$active = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'settings';
 	if ( ! isset( $tabs[ $active ] ) ) {
-		$active = 'portal';
+		$active = 'settings';
 	}
 	?>
 	<div class="wrap qs-settings-wrap">
 		<h1>Quote System Settings</h1>
-		<p class="description">Ongoing Quote System controls and deployment verification tools.</p>
+		<p class="description">Manage Quote System settings, run end-to-end testing, and handle installation or deployment setup.</p>
 
 		<nav class="nav-tab-wrapper qs-settings-tabs" aria-label="Quote System settings">
 			<?php foreach ( $tabs as $key => $label ) : ?>
@@ -80,3 +81,34 @@ function qs_settings_admin_page() {
 	</style>
 	<?php
 }
+
+
+/**
+ * Keep bookmarks from the earlier separate Setup / Auto AI screens working
+ * while keeping those entries out of the Quote System submenu.
+ */
+function qs_settings_redirect_legacy_pages() {
+	if ( ! is_admin() || ! current_user_can( 'manage_options' ) || empty( $_GET['post_type'] ) || 'quote' !== sanitize_key( wp_unslash( $_GET['post_type'] ) ) || empty( $_GET['page'] ) ) {
+		return;
+	}
+
+	$page = sanitize_key( wp_unslash( $_GET['page'] ) );
+	if ( 'qs-setup' === $page ) {
+		wp_safe_redirect( qs_settings_url( 'setup' ) );
+		exit;
+	}
+
+	if ( 'qs-auto-ai-testing' === $page ) {
+		$args = array();
+		if ( isset( $_GET['run_id'] ) ) {
+			$args['run_id'] = absint( $_GET['run_id'] );
+		}
+		$url = qs_settings_url( 'testing' );
+		if ( $args ) {
+			$url = add_query_arg( $args, $url );
+		}
+		wp_safe_redirect( $url );
+		exit;
+	}
+}
+add_action( 'admin_init', 'qs_settings_redirect_legacy_pages', 50 );
