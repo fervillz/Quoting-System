@@ -767,7 +767,9 @@ function qs_auto_ai_step_bacs_order( $run_id, $payment_type ) {
 	$order->set_payment_method_title( 'Direct bank transfer' );
 	$order->save();
 	if ( ! $order->has_status( 'on-hold' ) ) {
+		qs_auto_ai_begin_mail_capture( $run_id );
 		$order->update_status( 'on-hold', 'Auto AI Testing: customer selected Direct bank transfer.' );
+		qs_auto_ai_end_mail_capture();
 	}
 
 	qs_auto_ai_log(
@@ -827,7 +829,9 @@ function qs_auto_ai_step_verify_deposit_payment( $run_id ) {
 
 	$order = function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : false;
 	if ( $order && ! $order->has_status( 'completed' ) ) {
+		qs_auto_ai_begin_mail_capture( $run_id );
 		$order->update_status( 'completed', 'Auto AI Testing: LF admin completed the deposit order after bank payment confirmation.' );
+		qs_auto_ai_end_mail_capture();
 	}
 
 	$email = qs_auto_ai_latest_email( $run_id, 'Deposit Payment Received' );
@@ -933,7 +937,9 @@ function qs_auto_ai_step_complete_final_order( $run_id ) {
 	}
 
 	if ( ! $order->has_status( 'completed' ) ) {
+		qs_auto_ai_begin_mail_capture( $run_id );
 		$order->update_status( 'completed', 'Auto AI Testing: LF admin completed the final order after bank payment confirmation.' );
+		qs_auto_ai_end_mail_capture();
 	}
 
 	qs_auto_ai_log( $run_id, 'admin', sprintf( 'Final WooCommerce order #%d marked Completed.', $order_id ), 'success', qs_auto_ai_order_edit_url( $order_id ), 'View Order' );
