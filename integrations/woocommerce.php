@@ -175,6 +175,57 @@ add_action( 'woocommerce_payment_complete', 'qs_handle_payment_complete' );
 add_action( 'woocommerce_order_status_processing', 'qs_handle_payment_complete' );
 add_action( 'woocommerce_order_status_completed', 'qs_handle_payment_complete' );
 
+/**
+ * Quote System payment orders are fee-only payment vehicles, not normal shop
+ * purchases. The Quote System already sends its own branded customer emails
+ * for deposit requests, final-balance requests and payment completion.
+ *
+ * Suppress WooCommerce's automatic customer status emails for these orders so
+ * the Joiner does not receive duplicate/mismatched "order received" or
+ * "order is on its way" messages with an empty Product table.
+ *
+ * Normal WooCommerce product orders are completely unaffected.
+ */
+function qs_is_quote_payment_order( $order ) {
+	if ( is_numeric( $order ) && function_exists( 'wc_get_order' ) ) {
+		$order = wc_get_order( absint( $order ) );
+	}
+
+	if ( ! $order instanceof WC_Order ) {
+		return false;
+	}
+
+	$quote_id     = absint( $order->get_meta( '_qs_quote_id' ) );
+	$payment_type = (string) $order->get_meta( '_qs_payment_type' );
+
+	return $quote_id > 0 && in_array( $payment_type, array( 'deposit', 'balance' ), true );
+}
+
+function qs_disable_customer_order_email_for_quote_payment( $enabled, $object = null, $email = null ) {
+	return qs_is_quote_payment_order( $object ) ? false : $enabled;
+}
+
+/*
+ * These are the automatic WooCommerce customer emails that duplicate or
+ * conflict with the Quote System workflow. customer_invoice is included so an
+ * accidental manual Woo "invoice" action cannot send a second payment email.
+ */
+foreach (
+	array(
+		'customer_on_hold_order',
+		'customer_processing_order',
+		'customer_completed_order',
+		'customer_invoice',
+	) as $qs_customer_email_id
+) {
+	add_filter(
+		'woocommerce_email_enabled_' . $qs_customer_email_id,
+		'qs_disable_customer_order_email_for_quote_payment',
+		100,
+		3
+	);
+}
+
 /** Australian invoice/cart terminology: GST instead of generic Tax/VAT. */
 function qs_woocommerce_gst_tax_label( $label ) {
 	return 'GST';
