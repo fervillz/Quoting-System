@@ -414,6 +414,7 @@ function qs_auto_ai_state( $run_id ) {
 	$joiner          = $joiner_id ? get_user_by( 'id', $joiner_id ) : false;
 	$admin           = $admin_id ? get_user_by( 'id', $admin_id ) : false;
 	$quote_number    = $quote_id ? (string) get_post_meta( $quote_id, '_quote_number', true ) : '';
+	$project_title   = $quote_id ? (string) get_the_title( $quote_id ) : '';
 	$quote_status    = $quote_id ? get_post_status( $quote_id ) : '';
 	$total           = $quote_id ? qs_calculate_total( $quote_id ) : 0;
 	$steps           = qs_auto_ai_steps();
@@ -463,6 +464,7 @@ function qs_auto_ai_state( $run_id ) {
 		'admin_name'       => $admin ? $admin->display_name : '',
 		'quote_id'         => $quote_id,
 		'quote_number'     => $quote_number,
+		'project_title'    => $project_title,
 		'quote_status'     => $quote_status,
 		'quote_status_label'=> $quote_id && function_exists( 'qs_workflow_quote_status_label' ) ? qs_workflow_quote_status_label( $quote_id ) : $quote_status,
 		'quote_total'      => $quote_id ? qs_auto_ai_money( $total ) : '',
@@ -1102,6 +1104,9 @@ function qs_auto_ai_ajax_start() {
 		if ( ! $joiner || ! function_exists( 'qs_user_is_joiner' ) || ! qs_user_is_joiner( $joiner ) ) {
 			wp_send_json_error( array( 'message' => 'Select a valid Joiner account.' ), 400 );
 		}
+		if ( ! $joiner->user_email || ! is_email( $joiner->user_email ) ) {
+			wp_send_json_error( array( 'message' => 'The selected Joiner does not have a valid email address. Add one before running a real-email workflow test.' ), 400 );
+		}
 		update_user_meta( $joiner_id, 'qs_portal_test_access', '1' );
 	}
 
@@ -1454,8 +1459,8 @@ function qs_auto_ai_testing_page() {
 			status.className='qs-auto-ai-status '+s.status;
 			document.getElementById('qs-auto-ai-progress-bar').style.width=(s.progress||0)+'%';
 			document.getElementById('qs-auto-ai-next-step').textContent=s.next_step_label?'Next: '+s.next_step_label:'Workflow finished';
-			document.getElementById('qs-auto-ai-quote-title').textContent=(s.quote_number?s.quote_number+' — ':'')+'Auto AI Test';
-			document.getElementById('qs-auto-ai-run-meta').textContent='Run #'+s.run_id+(s.quote_status_label?' · '+s.quote_status_label:'')+(s.quote_total?' · '+s.quote_total:'');
+			document.getElementById('qs-auto-ai-quote-title').textContent=s.quote_number?(s.quote_number+' — '+(s.project_title||'Auto AI Test')):'Auto AI Test';
+			document.getElementById('qs-auto-ai-run-meta').textContent='Run #'+s.run_id+(s.quote_id?' · Quote ID #'+s.quote_id:'')+(s.quote_status_label?' · '+s.quote_status_label:'')+(s.quote_total?' · '+s.quote_total:'');
 			document.getElementById('qs-auto-ai-joiner-label').textContent=s.joiner_name+(s.joiner_email?' · '+s.joiner_email:'');
 			document.getElementById('qs-auto-ai-admin-label').textContent=s.admin_name;
 			renderLogs(document.getElementById('qs-auto-ai-joiner-log'),s.logs_joiner);
