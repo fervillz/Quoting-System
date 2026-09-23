@@ -405,7 +405,7 @@ function qs_auto_ai_handle_email_preview() {
 			body{margin:0;background:#f0f0f1;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#1d2327}
 			.meta{position:sticky;top:0;background:#fff;border-bottom:1px solid #dcdcde;padding:14px 20px;z-index:3}
 			.meta strong{display:inline-block;min-width:70px}
-			.email{max-width:900px;margin:24px auto;background:#fff;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+			.email-frame{display:block;width:calc(100% - 48px);max-width:1100px;height:760px;margin:24px auto;border:1px solid #dcdcde;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 		</style>
 	</head>
 	<body>
@@ -414,7 +414,12 @@ function qs_auto_ai_handle_email_preview() {
 			<div><strong>Subject:</strong> <?php echo esc_html( isset( $email['subject'] ) ? $email['subject'] : '' ); ?></div>
 			<div><strong>Captured:</strong> <?php echo esc_html( isset( $email['time'] ) ? $email['time'] : '' ); ?></div>
 		</div>
-		<div class="email"><?php echo isset( $email['message'] ) ? $email['message'] : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+		<iframe
+			class="email-frame"
+			title="Captured email preview"
+			sandbox="allow-popups allow-popups-to-escape-sandbox"
+			srcdoc="<?php echo esc_attr( isset( $email['message'] ) ? $email['message'] : '' ); ?>"
+		></iframe>
 	</body>
 	</html>
 	<?php
