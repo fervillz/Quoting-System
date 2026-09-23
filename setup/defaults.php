@@ -111,8 +111,19 @@ function qs_setup_default_products() {
 	return $products;
 }
 
-/** Return the bundled ACF field group used to edit Quote Product pricing. */
+/**
+ * Return the ACF field groups used to edit Quote Product pricing.
+ *
+ * An imported staging snapshot takes priority on live so the approved staging
+ * field structure can move with the pricing configuration. Fresh installs
+ * continue using the bundled field definition.
+ */
 function qs_setup_acf_field_groups() {
+	$imported = get_option( 'qs_imported_acf_field_groups', array() );
+	if ( is_array( $imported ) && $imported ) {
+		return $imported;
+	}
+
 	$data = qs_setup_read_json_file( 'acf-quote-product-pricing.json' );
 	return is_array( $data ) ? $data : array();
 }
