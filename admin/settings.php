@@ -72,7 +72,11 @@ function qs_settings_admin_page() {
 		.qs-settings-wrap>.description{margin-top:0;margin-bottom:20px}
 		.qs-settings-tabs{margin-bottom:0}
 		.qs-settings-content{padding-top:2px}
-		.qs-settings-content .qs-setup-transfer{margin-top:20px}
+		.qs-settings-content .qs-setup-transfer{margin-top:20px;padding:22px;background:#fff;border:1px solid #dcdcde;border-left:4px solid #2271b1}
+		.qs-settings-content .qs-setup-transfer h2{margin-top:0}
+		.qs-settings-content .qs-setup-badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600;background:#f0f0f1;color:#50575e}
+		.qs-settings-content .qs-setup-badge.is-ready{background:#e6f4ea;color:#146c2e}
+		.qs-settings-content .qs-setup-badge.is-missing{background:#fff3cd;color:#7a5b00}
 	</style>
 	<?php
 }
