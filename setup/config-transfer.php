@@ -488,7 +488,7 @@ function qs_config_transfer_handle_import() {
 
 	check_admin_referer( 'qs_import_configuration' );
 
-	$redirect = admin_url( 'edit.php?post_type=quote&page=qs-setup' );
+	$redirect = function_exists( 'qs_settings_url' ) ? qs_settings_url( 'setup' ) : admin_url( 'edit.php?post_type=quote&page=qs-settings&tab=setup' );
 	if ( empty( $_FILES['qs_configuration_file'] ) || ! is_array( $_FILES['qs_configuration_file'] ) ) {
 		set_transient( qs_config_transfer_notice_key(), array( 'type' => 'error', 'message' => 'Choose a Quote System configuration JSON file first.' ), 60 );
 		wp_safe_redirect( $redirect );
