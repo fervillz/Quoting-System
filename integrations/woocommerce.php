@@ -226,6 +226,35 @@ foreach (
 	);
 }
 
+/**
+ * Replace WooCommerce's generic BACS/on-hold customer email with the Quote
+ * System-branded bank-transfer instructions email. Keep it idempotent because
+ * WooCommerce status transitions can fire more than once.
+ */
+function qs_send_quote_bacs_instructions_on_hold( $order_id ) {
+	if ( ! function_exists( 'wc_get_order' ) || ! function_exists( 'qs_email_quote_bacs_instructions' ) ) {
+		return;
+	}
+
+	$order = wc_get_order( $order_id );
+	if ( ! $order || ! qs_is_quote_payment_order( $order ) || 'bacs' !== $order->get_payment_method() ) {
+		return;
+	}
+
+	if ( $order->get_meta( '_qs_bacs_instructions_sent' ) ) {
+		return;
+	}
+
+	$quote_id     = absint( $order->get_meta( '_qs_quote_id' ) );
+	$payment_type = (string) $order->get_meta( '_qs_payment_type' );
+
+	if ( qs_email_quote_bacs_instructions( $quote_id, $payment_type, $order_id ) ) {
+		$order->update_meta_data( '_qs_bacs_instructions_sent', current_time( 'mysql' ) );
+		$order->save();
+	}
+}
+add_action( 'woocommerce_order_status_on-hold', 'qs_send_quote_bacs_instructions_on_hold', 20 );
+
 /** Australian invoice/cart terminology: GST instead of generic Tax/VAT. */
 function qs_woocommerce_gst_tax_label( $label ) {
 	return 'GST';
