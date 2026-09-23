@@ -379,7 +379,7 @@ function qs_setup_admin_menu() {
 		'qs_setup_admin_page'
 	);
 }
-add_action( 'admin_menu', 'qs_setup_admin_menu', 30 );
+// Setup now lives under Quote System → Settings → Setup.
 
 function qs_setup_admin_notice() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -389,7 +389,7 @@ function qs_setup_admin_notice() {
 	if ( $status['complete'] ) {
 		return;
 	}
-	$url = admin_url( 'edit.php?post_type=quote&page=qs-setup' );
+	$url = function_exists( 'qs_settings_url' ) ? qs_settings_url( 'setup' ) : admin_url( 'edit.php?post_type=quote&page=qs-settings&tab=setup' );
 	?>
 	<div class="notice notice-warning qs-setup-notice">
 		<p><strong>Quote System requires initial setup.</strong> Required pages, pricing fields, default Quote Products or dependencies are not ready yet. <a class="button button-primary" href="<?php echo esc_url( $url ); ?>">Run Quote System Setup</a></p>
@@ -404,7 +404,7 @@ function qs_setup_status_badge( $ready, $ready_label = 'Ready', $missing_label =
 	return '<span class="qs-setup-badge ' . esc_attr( $class ) . '">' . esc_html( $label ) . '</span>';
 }
 
-function qs_setup_admin_page() {
+function qs_setup_admin_page( $embedded = false ) {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have permission to manage Quote System setup.', 'quote-system' ) );
 	}
@@ -425,8 +425,12 @@ function qs_setup_admin_page() {
 	$status = qs_setup_status();
 	$pages  = qs_setup_page_definitions();
 	?>
-	<div class="wrap qs-setup-wrap">
-		<h1>Quote System Setup</h1>
+	<div class="<?php echo $embedded ? 'qs-setup-wrap qs-setup-embedded' : 'wrap qs-setup-wrap'; ?>">
+		<?php if ( $embedded ) : ?>
+			<h2>Setup</h2>
+		<?php else : ?>
+			<h1>Quote System Setup</h1>
+		<?php endif; ?>
 		<p class="description">For a fresh standalone install you can use Install Everything. For the approved staging → live launch, use the configuration Export / Import section below so the current staging ACF structure and pricing are the source of truth.</p>
 
 		<?php if ( $message ) : ?><div class="notice notice-success inline"><p><?php echo esc_html( $message ); ?></p></div><?php endif; ?>
@@ -492,3 +496,10 @@ function qs_setup_action_button( $action, $label, $disabled = false ) {
 	</form>
 	<?php
 }
+
+
+/** Render Setup as the final tab inside Quote System → Settings. */
+function qs_setup_render_settings_tab() {
+	qs_setup_admin_page( true );
+}
+add_action( 'qs_settings_tab_setup', 'qs_setup_render_settings_tab' );
