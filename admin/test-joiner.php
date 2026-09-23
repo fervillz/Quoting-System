@@ -98,6 +98,9 @@ function qs_handle_test_joiner_admin_action() {
 	// Ensure the role is correct even if the account existed with another role.
 	$user->set_role( 'joiner' );
 
+	// The dedicated test account should work immediately while Portal Mode is Test.
+	update_user_meta( $user->ID, 'qs_portal_test_access', '1' );
+
 	$GLOBALS['qs_test_joiner_credentials'] = array(
 		'created'  => $created,
 		'username' => $user->user_login,
@@ -197,7 +200,7 @@ function qs_render_test_joiner_admin_page() {
 		</form>
 
 		<hr>
-		<p><strong>Expected test behaviour:</strong> this user has the <code>Joiner</code> role, is redirected to <code>/my-quotes/</code> after login, cannot use wp-admin, and does not see administrator-only developer test tools.</p>
+		<p><strong>Expected test behaviour:</strong> this user has the <code>Joiner</code> role, is automatically granted <strong>Quote System Test Access</strong>, is redirected to <code>/my-quotes/</code> after login, cannot use wp-admin, and does not see administrator-only developer test tools.</p>
 	</div>
 	<?php
 }
