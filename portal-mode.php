@@ -191,7 +191,7 @@ function qs_portal_migrate_legacy_test_joiner() {
 }
 add_action( 'init', 'qs_portal_migrate_legacy_test_joiner', 30 );
 
-/** Save Portal Mode from Quote System → Setup. */
+/** Save Portal Mode from Quote System → Settings. */
 function qs_portal_handle_mode_save() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have permission to change Quote System Portal Mode.', 'quote-system' ), 403 );
@@ -211,7 +211,7 @@ function qs_portal_handle_mode_save() {
 		array(
 			'post_type'    => 'quote',
 			'page'         => 'qs-settings',
-			'tab'          => 'portal',
+			'tab'          => 'settings',
 			'portal_mode'  => $mode,
 			'portal_saved' => '1',
 		),
@@ -222,7 +222,7 @@ function qs_portal_handle_mode_save() {
 }
 add_action( 'admin_post_qs_save_portal_mode', 'qs_portal_handle_mode_save' );
 
-/** Render Portal Mode before the staging/live transfer panel. */
+/** Render Portal Mode on the default Settings tab. */
 function qs_portal_render_setup_panel() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
@@ -274,7 +274,7 @@ function qs_portal_render_setup_panel() {
 	</style>
 	<?php
 }
-add_action( 'qs_settings_tab_portal', 'qs_portal_render_setup_panel' );
+add_action( 'qs_settings_tab_settings', 'qs_portal_render_setup_panel' );
 
 /** Persistent admin warning until the portal is deliberately switched Live. */
 function qs_portal_admin_notice() {
@@ -283,7 +283,7 @@ function qs_portal_admin_notice() {
 	}
 
 	$mode = qs_portal_mode();
-	$url  = function_exists( 'qs_settings_url' ) ? qs_settings_url( 'portal' ) : admin_url( 'edit.php?post_type=quote&page=qs-settings&tab=portal' );
+	$url  = function_exists( 'qs_settings_url' ) ? qs_settings_url( 'settings' ) : admin_url( 'edit.php?post_type=quote&page=qs-settings&tab=settings' );
 	?>
 	<div class="notice notice-warning">
 		<p><strong>Quote System: <?php echo esc_html( qs_portal_mode_label( $mode ) ); ?></strong> — <?php echo 'setup' === $mode ? 'only administrators can access the Quote System frontend.' : 'only administrators and test-approved Joiners can access the Quote System frontend.'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> <a href="<?php echo esc_url( $url ); ?>">Change Portal Mode</a></p>
