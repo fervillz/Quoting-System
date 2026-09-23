@@ -209,10 +209,11 @@ function qs_portal_handle_mode_save() {
 
 	$redirect = add_query_arg(
 		array(
-			'post_type'   => 'quote',
-			'page'        => 'qs-setup',
-			'portal_mode' => $mode,
-			'portal_saved'=> '1',
+			'post_type'    => 'quote',
+			'page'         => 'qs-settings',
+			'tab'          => 'portal',
+			'portal_mode'  => $mode,
+			'portal_saved' => '1',
 		),
 		admin_url( 'edit.php' )
 	);
