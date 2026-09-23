@@ -364,16 +364,13 @@ function qs_auto_ai_latest_email( $run_id, $subject_contains = '', $recipient = 
 }
 
 function qs_auto_ai_email_preview_url( $run_id, $email_index ) {
-	return wp_nonce_url(
-		add_query_arg(
-			array(
-				'action'      => 'qs_auto_ai_email_preview',
-				'run_id'      => absint( $run_id ),
-				'email_index' => absint( $email_index ),
-			),
-			admin_url( 'admin-post.php' )
+	return add_query_arg(
+		array(
+			'action'      => 'qs_auto_ai_email_preview',
+			'run_id'      => absint( $run_id ),
+			'email_index' => absint( $email_index ),
 		),
-		'qs_auto_ai_email_preview_' . absint( $run_id )
+		admin_url( 'admin-post.php' )
 	);
 }
 
@@ -383,7 +380,9 @@ function qs_auto_ai_handle_email_preview() {
 	}
 
 	$run_id = isset( $_GET['run_id'] ) ? absint( $_GET['run_id'] ) : 0;
-	check_admin_referer( 'qs_auto_ai_email_preview_' . $run_id );
+	if ( ! $run_id || QS_AUTO_AI_RUN_POST_TYPE !== get_post_type( $run_id ) ) {
+		wp_die( 'Test run not found.', 404 );
+	}
 
 	$index  = isset( $_GET['email_index'] ) ? absint( $_GET['email_index'] ) : 0;
 	$emails = qs_auto_ai_meta( $run_id, 'emails', array() );
