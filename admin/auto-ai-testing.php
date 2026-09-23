@@ -541,6 +541,15 @@ function qs_auto_ai_state( $run_id ) {
 	$status          = (string) qs_auto_ai_meta( $run_id, 'status', 'running' );
 	$emails          = qs_auto_ai_meta( $run_id, 'emails', array() );
 	$email_summaries = array();
+	$timeline_events = qs_auto_ai_timeline_events( $run_id );
+	$started_at      = (string) qs_auto_ai_meta( $run_id, 'started_at', '' );
+	if ( ! $started_at ) {
+		$started_at = get_the_date( 'Y-m-d H:i:s', $run_id );
+	}
+	$completed_at = (string) qs_auto_ai_meta( $run_id, 'completed_at', '' );
+	$end_at       = $completed_at ? $completed_at : current_time( 'mysql' );
+	$duration     = max( 0, strtotime( $end_at ) - strtotime( $started_at ) );
+	$order_count  = ( $deposit_order ? 1 : 0 ) + ( $balance_order ? 1 : 0 );
 
 	foreach ( is_array( $emails ) ? $emails : array() as $index => $email ) {
 		$to = isset( $email['to'] ) ? $email['to'] : '';
@@ -591,9 +600,14 @@ function qs_auto_ai_state( $run_id ) {
 		'balance_order_id' => $balance_order,
 		'logs_joiner'      => qs_auto_ai_meta( $run_id, 'logs_joiner', array() ),
 		'logs_admin'       => qs_auto_ai_meta( $run_id, 'logs_admin', array() ),
+		'timeline_events'  => $timeline_events,
 		'emails'           => $email_summaries,
+		'email_count'      => count( $email_summaries ),
+		'order_count'      => $order_count,
+		'duration_seconds' => $duration,
 		'links'            => $links,
-		'created_at'       => get_the_date( 'Y-m-d H:i:s', $run_id ),
+		'created_at'       => $started_at,
+		'completed_at'     => $completed_at,
 	);
 }
 
@@ -1429,6 +1443,9 @@ function qs_auto_ai_ajax_start() {
 
 	qs_auto_ai_set_meta( $run_id, 'status', 'running' );
 	qs_auto_ai_set_meta( $run_id, 'current_step', 0 );
+	qs_auto_ai_set_meta( $run_id, 'started_at', current_time( 'mysql' ) );
+	qs_auto_ai_set_meta( $run_id, 'event_sequence', 0 );
+	qs_auto_ai_set_meta( $run_id, 'timeline_events', array() );
 	qs_auto_ai_set_meta( $run_id, 'joiner_id', $joiner_id );
 	qs_auto_ai_set_meta( $run_id, 'admin_id', $admin_id );
 	qs_auto_ai_set_meta( $run_id, 'created_joiner', $created_joiner ? '1' : '0' );
