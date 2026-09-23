@@ -173,6 +173,24 @@ function qs_portal_login_redirect( $redirect_to, $requested_redirect_to, $user )
 }
 add_filter( 'login_redirect', 'qs_portal_login_redirect', 100, 3 );
 
+/**
+ * Preserve the existing dedicated test account on upgrades. This runs once
+ * and only grants access to the exact `testjoiner` helper account.
+ */
+function qs_portal_migrate_legacy_test_joiner() {
+	if ( get_option( 'qs_portal_test_joiner_migrated' ) ) {
+		return;
+	}
+
+	$user = get_user_by( 'login', 'testjoiner' );
+	if ( $user instanceof WP_User && function_exists( 'qs_user_is_joiner' ) && qs_user_is_joiner( $user ) ) {
+		update_user_meta( $user->ID, 'qs_portal_test_access', '1' );
+	}
+
+	update_option( 'qs_portal_test_joiner_migrated', '1', false );
+}
+add_action( 'init', 'qs_portal_migrate_legacy_test_joiner', 30 );
+
 /** Save Portal Mode from Quote System → Setup. */
 function qs_portal_handle_mode_save() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -211,7 +229,11 @@ function qs_portal_render_setup_panel() {
 
 	$current = qs_portal_mode();
 	$modes   = qs_portal_modes();
+	$saved   = isset( $_GET['portal_saved'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['portal_saved'] ) );
 	?>
+	<?php if ( $saved ) : ?>
+		<div class="notice notice-success inline"><p>Portal Mode updated to <strong><?php echo esc_html( qs_portal_mode_label( $current ) ); ?></strong>.</p></div>
+	<?php endif; ?>
 	<section class="qs-setup-transfer qs-portal-mode-card">
 		<h2>Portal Mode <span class="qs-setup-badge <?php echo 'live' === $current ? 'is-ready' : 'is-missing'; ?>"><?php echo esc_html( strtoupper( qs_portal_mode_label( $current ) ) ); ?></span></h2>
 		<p>Controls who can access the Quote System frontend on this site. This lets the plugin stay active while the live portal is still being prepared or privately tested.</p>
