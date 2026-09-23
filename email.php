@@ -303,15 +303,16 @@ function qs_email_quote_bacs_instructions( $quote_id, $payment_type, $order_id )
 
 	$quote_number = get_post_meta( $quote_id, '_quote_number', true );
 	$subject      = sprintf(
-		'Bank Transfer Instructions - %s',
+		'%s Bank Transfer Instructions - %s',
+		'deposit' === $payment_type ? 'Deposit' : 'Final Balance',
 		$quote_number
 	);
 
 	$gateway_instructions = '';
 	if ( function_exists( 'WC' ) && WC() && WC()->payment_gateways() ) {
 		$gateways = WC()->payment_gateways()->payment_gateways();
-		if ( isset( $gateways['bacs'] ) && is_object( $gateways['bacs'] ) && isset( $gateways['bacs']->instructions ) ) {
-			$gateway_instructions = (string) $gateways['bacs']->instructions;
+		if ( isset( $gateways['bacs'] ) && is_object( $gateways['bacs'] ) && method_exists( $gateways['bacs'], 'get_option' ) ) {
+			$gateway_instructions = (string) $gateways['bacs']->get_option( 'instructions', '' );
 		}
 	}
 
