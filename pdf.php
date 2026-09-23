@@ -228,6 +228,11 @@ function qs_can_view_quote_document( $quote_id ) {
 	if ( ! $quote || 'quote' !== $quote->post_type || ! is_user_logged_in() ) {
 		return false;
 	}
+
+	if ( function_exists( 'qs_portal_user_can_access' ) && ! qs_portal_user_can_access() ) {
+		return false;
+	}
+
 	return current_user_can( 'edit_post', $quote_id ) || (int) $quote->post_author === get_current_user_id();
 }
 
