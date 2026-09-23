@@ -1649,18 +1649,42 @@ function qs_auto_ai_testing_page() {
 				<button type="button" class="button" data-auto-ai-command="stop">Stop</button>
 			</div>
 
-			<div class="qs-auto-ai-columns">
-				<section class="qs-auto-ai-log-panel">
-					<header><strong>JOINER</strong><span id="qs-auto-ai-joiner-label"></span></header>
-					<div class="qs-auto-ai-log" id="qs-auto-ai-joiner-log"></div>
-				</section>
-				<section class="qs-auto-ai-log-panel">
-					<header><strong>LF ADMIN</strong><span id="qs-auto-ai-admin-label"></span></header>
-					<div class="qs-auto-ai-log" id="qs-auto-ai-admin-log"></div>
-				</section>
+			<div class="qs-auto-ai-view-tabs" role="tablist" aria-label="Auto AI run views">
+				<button type="button" class="qs-auto-ai-view-tab" data-auto-ai-view="timeline" role="tab">Timeline</button>
+				<button type="button" class="qs-auto-ai-view-tab" data-auto-ai-view="logs" role="tab">Live Logs</button>
+				<button type="button" class="qs-auto-ai-view-tab" data-auto-ai-view="emails" role="tab">Emails <span id="qs-auto-ai-email-count"></span></button>
 			</div>
 
-			<section class="qs-auto-ai-emails">
+			<section class="qs-auto-ai-view-panel qs-auto-ai-timeline-panel" data-auto-ai-panel="timeline" role="tabpanel">
+				<div class="qs-auto-ai-summary" id="qs-auto-ai-summary"></div>
+				<div class="qs-auto-ai-timeline-head">
+					<div class="qs-auto-ai-lane-head joiner">
+						<strong>JOINER</strong>
+						<span id="qs-auto-ai-timeline-joiner"></span>
+					</div>
+					<div class="qs-auto-ai-lane-center">WORKFLOW</div>
+					<div class="qs-auto-ai-lane-head admin">
+						<strong>LF ADMIN</strong>
+						<span id="qs-auto-ai-timeline-admin"></span>
+					</div>
+				</div>
+				<div class="qs-auto-ai-timeline" id="qs-auto-ai-timeline"></div>
+			</section>
+
+			<section class="qs-auto-ai-view-panel" data-auto-ai-panel="logs" role="tabpanel">
+				<div class="qs-auto-ai-columns">
+					<section class="qs-auto-ai-log-panel">
+						<header><strong>JOINER</strong><span id="qs-auto-ai-joiner-label"></span></header>
+						<div class="qs-auto-ai-log" id="qs-auto-ai-joiner-log"></div>
+					</section>
+					<section class="qs-auto-ai-log-panel">
+						<header><strong>LF ADMIN</strong><span id="qs-auto-ai-admin-label"></span></header>
+						<div class="qs-auto-ai-log" id="qs-auto-ai-admin-log"></div>
+					</section>
+				</div>
+			</section>
+
+			<section class="qs-auto-ai-view-panel qs-auto-ai-emails" data-auto-ai-panel="emails" role="tabpanel">
 				<h3>Captured Copies of Real Outgoing Emails</h3>
 				<div id="qs-auto-ai-email-list"></div>
 			</section>
