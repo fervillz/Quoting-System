@@ -68,7 +68,7 @@ function qs_settings_admin_page() {
 	</div>
 
 	<style>
-		.qs-settings-wrap{max-width:1100px}
+		.qs-settings-wrap{max-width:1400px}
 		.qs-settings-wrap>h1{margin-bottom:4px}
 		.qs-settings-wrap>.description{margin-top:0;margin-bottom:20px}
 		.qs-settings-tabs{margin-bottom:0}
