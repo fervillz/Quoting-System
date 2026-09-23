@@ -41,7 +41,7 @@ function qs_auto_ai_admin_menu() {
 		'qs_auto_ai_testing_page'
 	);
 }
-add_action( 'admin_menu', 'qs_auto_ai_admin_menu', 35 );
+// Auto AI Testing now lives under Quote System → Settings → AI Testing.
 
 /** Deployment-verification shortcut shown directly on Quote System → Setup. */
 function qs_auto_ai_render_setup_shortcut() {
@@ -61,7 +61,7 @@ function qs_auto_ai_render_setup_shortcut() {
 	</section>
 	<?php
 }
-add_action( 'qs_settings_tab_testing', 'qs_auto_ai_render_setup_shortcut' );
+// The full Auto AI runner is rendered directly in the AI Testing tab.
 
 function qs_auto_ai_meta( $run_id, $key, $default = '' ) {
 	$value = get_post_meta( $run_id, '_qs_auto_ai_' . $key, true );
@@ -394,14 +394,11 @@ function qs_auto_ai_handle_email_preview() {
 add_action( 'admin_post_qs_auto_ai_email_preview', 'qs_auto_ai_handle_email_preview' );
 
 function qs_auto_ai_run_url( $run_id ) {
-	return add_query_arg(
-		array(
-			'post_type' => 'quote',
-			'page'      => 'qs-auto-ai-testing',
-			'run_id'    => absint( $run_id ),
-		),
-		admin_url( 'edit.php' )
-	);
+	$url = function_exists( 'qs_settings_url' )
+		? qs_settings_url( 'testing' )
+		: admin_url( 'edit.php?post_type=quote&page=qs-settings&tab=testing' );
+
+	return add_query_arg( 'run_id', absint( $run_id ), $url );
 }
 
 function qs_auto_ai_order_edit_url( $order_id ) {
@@ -1279,7 +1276,7 @@ function qs_auto_ai_testing_page() {
 	$portal_mode= function_exists( 'qs_portal_mode' ) ? qs_portal_mode() : 'test';
 	$ajax_nonce = wp_create_nonce( 'qs_auto_ai_ajax' );
 	?>
-	<div class="wrap qs-auto-ai">
+	<div class="qs-auto-ai">
 		<div class="qs-auto-ai-title">
 			<div>
 				<h1>Auto AI Testing</h1>
@@ -1599,3 +1596,10 @@ function qs_auto_ai_testing_page() {
 	</script>
 	<?php
 }
+
+
+/** Render the complete runner as the second tab inside Quote System Settings. */
+function qs_auto_ai_render_settings_tab() {
+	qs_auto_ai_testing_page();
+}
+add_action( 'qs_settings_tab_testing', 'qs_auto_ai_render_settings_tab' );
