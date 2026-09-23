@@ -273,7 +273,7 @@ function qs_portal_render_setup_panel() {
 	</style>
 	<?php
 }
-add_action( 'qs_setup_after_grid', 'qs_portal_render_setup_panel', 5 );
+add_action( 'qs_settings_tab_portal', 'qs_portal_render_setup_panel' );
 
 /** Persistent admin warning until the portal is deliberately switched Live. */
 function qs_portal_admin_notice() {
@@ -282,7 +282,7 @@ function qs_portal_admin_notice() {
 	}
 
 	$mode = qs_portal_mode();
-	$url  = admin_url( 'edit.php?post_type=quote&page=qs-setup' );
+	$url  = function_exists( 'qs_settings_url' ) ? qs_settings_url( 'portal' ) : admin_url( 'edit.php?post_type=quote&page=qs-settings&tab=portal' );
 	?>
 	<div class="notice notice-warning">
 		<p><strong>Quote System: <?php echo esc_html( qs_portal_mode_label( $mode ) ); ?></strong> — <?php echo 'setup' === $mode ? 'only administrators can access the Quote System frontend.' : 'only administrators and test-approved Joiners can access the Quote System frontend.'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> <a href="<?php echo esc_url( $url ); ?>">Change Portal Mode</a></p>
