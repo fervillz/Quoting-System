@@ -238,26 +238,23 @@ function qs_auto_ai_test_dimensions( $profile_id ) {
 }
 
 function qs_auto_ai_joiner_defaults( $user ) {
-	$name    = trim( (string) $user->display_name );
-	$company = trim( (string) get_user_meta( $user->ID, 'company_name', true ) );
-	if ( ! $company ) {
-		$company = trim( (string) get_user_meta( $user->ID, 'billing_company', true ) );
-	}
-	$phone = trim( (string) get_user_meta( $user->ID, 'billing_phone', true ) );
-	$address = trim( (string) get_user_meta( $user->ID, 'qs_delivery_address', true ) );
-	if ( ! $address ) {
-		$address = trim( (string) get_user_meta( $user->ID, 'shipping_address_1', true ) );
-	}
-	if ( ! $address ) {
-		$address = trim( (string) get_user_meta( $user->ID, 'billing_address_1', true ) );
+	if ( function_exists( 'qs_customer_quote_defaults' ) ) {
+		$defaults = qs_customer_quote_defaults( $user->ID );
+		return array(
+			'name'    => ! empty( $defaults['customer_name'] ) ? $defaults['customer_name'] : ( $user->display_name ? $user->display_name : $user->user_login ),
+			'company' => isset( $defaults['company_name'] ) ? $defaults['company_name'] : '',
+			'email'   => ! empty( $defaults['customer_email'] ) ? $defaults['customer_email'] : $user->user_email,
+			'phone'   => isset( $defaults['customer_phone'] ) ? $defaults['customer_phone'] : '',
+			'address' => isset( $defaults['delivery_address'] ) ? $defaults['delivery_address'] : '',
+		);
 	}
 
 	return array(
-		'name'    => $name ? $name : $user->user_login,
-		'company' => $company ? $company : 'Auto AI Test Company',
+		'name'    => $user->display_name ? $user->display_name : $user->user_login,
+		'company' => '',
 		'email'   => $user->user_email,
-		'phone'   => $phone ? $phone : '0400 000 000',
-		'address' => $address ? $address : 'Auto AI Test Delivery Address',
+		'phone'   => '',
+		'address' => '',
 	);
 }
 
@@ -520,9 +517,15 @@ function qs_auto_ai_step_create_quote( $run_id ) {
 	$project  = '[AUTO AI TEST] ' . current_time( 'Y-m-d H:i:s' );
 	$old_post = $_POST;
 
-	$result = qs_auto_ai_with_user(
-		$joiner_id,
-		static function () use ( $profile_id, $timber_id, $finish_id, $handle_id, $width, $height, $defaults, $project ) {
+	$profile_defaults_hook = has_action( 'save_post_quote', 'qs_save_customer_quote_defaults' );
+	if ( false !== $profile_defaults_hook ) {
+		remove_action( 'save_post_quote', 'qs_save_customer_quote_defaults', 30 );
+	}
+
+	try {
+		$result = qs_auto_ai_with_user(
+			$joiner_id,
+			static function () use ( $profile_id, $timber_id, $finish_id, $handle_id, $width, $height, $defaults, $project ) {
 			$_POST = array(
 				'qs_builder_nonce' => wp_create_nonce( 'qs_save_quote' ),
 				'project_name'     => $project,
@@ -565,11 +568,15 @@ function qs_auto_ai_step_create_quote( $run_id ) {
 				),
 			);
 
-			return qs_builder_save_quote( 0, false );
+				return qs_builder_save_quote( 0, false );
+			}
+		);
+	} finally {
+		$_POST = $old_post;
+		if ( false !== $profile_defaults_hook ) {
+			add_action( 'save_post_quote', 'qs_save_customer_quote_defaults', 30, 2 );
 		}
-	);
-
-	$_POST = $old_post;
+	}
 
 	if ( is_wp_error( $result ) ) {
 		return qs_auto_ai_fail( $run_id, 'joiner', 'Quote Builder failed: ' . $result->get_error_message() );
