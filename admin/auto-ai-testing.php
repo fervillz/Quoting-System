@@ -61,7 +61,7 @@ function qs_auto_ai_render_setup_shortcut() {
 	</section>
 	<?php
 }
-add_action( 'qs_setup_after_grid', 'qs_auto_ai_render_setup_shortcut', 30 );
+add_action( 'qs_settings_tab_testing', 'qs_auto_ai_render_setup_shortcut' );
 
 function qs_auto_ai_meta( $run_id, $key, $default = '' ) {
 	$value = get_post_meta( $run_id, '_qs_auto_ai_' . $key, true );
