@@ -294,19 +294,23 @@ function qs_joiners_admin_page() {
 		$total_paid      += (float) $row['paid_value'];
 	}
 
-	$base_url = add_query_arg(
-		array(
-			'post_type' => 'quote',
-			'page'      => 'qs-joiners',
-			's'         => $search,
-			'paged'     => '%#%',
-		),
-		admin_url( 'edit.php' )
+	$base_url = str_replace(
+		'999999999',
+		'%#%',
+		add_query_arg(
+			array(
+				'post_type' => 'quote',
+				'page'      => 'qs-joiners',
+				's'         => $search,
+				'paged'     => 999999999,
+			),
+			admin_url( 'edit.php' )
+		)
 	);
 	?>
 	<div class="wrap qs-joiners-wrap">
 		<h1 class="wp-heading-inline">Joiners</h1>
-		<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="page-title-action">Add New Joiner</a>
+		<a href="<?php echo esc_url( add_query_arg( 'qs_role', 'joiner', admin_url( 'user-new.php' ) ) ); ?>" class="page-title-action">Add New Joiner</a>
 		<hr class="wp-header-end">
 
 		<p class="description qs-joiners-intro">A Quote System view of each Joiner account, their quote activity and payments received.</p>
@@ -485,3 +489,20 @@ function qs_joiners_admin_page() {
 	</style>
 	<?php
 }
+
+
+/** Preselect Joiner when the Joiners screen opens WordPress's Add New User form. */
+function qs_joiners_preselect_new_user_role() {
+	if ( ! current_user_can( 'create_users' ) || empty( $_GET['qs_role'] ) || 'joiner' !== sanitize_key( wp_unslash( $_GET['qs_role'] ) ) ) {
+		return;
+	}
+	?>
+	<script>
+	document.addEventListener('DOMContentLoaded',function(){
+		var role=document.getElementById('role');
+		if(role&&role.querySelector('option[value="joiner"]'))role.value='joiner';
+	});
+	</script>
+	<?php
+}
+add_action( 'admin_footer-user-new.php', 'qs_joiners_preselect_new_user_role' );
