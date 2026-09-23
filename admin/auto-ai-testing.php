@@ -1437,11 +1437,16 @@ function qs_auto_ai_testing_page() {
 	.qs-auto-ai-log-panel header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;background:#f6f7f7;border-bottom:1px solid #dcdcde}
 	.qs-auto-ai-log-panel header strong{font-size:12px;letter-spacing:.05em}
 	.qs-auto-ai-log{padding:14px;max-height:520px;overflow:auto}
-	.qs-auto-ai-log-entry{position:relative;padding:9px 10px 9px 32px;margin-bottom:8px;border-left:3px solid #c3c4c7;background:#f6f7f7}
+	.qs-auto-ai-log-entry{--qs-auto-ai-log-bg:#f6f7f7;position:relative;padding:9px 10px 9px 32px;margin-bottom:8px;border-left:3px solid #c3c4c7;background:var(--qs-auto-ai-log-bg)}
+	.qs-auto-ai-log-entry.is-latest{animation:qs-auto-ai-latest-log 4.5s ease-out}
+	@keyframes qs-auto-ai-latest-log{
+		0%,18%{background:#c9f0d5;box-shadow:0 0 0 1px rgba(22,128,60,.18),0 2px 8px rgba(22,128,60,.12)}
+		100%{background:var(--qs-auto-ai-log-bg);box-shadow:none}
+	}
 	.qs-auto-ai-log-entry:before{content:"•";position:absolute;left:12px;top:8px;font-weight:700}
 	.qs-auto-ai-log-entry.success{border-left-color:#16803c}.qs-auto-ai-log-entry.success:before{content:"✓";color:#16803c}
 	.qs-auto-ai-log-entry.warning{border-left-color:#dba617}.qs-auto-ai-log-entry.warning:before{content:"!";color:#8a5a00}
-	.qs-auto-ai-log-entry.error{border-left-color:#d63638;background:#fcf0f1}.qs-auto-ai-log-entry.error:before{content:"×";color:#d63638}
+	.qs-auto-ai-log-entry.error{--qs-auto-ai-log-bg:#fcf0f1;border-left-color:#d63638}.qs-auto-ai-log-entry.error:before{content:"×";color:#d63638}
 	.qs-auto-ai-log-entry time{display:block;color:#8c8f94;font-size:11px;margin-bottom:2px}
 	.qs-auto-ai-log-entry a{margin-left:8px}
 	.qs-auto-ai-emails{padding:18px 22px;border-top:1px solid #dcdcde}
@@ -1457,6 +1462,7 @@ function qs_auto_ai_testing_page() {
 		let state=<?php echo wp_json_encode( $state ? $state : null ); ?>;
 		let timer=null;
 		let requestRunning=false;
+		const renderedLogCounts=new WeakMap();
 
 		const joinerSelect=document.getElementById('qs-auto-ai-joiner');
 		const newFields=document.querySelector('.qs-auto-ai-new-joiner');
@@ -1477,7 +1483,18 @@ function qs_auto_ai_testing_page() {
 			return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
 		}
 		function renderLogs(target,logs){
-			target.innerHTML=(logs||[]).map(log=>'<div class="qs-auto-ai-log-entry '+esc(log.type)+'"><time>'+esc(log.time)+'</time>'+esc(log.message)+(log.url?' <a href="'+esc(log.url)+'" target="_blank" rel="noopener">'+esc(log.link_label||'View')+'</a>':'')+'</div>').join('');
+			logs=logs||[];
+			const hadPreviousRender=renderedLogCounts.has(target);
+			const previousCount=hadPreviousRender?renderedLogCounts.get(target):logs.length;
+			const newestIndex=logs.length-1;
+			const hasNewLog=hadPreviousRender&&logs.length>previousCount;
+
+			target.innerHTML=logs.map((log,index)=>{
+				const latestClass=hasNewLog&&index===newestIndex?' is-latest':'';
+				return '<div class="qs-auto-ai-log-entry '+esc(log.type)+latestClass+'"><time>'+esc(log.time)+'</time>'+esc(log.message)+(log.url?' <a href="'+esc(log.url)+'" target="_blank" rel="noopener">'+esc(log.link_label||'View')+'</a>':'')+'</div>';
+			}).join('');
+
+			renderedLogCounts.set(target,logs.length);
 			target.scrollTop=target.scrollHeight;
 		}
 		function addLink(container,label,url){
