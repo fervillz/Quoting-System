@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Quote System
  * Description: Frontend quotation system for Loughlin Furniture.
- * Version: 1.8.0
+ * Version: 1.9.0
  * Author: Loughlin Furniture
  * Text Domain: quote-system
  */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Plugin Constants
  */
-define( 'QS_VERSION', '1.8.0' );
+define( 'QS_VERSION', '1.9.0' );
 define( 'QS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'QS_URL', plugin_dir_url( __FILE__ ) );
 
@@ -38,6 +38,7 @@ require_once QS_PATH . 'customer-details.php';
 require_once QS_PATH . 'setup/defaults.php';
 require_once QS_PATH . 'setup/setup.php';
 require_once QS_PATH . 'setup/config-transfer.php';
+require_once QS_PATH . 'portal-mode.php';
 
 /**
  * Integrations
@@ -300,6 +301,7 @@ register_activation_hook(
 		qs_register_joiner_role();
 		qs_create_default_product_types();
 		add_option( 'qs_setup_completed_version', '' );
+		add_option( 'qs_portal_mode', function_exists( 'qs_is_live_loughlin_site' ) && qs_is_live_loughlin_site() ? 'setup' : 'test' );
 		flush_rewrite_rules();
 	}
 );
