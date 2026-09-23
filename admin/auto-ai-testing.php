@@ -1487,6 +1487,7 @@ function qs_auto_ai_testing_page() {
 
 		<div class="notice notice-warning inline">
 			<p><strong>This creates real data.</strong> A test run consumes a real Quote number, creates real WooCommerce orders and sends real emails. Nothing is automatically deleted.</p>
+			<p><strong>Email note:</strong> a full BACS test compresses the whole customer journey into a few seconds, so several branded emails will arrive close together. WooCommerce's duplicate customer status emails are suppressed for Quote System payment orders.</p>
 		</div>
 
 		<section class="qs-auto-ai-setup">
