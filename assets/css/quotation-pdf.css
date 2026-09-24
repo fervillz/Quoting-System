@@ -1,5 +1,5 @@
 @page {
-	margin: 8mm 0 41mm 0;
+	margin: 6mm 0 41mm 0;
 	size: A4 portrait;
 }
 
@@ -18,7 +18,7 @@ body {
 	color: #40586b;
 	font-family: DejaVu Sans, sans-serif;
 	font-size: 7.4px;
-	line-height: 1.32;
+	line-height: 1.22;
 }
 
 .qs-pdf {
@@ -35,9 +35,9 @@ body {
 .qs-pdf-header {
 	background: #501e2a;
 	color: #fff;
-	height: 16mm;
-	margin: -8mm 0 0;
-	padding: 5mm 8mm 0;
+	height: 14mm;
+	margin: -6mm 0 0;
+	padding: 4mm 8mm 0;
 }
 
 .qs-pdf-header strong {
@@ -48,7 +48,7 @@ body {
 .qs-pdf-page {
 	margin-left: 8mm;
 	margin-right: 8mm;
-	padding: 4mm 0 0;
+	padding: 3.2mm 0 0;
 	width: auto;
 }
 
@@ -62,16 +62,16 @@ body {
 
 .qs-pdf-project-header {
 	border-bottom: 1px solid #c9c9c9;
-	margin-bottom: 4mm;
+	margin-bottom: 3.2mm;
 }
 
 .qs-pdf-project-header td {
-	padding: 0 0 3.5mm;
+	padding: 0 0 2.8mm;
 	vertical-align: top;
 }
 
 .qs-pdf-project-header p {
-	margin: 0 0 1.2mm;
+	margin: 0 0 1mm;
 }
 
 .qs-pdf-project-header strong {
@@ -90,7 +90,7 @@ body {
 }
 
 .qs-pdf-quote-number span {
-	margin-top: 1.2mm;
+	margin-top: 1mm;
 }
 
 .qs-pdf-columns,
@@ -105,8 +105,8 @@ body {
 
 .qs-pdf-section {
 	border-bottom: 0;
-	margin-bottom: 2.5mm;
-	padding-bottom: 2.5mm;
+	margin-bottom: 2mm;
+	padding-bottom: 2mm;
 	page-break-inside: auto;
 }
 
@@ -141,7 +141,7 @@ body {
  */
 .qs-pdf-table {
 	border-collapse: collapse;
-	margin: 1mm 0 2mm;
+	margin: 0.8mm 0 1.6mm;
 	table-layout: fixed;
 	width: 100%;
 }
@@ -150,7 +150,7 @@ body {
 .qs-pdf-table td {
 	border: 0.35px solid #d9d9d9;
 	line-height: 1.18;
-	padding: 1.2mm 1mm;
+	padding: 0.95mm 1mm;
 	text-align: center;
 	vertical-align: middle;
 }
@@ -200,14 +200,14 @@ body {
 
 .qs-pdf-quote-totals {
 	border-top: 1px solid #bcbcbc;
-	margin-top: 3mm;
-	padding-top: 2.5mm;
+	margin-top: 2.4mm;
+	padding-top: 2mm;
 	page-break-inside: avoid;
 }
 
 .qs-pdf-quote-totals div {
 	display: block;
-	min-height: 4mm;
+	min-height: 3.2mm;
 	overflow: hidden;
 }
 
@@ -235,18 +235,18 @@ body {
 	color: #fff;
 	font-size: 6.4px;
 	line-height: 1.5;
-	padding: 2.5mm 8mm;
+	padding: 2mm 8mm;
 	text-align: center;
 }
 
 .qs-pdf-contact {
 	background: #f1d9d5;
 	color: #501e2a;
-	height: 31mm;
+	height: 29mm;
 }
 
 .qs-pdf-contact td {
-	padding: 4mm 5mm;
+	padding: 3.2mm 5mm;
 	vertical-align: top;
 }
 
