@@ -18,7 +18,7 @@ body {
 	color: #40586b;
 	font-family: DejaVu Sans, sans-serif;
 	font-size: 8px;
-	line-height: 1.35;
+	line-height: 1.22;
 }
 
 .qs-pdf {
@@ -64,7 +64,7 @@ body {
 }
 
 .qs-pdf-page {
-	padding: 4mm 7mm 7mm;
+	padding: 3.2mm 7mm 5.6mm;
 }
 
 .qs-pdf-project-header,
@@ -76,16 +76,16 @@ body {
 
 .qs-pdf-project-header {
 	border-bottom: 1px solid #c9c9c9;
-	margin-bottom: 4mm;
+	margin-bottom: 3.2mm;
 }
 
 .qs-pdf-project-header td {
-	padding: 0 0 3.5mm;
+	padding: 0 0 2.8mm;
 	vertical-align: top;
 }
 
 .qs-pdf-project-header p {
-	margin: 0 0 1.2mm;
+	margin: 0 0 1mm;
 }
 
 .qs-pdf-project-header .qs-pdf-quote-number {
@@ -100,13 +100,13 @@ body {
 }
 
 .qs-pdf-quote-number span {
-	margin-top: 1.2mm;
+	margin-top: 1mm;
 }
 
 .qs-pdf-section {
-	border-bottom: 1px solid #d2d2d2;
-	margin-bottom: 3mm;
-	padding-bottom: 3mm;
+	border-bottom: 0;
+	margin-bottom: 2.4mm;
+	padding-bottom: 2.4mm;
 	page-break-inside: avoid;
 }
 
@@ -114,13 +114,13 @@ body {
 	font-size: 10px;
 	font-weight: 600;
 	line-height: 1.2;
-	margin: 0 0 2.2mm;
+	margin: 0 0 1.75mm;
 }
 
 .qs-pdf-section h3 {
 	font-size: 7px;
 	font-weight: 700;
-	margin: 2mm 0 0.8mm;
+	margin: 1.6mm 0 0.65mm;
 }
 
 .qs-pdf-section p {
@@ -128,7 +128,7 @@ body {
 }
 
 .qs-pdf-specifications td {
-	padding: 0 1.4mm 1mm 0;
+	padding: 0 1.4mm 0.8mm 0;
 	vertical-align: top;
 }
 
@@ -164,7 +164,7 @@ body {
 
 .qs-pdf-table {
 	border-collapse: collapse;
-	margin: 1mm 0 2mm;
+	margin: 0.8mm 0 1.6mm;
 	table-layout: fixed;
 	width: 100%;
 }
@@ -173,7 +173,7 @@ body {
 .qs-pdf-table td {
 	border: 0.35px solid #d9d9d9;
 	line-height: 1.18;
-	padding: 1.2mm 1mm;
+	padding: 0.95mm 1mm;
 	text-align: center;
 	vertical-align: middle;
 }
@@ -224,5 +224,5 @@ body {
 
 .qs-pdf-notes {
 	border-bottom: 0;
-	min-height: 17mm;
+	min-height: 13.6mm;
 }
