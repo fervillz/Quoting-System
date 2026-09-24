@@ -197,7 +197,7 @@ function qs_quote_review_shortcode() {
 	}
 
 	$is_admin = current_user_can( 'edit_others_posts' );
-	$message  = '';
+	$message  = $is_admin && isset( $_GET['submitted'] ) ? 'Quote submitted for LF review.' : '';
 
 	if ( $is_admin && isset( $_POST['qs_dashboard_action'] ) ) {
 		$message = qs_admin_dashboard_handle_action();
@@ -205,16 +205,29 @@ function qs_quote_review_shortcode() {
 
 	if ( isset( $_POST['qs_submit_quote'] ) ) {
 		$nonce = isset( $_POST['qs_submit_quote_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['qs_submit_quote_nonce'] ) ) : '';
-		if ( $is_admin || ! wp_verify_nonce( $nonce, 'qs_submit_quote_' . $quote_id ) || 'draft' !== get_post_status( $quote_id ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'qs_submit_quote_' . $quote_id ) || 'draft' !== get_post_status( $quote_id ) ) {
 			return '<p>Security check failed. Please try again.</p>';
 		}
 		qs_update_quote_status( $quote_id, 'pending_review' );
 		qs_email_quote_submitted( $quote_id );
-		wp_safe_redirect(
-			function_exists( 'qs_page_url' )
-				? qs_page_url( 'quote_submitted', array( 'quote_id' => $quote_id ) )
-				: add_query_arg( 'quote_id', $quote_id, site_url( '/quote-submitted/' ) )
-		);
+
+		if ( $is_admin ) {
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'quote_id'  => $quote_id,
+						'submitted' => 1,
+					),
+					site_url( '/quote-review/' )
+				)
+			);
+		} else {
+			wp_safe_redirect(
+				function_exists( 'qs_page_url' )
+					? qs_page_url( 'quote_submitted', array( 'quote_id' => $quote_id ) )
+					: add_query_arg( 'quote_id', $quote_id, site_url( '/quote-submitted/' ) )
+			);
+		}
 		exit;
 	}
 
@@ -300,21 +313,22 @@ function qs_quote_review_shortcode() {
 				<div class="qs-review-summary-items"><?php qs_review_summary_items( $quote_id, $is_draft ); ?></div>
 				<div class="qs-review-lead-time"><strong>Estimated Lead Time</strong><span>4-6 Weeks</span></div>
 				<div class="qs-review-subtotal"><span>Subtotal (Ex GST)</span><strong>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</strong></div>
-				<?php if ( $is_admin ) : ?>
+				<?php if ( $is_draft ) : ?>
+					<div class="qs-review-summary-actions">
+						<?php if ( $is_admin ) : ?><h3>Review Actions</h3><?php endif; ?>
+						<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) ) ); ?>">Edit Quote</a>
+						<form method="post">
+							<?php wp_nonce_field( 'qs_submit_quote_' . $quote_id, 'qs_submit_quote_nonce' ); ?>
+							<input type="hidden" name="quote_id" value="<?php echo esc_attr( $quote_id ); ?>">
+							<button class="qs-btn" type="submit" name="qs_submit_quote">Submit Quote</button>
+						</form>
+					</div>
+				<?php elseif ( $is_admin ) : ?>
 					<?php qs_review_admin_summary_actions( $quote_id, $status ); ?>
 				<?php else : ?>
 					<div class="qs-review-summary-actions">
-						<?php if ( $is_draft ) : ?>
-							<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) ) ); ?>">Edit Quote</a>
-							<form method="post">
-								<?php wp_nonce_field( 'qs_submit_quote_' . $quote_id, 'qs_submit_quote_nonce' ); ?>
-								<input type="hidden" name="quote_id" value="<?php echo esc_attr( $quote_id ); ?>">
-								<button class="qs-btn" type="submit" name="qs_submit_quote">Submit Quote</button>
-							</form>
-						<?php else : ?>
-							<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( site_url( '/my-quotes/' ) ); ?>">My Quotes</a>
-							<a class="qs-btn" href="<?php echo esc_url( add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) ) ); ?>" target="_blank" rel="noopener">Download PDF</a>
-						<?php endif; ?>
+						<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( site_url( '/my-quotes/' ) ); ?>">My Quotes</a>
+						<a class="qs-btn" href="<?php echo esc_url( add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) ) ); ?>" target="_blank" rel="noopener">Download PDF</a>
 					</div>
 				<?php endif; ?>
 			</aside>
