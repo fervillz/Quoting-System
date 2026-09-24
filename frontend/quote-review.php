@@ -241,9 +241,13 @@ function qs_quote_review_shortcode() {
 		? qs_item_config_has_row_configuration( $quote_id )
 		: false;
 	$is_draft = 'draft' === get_post_status( $quote_id );
-	$status         = get_post_status( $quote_id );
-	$workflow_label = function_exists( 'qs_workflow_quote_status_label' ) ? qs_workflow_quote_status_label( $quote_id ) : '';
-	$subtotal       = (float) $data['subtotal'];
+	$status             = get_post_status( $quote_id );
+	$workflow_label     = function_exists( 'qs_workflow_quote_status_label' ) ? qs_workflow_quote_status_label( $quote_id ) : '';
+	$subtotal           = (float) $data['subtotal'];
+	$discount           = (float) get_post_meta( $quote_id, '_discount', true );
+	$additional_charges = (float) get_post_meta( $quote_id, '_additional_charges', true );
+	$delivery_fee       = (float) get_post_meta( $quote_id, '_shipping', true );
+	$total              = function_exists( 'qs_calculate_total' ) ? (float) qs_calculate_total( $quote_id ) : max( 0, $subtotal + $additional_charges + $delivery_fee - $discount );
 
 	ob_start();
 	?>
@@ -312,7 +316,17 @@ function qs_quote_review_shortcode() {
 				<h3>Items Breakdown</h3>
 				<div class="qs-review-summary-items"><?php qs_review_summary_items( $quote_id, $is_draft ); ?></div>
 				<div class="qs-review-lead-time"><strong>Estimated Lead Time</strong><span>4-6 Weeks</span></div>
-				<div class="qs-review-subtotal"><span>Subtotal (Ex GST)</span><strong>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</strong></div>
+				<div class="qs-review-lead-time"><strong>Subtotal (Ex GST)</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
+				<?php if ( $discount > 0 ) : ?>
+					<div class="qs-review-lead-time"><strong>Discount</strong><span>-$<?php echo esc_html( number_format_i18n( $discount, 2 ) ); ?> AUD</span></div>
+				<?php endif; ?>
+				<?php if ( $additional_charges > 0 ) : ?>
+					<div class="qs-review-lead-time"><strong>Additional Charges</strong><span>$<?php echo esc_html( number_format_i18n( $additional_charges, 2 ) ); ?> AUD</span></div>
+				<?php endif; ?>
+				<?php if ( $delivery_fee > 0 ) : ?>
+					<div class="qs-review-lead-time"><strong>Delivery Fee</strong><span>$<?php echo esc_html( number_format_i18n( $delivery_fee, 2 ) ); ?> AUD</span></div>
+				<?php endif; ?>
+				<div class="qs-review-subtotal"><span>Total</span><strong>$<?php echo esc_html( number_format_i18n( $total, 2 ) ); ?> AUD</strong></div>
 				<?php if ( $is_draft ) : ?>
 					<div class="qs-review-summary-actions">
 						<?php if ( $is_admin ) : ?><h3>Review Actions</h3><?php endif; ?>
