@@ -248,7 +248,10 @@
       } else {
         editor.insertBefore(block, editor.firstChild);
       }
-      editor.appendChild(makeNotes());
+      var notes = makeNotes();
+      var addButton = editor.querySelector('.qs-commit-component');
+      if (addButton) editor.insertBefore(notes, addButton);
+      else editor.appendChild(notes);
 
       var rows = section.querySelectorAll('.qs-repeater-row');
       componentLast[component] = rows.length ? rowConfig(rows[rows.length - 1], false, sharedComponentLast) : sharedComponentLast;
