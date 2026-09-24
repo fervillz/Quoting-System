@@ -198,8 +198,6 @@ body {
 .qs-pdf-drawer-bank-table th:nth-child(8),
 .qs-pdf-drawer-bank-table td:nth-child(8) { width: 24%; }
 
-.qs-pdf-section h2,
-
 .qs-pdf-quote-totals {
 	border-top: 1px solid #bcbcbc;
 	margin-top: 3mm;
