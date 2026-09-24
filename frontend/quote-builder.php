@@ -529,9 +529,9 @@ function qs_builder_kickboards_editor( $rows ) {
 			</select>
 
 			<div class="qs-editor-fields qs-two-column-fields qs-kickboard-fields">
-				<input type="number" min="1" max="200" step="1" data-component-field="height" placeholder="Kick Height" aria-label="Kickboard height in millimetres">
+				<input type="number" min="1" max="200" step="1" data-component-field="height" placeholder="Kick Height mm" aria-label="Kickboard height in millimetres">
 				<input type="number" min="1" step="1" value="1" data-component-field="quantity" placeholder="Quantity" aria-label="Kickboard quantity">
-				<input type="number" min="1" max="2400" step="1" data-component-field="length" placeholder="Kick Length" aria-label="Kickboard length in millimetres">
+				<input type="number" min="1" max="2400" step="1" data-component-field="length" placeholder="Kick Length mm" aria-label="Kickboard length in millimetres">
 			</div>
 
 			<button class="qs-commit-component" type="button">Add Item</button>
