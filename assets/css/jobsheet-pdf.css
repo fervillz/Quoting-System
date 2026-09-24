@@ -41,8 +41,8 @@ body {
 }
 
 .qs-pdf-header-table td {
-	padding: 0;
-	vertical-align: middle;
+	padding: 7mm 0 0;
+	vertical-align: top;
 }
 
 .qs-pdf-header-table td:last-child {
@@ -50,13 +50,17 @@ body {
 }
 
 .qs-pdf-header strong {
+	display: block;
 	font-size: 16px;
 	font-weight: 400;
+	line-height: 1.1;
 }
 
 .qs-pdf-header span {
+	display: block;
 	font-family: DejaVu Serif, serif;
 	font-size: 14px;
+	line-height: 1.1;
 }
 
 .qs-pdf-page {
