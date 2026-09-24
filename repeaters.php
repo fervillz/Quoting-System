@@ -119,7 +119,8 @@ function qs_sanitise_component_rows( $component, $raw_rows ) {
 		foreach ( $definitions[ $component ] as $key => $rule ) {
 			$value = isset( $raw_row[ $key ] ) ? $raw_row[ $key ] : '';
 			if ( 'positive_int' === $rule ) {
-				$row[ $key ] = absint( $value );
+				$number      = absint( $value );
+				$row[ $key ] = $number > 0 ? $number : '';
 			} elseif ( 'select' === $rule ) {
 				$row[ $key ] = in_array( $value, array( 'Door', 'Drawer', 'Drawer Bank', 'Profile End Panel' ), true ) ? $value : 'Door';
 			} elseif ( 'textarea' === $rule ) {
