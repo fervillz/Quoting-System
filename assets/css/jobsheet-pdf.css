@@ -41,7 +41,7 @@ body {
 }
 
 .qs-pdf-header-table td {
-	padding: 7mm 0 0;
+	padding: 0;
 	vertical-align: top;
 }
 
@@ -54,6 +54,7 @@ body {
 	font-size: 16px;
 	font-weight: 400;
 	line-height: 1.1;
+	padding-top: 5mm;
 }
 
 .qs-pdf-header span {
@@ -61,6 +62,7 @@ body {
 	font-family: DejaVu Serif, serif;
 	font-size: 14px;
 	line-height: 1.1;
+	padding-top: 5mm;
 }
 
 .qs-pdf-page {
