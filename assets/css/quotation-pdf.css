@@ -134,6 +134,70 @@ body {
 	border-bottom: 0;
 }
 
+/*
+ * Quotation item data uses the same structured tables as the Job Sheet.
+ * Keep borders/spacing explicit for Dompdf so the customer PDF reads as a
+ * proper schedule rather than loose text columns.
+ */
+.qs-pdf-table {
+	border-collapse: collapse;
+	margin: 1mm 0 2mm;
+	table-layout: fixed;
+	width: 100%;
+}
+
+.qs-pdf-table th,
+.qs-pdf-table td {
+	border: 0.35px solid #d9d9d9;
+	line-height: 1.18;
+	padding: 1.2mm 1mm;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.qs-pdf-table th {
+	background: #f6f6f6;
+	font-size: 6.2px;
+	font-weight: 700;
+}
+
+.qs-pdf-table td {
+	font-size: 6.2px;
+}
+
+.qs-pdf-table th:first-child,
+.qs-pdf-table td:first-child {
+	width: 5%;
+}
+
+.qs-pdf-doors-table th:nth-child(2),
+.qs-pdf-doors-table td:nth-child(2) { width: 14%; }
+.qs-pdf-doors-table th:nth-child(3),
+.qs-pdf-doors-table td:nth-child(3) { width: 25%; }
+.qs-pdf-doors-table th:nth-child(4),
+.qs-pdf-doors-table td:nth-child(4) { width: 12%; }
+.qs-pdf-doors-table th:nth-child(5),
+.qs-pdf-doors-table td:nth-child(5) { width: 12%; }
+.qs-pdf-doors-table th:nth-child(6),
+.qs-pdf-doors-table td:nth-child(6) { width: 8%; }
+.qs-pdf-doors-table th:nth-child(7),
+.qs-pdf-doors-table td:nth-child(7) { width: 24%; }
+
+.qs-pdf-drawer-bank-table th:nth-child(2),
+.qs-pdf-drawer-bank-table td:nth-child(2) { width: 12%; }
+.qs-pdf-drawer-bank-table th:nth-child(3),
+.qs-pdf-drawer-bank-table td:nth-child(3) { width: 21%; }
+.qs-pdf-drawer-bank-table th:nth-child(4),
+.qs-pdf-drawer-bank-table td:nth-child(4) { width: 10%; }
+.qs-pdf-drawer-bank-table th:nth-child(5),
+.qs-pdf-drawer-bank-table td:nth-child(5) { width: 9%; }
+.qs-pdf-drawer-bank-table th:nth-child(6),
+.qs-pdf-drawer-bank-table td:nth-child(6) { width: 11%; }
+.qs-pdf-drawer-bank-table th:nth-child(7),
+.qs-pdf-drawer-bank-table td:nth-child(7) { width: 8%; }
+.qs-pdf-drawer-bank-table th:nth-child(8),
+.qs-pdf-drawer-bank-table td:nth-child(8) { width: 24%; }
+
 .qs-pdf-section h2,
 
 .qs-pdf-quote-totals {
