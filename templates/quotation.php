@@ -134,7 +134,7 @@ $has_legacy_specs = (bool) array_filter(
 					<?php if ( $discount ) : ?><div><strong>Discount</strong><span>-$<?php echo esc_html( number_format_i18n( $discount, 2 ) ); ?> AUD</span></div><?php endif; ?>
 					<div><strong>Additional Charges</strong><span>$<?php echo esc_html( number_format_i18n( $additional_charge, 2 ) ); ?> AUD</span></div>
 					<div><strong>Delivery Fee</strong><span>$<?php echo esc_html( number_format_i18n( $delivery_fee, 2 ) ); ?> AUD</span></div>
-					<div><strong>Total</strong><span>$<?php echo esc_html( number_format_i18n( $total, 2 ) ); ?> AUD</span></div>
+					<div><strong>Total (Ex GST)</strong><span>$<?php echo esc_html( number_format_i18n( $total, 2 ) ); ?> AUD</span></div>
 				</div>
 			</div>
 			<div class="qs-pdf-clear"></div>
