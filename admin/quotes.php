@@ -301,6 +301,74 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 }
 add_filter( 'post_row_actions', 'qs_quote_frontend_row_action', 20, 2 );
 
+/**
+ * Restore a WordPress-style frontend URL row below the Quote title.
+ *
+ * The Quote CPT is private, so WordPress does not render its normal permalink
+ * controls. Use the Quote Review screen as the canonical frontend URL.
+ */
+function qs_quote_frontend_link_after_title( $post ) {
+	if (
+		! $post instanceof WP_Post ||
+		'quote' !== $post->post_type ||
+		! $post->ID ||
+		! current_user_can( 'edit_post', $post->ID )
+	) {
+		return;
+	}
+
+	$review_url = function_exists( 'qs_page_url' )
+		? qs_page_url( 'quote_review', array( 'quote_id' => $post->ID ) )
+		: add_query_arg( 'quote_id', $post->ID, site_url( '/quote-review/' ) );
+	?>
+	<div class="qs-quote-frontend-link">
+		<strong>Quote URL:</strong>
+		<a class="qs-quote-frontend-url" href="<?php echo esc_url( $review_url ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $review_url ); ?></a>
+		<a class="button button-small" href="<?php echo esc_url( $review_url ); ?>" target="_blank" rel="noopener">View Quote</a>
+	</div>
+	<?php
+}
+add_action( 'edit_form_after_title', 'qs_quote_frontend_link_after_title' );
+
+function qs_quote_frontend_link_admin_styles() {
+	$screen = get_current_screen();
+	if ( ! $screen || 'quote' !== $screen->post_type || 'post' !== $screen->base ) {
+		return;
+	}
+	?>
+	<style>
+		.qs-quote-frontend-link {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin: 6px 0 14px;
+			color: #50575e;
+			font-size: 12px;
+		}
+		.qs-quote-frontend-url {
+			min-width: 0;
+			max-width: 720px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+		@media (max-width: 782px) {
+			.qs-quote-frontend-link {
+				align-items: flex-start;
+				flex-direction: column;
+			}
+			.qs-quote-frontend-url {
+				max-width: 100%;
+				white-space: normal;
+				word-break: break-all;
+			}
+		}
+	</style>
+	<?php
+}
+add_action( 'admin_head-post.php', 'qs_quote_frontend_link_admin_styles' );
+add_action( 'admin_head-post-new.php', 'qs_quote_frontend_link_admin_styles' );
+
 
 /**
  * Make Quote workflow states scannable in the WordPress list table.
