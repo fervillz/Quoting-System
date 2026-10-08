@@ -33,7 +33,11 @@ function qs_pricing_workflow_with_delivery_metabox( $post ) {
 	$delivery_fee = (float) get_post_meta( $post->ID, '_shipping', true );
 
 	ob_start();
-	qs_pricing_workflow_metabox( $post );
+	if ( function_exists( 'qs_pricing_workflow_with_estimated_lead_time_metabox' ) ) {
+		qs_pricing_workflow_with_estimated_lead_time_metabox( $post );
+	} else {
+		qs_pricing_workflow_metabox( $post );
+	}
 	$pricing_html = ob_get_clean();
 
 	ob_start();
