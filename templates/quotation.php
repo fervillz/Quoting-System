@@ -129,7 +129,7 @@ $has_legacy_specs = (bool) array_filter(
 				</section>
 
 				<div class="qs-pdf-quote-totals">
-					<div><strong>Estimated Lead Time</strong><span><?php echo esc_html( function_exists( 'qs_get_estimated_lead_time' ) ? qs_get_estimated_lead_time( $quote_id ) : '4–6 Weeks' ); ?></span></div>
+					<div class="qs-pdf-lead-time"><strong>Estimated Lead Time</strong><span><?php echo esc_html( function_exists( 'qs_estimated_lead_time' ) ? qs_estimated_lead_time( $quote_id ) : '4–6 Weeks' ); ?></span></div>
 					<div><strong>Subtotal</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
 					<?php if ( $discount ) : ?><div><strong>Discount</strong><span>-$<?php echo esc_html( number_format_i18n( $discount, 2 ) ); ?> AUD</span></div><?php endif; ?>
 					<div><strong>Additional Charges</strong><span>$<?php echo esc_html( number_format_i18n( $additional_charge, 2 ) ); ?> AUD</span></div>
