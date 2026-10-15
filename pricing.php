@@ -543,10 +543,59 @@ function qs_apply_retail_markup( $amount ) {
 	return round( (float) $amount, 2 );
 }
 
+/**
+ * Discount mode for a Quote.
+ *
+ * Existing quotes pre-date _discount_type, so an empty value deliberately
+ * means a fixed-dollar discount for full backward compatibility.
+ */
+function qs_discount_type( $quote_id ) {
+	$type = (string) get_post_meta( $quote_id, '_discount_type', true );
+	return 'percentage' === $type ? 'percentage' : 'fixed';
+}
+
+/** Raw administrator-entered discount value ($ amount or percentage). */
+function qs_discount_value( $quote_id ) {
+	return max( 0, (float) get_post_meta( $quote_id, '_discount', true ) );
+}
+
+/**
+ * Resolve the actual dollar discount used by totals, deposits and balances.
+ * Percentage discounts apply to Subtotal only; delivery and additional
+ * charges are added afterwards and are not discounted.
+ */
+function qs_discount_amount( $quote_id, $subtotal = null ) {
+	$value = qs_discount_value( $quote_id );
+	if ( 'percentage' !== qs_discount_type( $quote_id ) ) {
+		return round( $value, 2 );
+	}
+
+	if ( null === $subtotal ) {
+		$subtotal = (float) get_post_meta( $quote_id, '_subtotal', true );
+	}
+
+	$percentage = min( 100, max( 0, $value ) );
+	return round( max( 0, (float) $subtotal ) * ( $percentage / 100 ), 2 );
+}
+
+/** Human-readable discount label for frontend/PDF summaries. */
+function qs_discount_label( $quote_id ) {
+	if ( 'percentage' !== qs_discount_type( $quote_id ) ) {
+		return 'Discount';
+	}
+
+	$value = qs_discount_value( $quote_id );
+	$display = floor( $value ) === $value
+		? number_format_i18n( $value, 0 )
+		: number_format_i18n( $value, 2 );
+
+	return 'Discount (' . $display . '%)';
+}
+
 /** Calculate the customer total after office adjustments. */
 function qs_calculate_total( $quote_id ) {
 	$subtotal          = (float) get_post_meta( $quote_id, '_subtotal', true );
-	$discount          = (float) get_post_meta( $quote_id, '_discount', true );
+	$discount          = qs_discount_amount( $quote_id, $subtotal );
 	$additional_charge = (float) get_post_meta( $quote_id, '_additional_charges', true );
 	$shipping          = (float) get_post_meta( $quote_id, '_shipping', true );
 

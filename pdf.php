@@ -184,6 +184,14 @@ function qs_get_quote_data( $quote_id ) {
 			true
 		),
 
+		'discount_type' => function_exists( 'qs_discount_type' )
+			? qs_discount_type( $quote_id )
+			: 'fixed',
+
+		'discount_amount' => function_exists( 'qs_discount_amount' )
+			? qs_discount_amount( $quote_id )
+			: (float) get_post_meta( $quote_id, '_discount', true ),
+
 		'shipping' => get_post_meta(
 			$quote_id,
 			'_shipping',

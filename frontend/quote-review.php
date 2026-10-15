@@ -244,7 +244,8 @@ function qs_quote_review_shortcode() {
 	$status             = get_post_status( $quote_id );
 	$workflow_label     = function_exists( 'qs_workflow_quote_status_label' ) ? qs_workflow_quote_status_label( $quote_id ) : '';
 	$subtotal           = (float) $data['subtotal'];
-	$discount           = (float) get_post_meta( $quote_id, '_discount', true );
+	$discount           = function_exists( 'qs_discount_amount' ) ? qs_discount_amount( $quote_id, $subtotal ) : (float) get_post_meta( $quote_id, '_discount', true );
+	$discount_label     = function_exists( 'qs_discount_label' ) ? qs_discount_label( $quote_id ) : 'Discount';
 	$additional_charges = (float) get_post_meta( $quote_id, '_additional_charges', true );
 	$delivery_fee       = (float) get_post_meta( $quote_id, '_shipping', true );
 	$total              = function_exists( 'qs_calculate_total' ) ? (float) qs_calculate_total( $quote_id ) : max( 0, $subtotal + $additional_charges + $delivery_fee - $discount );
@@ -318,7 +319,7 @@ function qs_quote_review_shortcode() {
 				<div class="qs-review-lead-time"><strong>Estimated Lead Time</strong><span>4-6 Weeks</span></div>
 				<div class="qs-review-lead-time"><strong>Subtotal (Ex GST)</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
 				<?php if ( $discount > 0 ) : ?>
-					<div class="qs-review-lead-time"><strong>Discount</strong><span>-$<?php echo esc_html( number_format_i18n( $discount, 2 ) ); ?> AUD</span></div>
+					<div class="qs-review-lead-time"><strong><?php echo esc_html( $discount_label ); ?></strong><span>-$<?php echo esc_html( number_format_i18n( $discount, 2 ) ); ?> AUD</span></div>
 				<?php endif; ?>
 				<?php if ( $additional_charges > 0 ) : ?>
 					<div class="qs-review-lead-time"><strong>Additional Charges</strong><span>$<?php echo esc_html( number_format_i18n( $additional_charges, 2 ) ); ?> AUD</span></div>

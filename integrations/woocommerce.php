@@ -80,7 +80,7 @@ function qs_sync_open_payment_orders_on_price_change( $meta_id, $quote_id, $meta
 	if (
 		$syncing ||
 		'quote' !== get_post_type( $quote_id ) ||
-		! in_array( $meta_key, array( '_subtotal', '_discount', '_additional_charges', '_shipping' ), true )
+		! in_array( $meta_key, array( '_subtotal', '_discount', '_discount_type', '_additional_charges', '_shipping' ), true )
 	) {
 		return;
 	}

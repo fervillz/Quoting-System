@@ -23,7 +23,8 @@ $fronts       = array_values(
 );
 $drawer_banks      = qs_component_rows_by_type( $rows['doors_drawers'], 'Drawer Bank' );
 $subtotal          = (float) $data['subtotal'];
-$discount          = (float) $data['discount'];
+$discount          = isset( $data['discount_amount'] ) ? (float) $data['discount_amount'] : (float) $data['discount'];
+$discount_label    = function_exists( 'qs_discount_label' ) ? qs_discount_label( $quote_id ) : 'Discount';
 $additional_charge = (float) $data['additional_charges'];
 $delivery_fee      = (float) $data['shipping'];
 $total             = (float) $data['total'];
@@ -131,7 +132,7 @@ $has_legacy_specs = (bool) array_filter(
 				<div class="qs-pdf-quote-totals">
 					<div class="qs-pdf-lead-time"><strong>Estimated Lead Time</strong><span><?php echo esc_html( function_exists( 'qs_estimated_lead_time' ) ? qs_estimated_lead_time( $quote_id ) : '4–6 Weeks' ); ?></span></div>
 					<div><strong>Subtotal</strong><span>$<?php echo esc_html( number_format_i18n( $subtotal, 2 ) ); ?> AUD</span></div>
-					<?php if ( $discount ) : ?><div><strong>Discount</strong><span>-$<?php echo esc_html( number_format_i18n( $discount, 2 ) ); ?> AUD</span></div><?php endif; ?>
+					<?php if ( $discount ) : ?><div><strong><?php echo esc_html( $discount_label ); ?></strong><span>-$<?php echo esc_html( number_format_i18n( $discount, 2 ) ); ?> AUD</span></div><?php endif; ?>
 					<div><strong>Additional Charges</strong><span>$<?php echo esc_html( number_format_i18n( $additional_charge, 2 ) ); ?> AUD</span></div>
 					<div><strong>Delivery Fee</strong><span>$<?php echo esc_html( number_format_i18n( $delivery_fee, 2 ) ); ?> AUD</span></div>
 					<div><strong>Total (Ex GST)</strong><span>$<?php echo esc_html( number_format_i18n( $total, 2 ) ); ?> AUD</span></div>

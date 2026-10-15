@@ -247,6 +247,7 @@ function qs_pricing_workflow_metabox( $post ) {
 
 	$subtotal          = get_post_meta( $post->ID, '_subtotal', true );
 	$discount          = get_post_meta( $post->ID, '_discount', true );
+	$discount_type     = function_exists( 'qs_discount_type' ) ? qs_discount_type( $post->ID ) : 'fixed';
 	$additional_charges = get_post_meta( $post->ID, '_additional_charges', true );
 	$total             = get_post_meta( $post->ID, '_total', true );
 
@@ -304,14 +305,22 @@ function qs_pricing_workflow_metabox( $post ) {
 
 	<p>
 		<label for="discount"><strong>Discount</strong></label>
-		<input
-			type="number"
-			step="0.01"
-			id="discount"
-			name="discount"
-			value="<?php echo esc_attr( $discount ); ?>"
-			class="widefat"
-		/>
+		<span style="display:flex;gap:6px;align-items:stretch;">
+			<input
+				type="number"
+				min="0"
+				step="0.01"
+				id="discount"
+				name="discount"
+				value="<?php echo esc_attr( $discount ); ?>"
+				style="min-width:0;flex:1 1 auto;"
+			/>
+			<select id="discount_type" name="discount_type" aria-label="Discount type" style="width:72px;flex:0 0 72px;">
+				<option value="fixed" <?php selected( $discount_type, 'fixed' ); ?>>$</option>
+				<option value="percentage" <?php selected( $discount_type, 'percentage' ); ?>>%</option>
+			</select>
+		</span>
+		<span class="description">Percentage discounts apply to Subtotal only.</span>
 	</p>
 
 	<p>
@@ -723,7 +732,16 @@ function qs_save_project_details( $post_id ) {
 		update_post_meta(
 			$post_id,
 			'_discount',
-			floatval( $_POST['discount'] )
+			max( 0, (float) wp_unslash( $_POST['discount'] ) )
+		);
+	}
+
+	if ( isset( $_POST['discount_type'] ) ) {
+		$discount_type = sanitize_key( wp_unslash( $_POST['discount_type'] ) );
+		update_post_meta(
+			$post_id,
+			'_discount_type',
+			'percentage' === $discount_type ? 'percentage' : 'fixed'
 		);
 	}
 
