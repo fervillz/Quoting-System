@@ -228,3 +228,36 @@ body {
 	border-bottom: 0;
 	min-height: 13.6mm;
 }
+
+
+/* Additional production-order pages requested for cutting review. */
+.qs-jobsheet-sort-page {
+	page-break-before: always;
+}
+
+.qs-jobsheet-sort-project-header {
+	margin-bottom: 4mm;
+}
+
+.qs-jobsheet-production-section {
+	page-break-inside: auto;
+}
+
+.qs-jobsheet-production-section > h2 {
+	font-size: 11px;
+	margin-bottom: 1mm;
+}
+
+.qs-jobsheet-sort-note {
+	color: #687b89;
+	font-size: 7px;
+	margin: 0 0 2.5mm !important;
+}
+
+.qs-jobsheet-production-table {
+	page-break-inside: auto;
+}
+
+.qs-jobsheet-production-table tr {
+	page-break-inside: avoid;
+}
