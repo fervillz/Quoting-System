@@ -3,7 +3,7 @@
  * Plugin Name: Quote System
  * Description: Frontend quotation system for Loughlin Furniture.
  * Version: 1.12.0
- * Author: Loughlin Furniture
+ * Author: Drip Creative
  * Text Domain: quote-system
  */
 
