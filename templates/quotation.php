@@ -28,6 +28,7 @@ $discount_label    = function_exists( 'qs_discount_label' ) ? qs_discount_label(
 $additional_charge = (float) $data['additional_charges'];
 $delivery_fee      = (float) $data['shipping'];
 $total             = (float) $data['total'];
+$total_incl_gst    = round( $total * 1.10, 2 );
 $created_by        = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
 $specs             = array(
 	array( 'Timber', $data['timber'], $data['paint_colour'] ? 'Paint Colour: ' . $data['paint_colour'] : '' ),
@@ -136,6 +137,7 @@ $has_legacy_specs = (bool) array_filter(
 					<div><strong>Additional Charges</strong><span>$<?php echo esc_html( number_format_i18n( $additional_charge, 2 ) ); ?> AUD</span></div>
 					<div><strong>Delivery Fee</strong><span>$<?php echo esc_html( number_format_i18n( $delivery_fee, 2 ) ); ?> AUD</span></div>
 					<div><strong>Total (Ex GST)</strong><span>$<?php echo esc_html( number_format_i18n( $total, 2 ) ); ?> AUD</span></div>
+					<div><strong>Total (Incl GST)</strong><span>$<?php echo esc_html( number_format_i18n( $total_incl_gst, 2 ) ); ?> AUD</span></div>
 				</div>
 			</div>
 			<div class="qs-pdf-clear"></div>
