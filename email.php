@@ -196,6 +196,41 @@ function qs_email_quote_approved(
 
 
 /**
+ * Build a temporary quotation PDF attachment with a friendly filename.
+ *
+ * The directory is unique to this send so simultaneous payment emails cannot
+ * overwrite each other's files. The caller is responsible for cleanup.
+ */
+function qs_create_temporary_quotation_pdf_attachment( $quote_id ) {
+	if ( ! function_exists( 'qs_generate_quotation_pdf' ) ) {
+		return '';
+	}
+
+	$pdf = qs_generate_quotation_pdf( $quote_id );
+	if ( ! $pdf || ! method_exists( $pdf, 'output' ) ) {
+		return '';
+	}
+
+	$quote_number = sanitize_file_name( get_post_meta( $quote_id, '_quote_number', true ) );
+	$filename     = 'quotation-' . ( $quote_number ? $quote_number : $quote_id ) . '.pdf';
+	$temp_dir     = trailingslashit( get_temp_dir() ) . 'quote-system-' . wp_generate_uuid4();
+
+	if ( ! wp_mkdir_p( $temp_dir ) ) {
+		return '';
+	}
+
+	$path  = trailingslashit( $temp_dir ) . $filename;
+	$bytes = file_put_contents( $path, $pdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+	if ( false === $bytes ) {
+		@rmdir( $temp_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return '';
+	}
+
+	return $path;
+}
+
+/**
  * Email the Joiner/customer a WooCommerce payment link for a quote.
  */
 function qs_email_payment_request( $quote_id, $payment_type ) {
@@ -229,7 +264,30 @@ function qs_email_payment_request( $quote_id, $payment_type ) {
 		)
 	);
 
-	return qs_send_customer_email( $quote_id, $subject, $message );
+	$attachments = array();
+	$temp_pdf    = '';
+
+	if ( 'deposit' === $payment_type ) {
+		$temp_pdf = qs_create_temporary_quotation_pdf_attachment( $quote_id );
+		if ( $temp_pdf ) {
+			$attachments[] = $temp_pdf;
+		}
+	}
+
+	$sent = qs_send_customer_email(
+		$quote_id,
+		$subject,
+		$message,
+		$attachments
+	);
+
+	if ( $temp_pdf ) {
+		$temp_dir = dirname( $temp_pdf );
+		@unlink( $temp_pdf ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@rmdir( $temp_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+
+	return $sent;
 }
 
 /**
