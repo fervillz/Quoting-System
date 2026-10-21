@@ -755,3 +755,86 @@ body .qs-review-page .qs-review-admin-actions h3 {
     max-height: none !important;
   }
 }
+
+
+/* Supporting documents confirmation on Review Quote. */
+body .qs-review-page .qs-review-document-list {
+  display: grid !important;
+  gap: 9px !important;
+}
+
+body .qs-review-page .qs-review-document {
+  display: grid !important;
+  grid-template-columns: 30px minmax(0, 1fr) auto !important;
+  gap: 12px !important;
+  align-items: center !important;
+  min-height: 58px !important;
+  padding: 10px 12px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #dedede !important;
+  background: #fff !important;
+}
+
+body .qs-review-page .qs-review-document-icon,
+body .qs-review-page .qs-review-document-icon img {
+  display: block !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+body .qs-review-page .qs-review-document-details {
+  min-width: 0 !important;
+}
+
+body .qs-review-page .qs-review-document-details strong,
+body .qs-review-page .qs-review-document-details small {
+  display: block !important;
+}
+
+body .qs-review-page .qs-review-document-details strong {
+  overflow: hidden !important;
+  color: var(--qs-ink) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body .qs-review-page .qs-review-document-details small {
+  margin-top: 3px !important;
+  color: #6d7881 !important;
+  font-size: 12px !important;
+}
+
+body .qs-review-page .qs-review-document-view,
+body .qs-review-page .qs-review-edit-documents {
+  color: #501e2a !important;
+  font-size: 13px !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+}
+
+body .qs-review-page .qs-review-document-confirmation,
+body .qs-review-page .qs-review-document-empty {
+  margin: 11px 0 0 !important;
+  color: #6d7881 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+body .qs-review-page .qs-review-edit-documents {
+  display: inline-block !important;
+  margin-top: 10px !important;
+}
+
+@media (max-width: 520px) {
+  body .qs-review-page .qs-review-document {
+    grid-template-columns: 26px minmax(0, 1fr) !important;
+  }
+
+  body .qs-review-page .qs-review-document-view {
+    grid-column: 2 !important;
+    justify-self: start !important;
+  }
+}

@@ -109,6 +109,62 @@ function qs_review_component_sections( $quote_id, $data ) {
 	<?php
 }
 
+/**
+ * Show supporting documents on Review Quote so the Joiner can confirm the
+ * files were saved before submitting the quote.
+ */
+function qs_review_supporting_documents( $quote_id, $can_edit ) {
+	$attachment_ids = function_exists( 'qs_builder_supporting_document_ids' )
+		? qs_builder_supporting_document_ids( $quote_id )
+		: array();
+
+	$builder_url = function_exists( 'qs_page_url' )
+		? qs_page_url( 'quote_builder', array( 'quote_id' => $quote_id ) )
+		: add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) );
+	$builder_url .= '#qs-supporting-documents';
+	?>
+	<section class="qs-review-section qs-review-supporting-documents">
+		<h3>Supporting Documents<?php echo $attachment_ids ? ' (' . esc_html( count( $attachment_ids ) ) . ')' : ''; ?></h3>
+
+		<?php if ( $attachment_ids ) : ?>
+			<div class="qs-review-document-list">
+				<?php foreach ( $attachment_ids as $attachment_id ) :
+					$file_path = get_attached_file( $attachment_id );
+					$file_url  = wp_get_attachment_url( $attachment_id );
+					$file_name = function_exists( 'qs_supporting_document_name' )
+						? qs_supporting_document_name( $attachment_id )
+						: get_the_title( $attachment_id );
+					$file_size = $file_path && file_exists( $file_path ) ? size_format( filesize( $file_path ), 2 ) : '';
+					$icon_url  = function_exists( 'qs_supporting_document_icon_url' )
+						? qs_supporting_document_icon_url( $file_name )
+						: '';
+					?>
+					<div class="qs-review-document">
+						<?php if ( $icon_url ) : ?>
+							<span class="qs-review-document-icon" aria-hidden="true"><img src="<?php echo esc_url( $icon_url ); ?>" alt=""></span>
+						<?php endif; ?>
+						<span class="qs-review-document-details">
+							<strong><?php echo esc_html( $file_name ? $file_name : 'Supporting document' ); ?></strong>
+							<?php if ( $file_size ) : ?><small><?php echo esc_html( $file_size ); ?></small><?php endif; ?>
+						</span>
+						<?php if ( $file_url ) : ?>
+							<a class="qs-review-document-view" href="<?php echo esc_url( $file_url ); ?>" target="_blank" rel="noopener">View</a>
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
+			</div>
+			<p class="qs-review-document-confirmation">These files are attached to this quote and will be included with the New Quote Submitted admin email.</p>
+		<?php else : ?>
+			<p class="qs-review-document-empty">No supporting documents uploaded.</p>
+		<?php endif; ?>
+
+		<?php if ( $can_edit ) : ?>
+			<a class="qs-review-edit-documents" href="<?php echo esc_url( $builder_url ); ?>"><?php echo $attachment_ids ? 'Edit Attachments' : 'Add Attachments'; ?></a>
+		<?php endif; ?>
+	</section>
+	<?php
+}
+
 function qs_review_summary_items( $quote_id, $can_edit ) {
 	$edit_url = add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) );
 	foreach ( qs_quote_summary_groups( $quote_id ) as $group ) :
@@ -298,6 +354,8 @@ function qs_quote_review_shortcode() {
 				<?php if ( $data['custom_requests'] ) : ?>
 					<section class="qs-review-section"><h3>Custom Requests</h3><p><?php echo nl2br( esc_html( $data['custom_requests'] ) ); ?></p></section>
 				<?php endif; ?>
+
+				<?php qs_review_supporting_documents( $quote_id, $is_draft ); ?>
 
 				<section class="qs-review-section"><h3>Project Notes</h3><p><?php echo nl2br( esc_html( $data['project_notes'] ) ); ?></p></section>
 			</main>
