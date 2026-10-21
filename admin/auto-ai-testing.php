@@ -1376,6 +1376,113 @@ function qs_auto_ai_verify_ajax() {
 	check_ajax_referer( 'qs_auto_ai_ajax', 'nonce' );
 }
 
+/**
+ * Create one fully-populated draft Quote for manual testing without starting
+ * the payment/email workflow. The existing Auto AI Builder fixture is reused
+ * through a temporary hidden run so the sample stays identical to the full
+ * automatic test.
+ */
+function qs_auto_ai_ajax_quick_quote() {
+	qs_auto_ai_verify_ajax();
+
+	if ( function_exists( 'qs_portal_mode' ) && 'live' === qs_portal_mode() ) {
+		wp_send_json_error( array( 'message' => 'Switch Portal Mode to Setup or Test before creating a manual test quote.' ), 400 );
+	}
+
+	$joiner_value   = isset( $_POST['joiner_id'] ) ? sanitize_text_field( wp_unslash( $_POST['joiner_id'] ) ) : '';
+	$created_joiner = false;
+
+	if ( 'new' === $joiner_value ) {
+		$joiner_id = qs_auto_ai_create_joiner_from_request();
+		if ( is_wp_error( $joiner_id ) ) {
+			wp_send_json_error( array( 'message' => $joiner_id->get_error_message() ), 400 );
+		}
+		$created_joiner = true;
+	} else {
+		$joiner_id = absint( $joiner_value );
+		$joiner    = $joiner_id ? get_user_by( 'id', $joiner_id ) : false;
+
+		if ( ! $joiner || ! function_exists( 'qs_user_is_joiner' ) || ! qs_user_is_joiner( $joiner ) ) {
+			wp_send_json_error( array( 'message' => 'Select a valid Joiner account.' ), 400 );
+		}
+
+		update_user_meta( $joiner_id, 'qs_portal_test_access', '1' );
+	}
+
+	$run_id = wp_insert_post(
+		array(
+			'post_type'   => QS_AUTO_AI_RUN_POST_TYPE,
+			'post_status' => 'draft',
+			'post_title'  => 'Manual Test Quote — Preparing',
+			'post_author' => get_current_user_id(),
+		),
+		true
+	);
+
+	if ( is_wp_error( $run_id ) ) {
+		wp_send_json_error( array( 'message' => $run_id->get_error_message() ), 500 );
+	}
+
+	qs_auto_ai_set_meta( $run_id, 'status', 'stopped' );
+	qs_auto_ai_set_meta( $run_id, 'current_step', 0 );
+	qs_auto_ai_set_meta( $run_id, 'event_sequence', 0 );
+	qs_auto_ai_set_meta( $run_id, 'timeline_events', array() );
+	qs_auto_ai_set_meta( $run_id, 'joiner_id', $joiner_id );
+	qs_auto_ai_set_meta( $run_id, 'admin_id', get_current_user_id() );
+	qs_auto_ai_set_meta( $run_id, 'created_joiner', $created_joiner ? '1' : '0' );
+	qs_auto_ai_set_meta( $run_id, 'logs_joiner', array() );
+	qs_auto_ai_set_meta( $run_id, 'logs_admin', array() );
+	qs_auto_ai_set_meta( $run_id, 'emails', array() );
+
+	try {
+		$created = qs_auto_ai_step_create_quote( $run_id );
+	} catch ( Throwable $error ) {
+		$created = false;
+		qs_auto_ai_set_meta( $run_id, 'last_error', $error->getMessage() );
+	}
+
+	$quote_id = absint( qs_auto_ai_meta( $run_id, 'quote_id', 0 ) );
+	$error    = (string) qs_auto_ai_meta( $run_id, 'last_error', '' );
+
+	if ( ! $created || ! $quote_id ) {
+		wp_delete_post( $run_id, true );
+		wp_send_json_error(
+			array(
+				'message' => $error ? $error : 'The filled test quote could not be created. Check the current Quote Product pricing configuration.',
+			),
+			400
+		);
+	}
+
+	// This is a manual draft, not a full Auto AI run.
+	delete_post_meta( $quote_id, '_qs_auto_ai_test' );
+	delete_post_meta( $quote_id, '_qs_auto_ai_test_run' );
+	delete_post_meta( $quote_id, '_qs_auto_ai_test_admin' );
+	update_post_meta( $quote_id, '_qs_manual_test_quote', '1' );
+	update_post_meta( $quote_id, '_qs_manual_test_created_by', get_current_user_id() );
+
+	wp_delete_post( $run_id, true );
+
+	$builder_url = function_exists( 'qs_page_url' )
+		? qs_page_url( 'quote_builder', array( 'quote_id' => $quote_id ) )
+		: add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) );
+	$review_url = function_exists( 'qs_page_url' )
+		? qs_page_url( 'quote_review', array( 'quote_id' => $quote_id ) )
+		: add_query_arg( 'quote_id', $quote_id, site_url( '/quote-review/' ) );
+
+	wp_send_json_success(
+		array(
+			'quote_id'      => $quote_id,
+			'quote_number'  => (string) get_post_meta( $quote_id, '_quote_number', true ),
+			'builder_url'   => $builder_url,
+			'review_url'    => $review_url,
+			'joiner_id'     => $joiner_id,
+			'created_joiner'=> $created_joiner,
+		)
+	);
+}
+add_action( 'wp_ajax_qs_auto_ai_quick_quote', 'qs_auto_ai_ajax_quick_quote' );
+
 function qs_auto_ai_ajax_start() {
 	qs_auto_ai_verify_ajax();
 
@@ -1608,6 +1715,12 @@ function qs_auto_ai_testing_page() {
 			</div>
 
 			<div class="qs-auto-ai-start">
+				<div class="qs-auto-ai-quick-test">
+					<strong>Manual Testing</strong>
+					<p class="description">Create a real draft Quote owned by the selected Joiner, already filled with valid sample Doors, Drawer, Drawer Bank, panels, filler and kickboards. No emails or WooCommerce orders are created until you manually continue the workflow.</p>
+					<button type="button" class="button button-secondary button-hero" id="qs-auto-ai-quick-quote" <?php disabled( 'live' === $portal_mode ); ?>>Create Filled Test Quote</button>
+				</div>
+
 				<label class="qs-auto-ai-real-email">
 					<input type="checkbox" id="qs-auto-ai-real-email">
 					<strong>I understand this sends REAL emails and creates REAL WooCommerce orders.</strong>
@@ -1927,6 +2040,31 @@ function qs_auto_ai_testing_page() {
 		}
 
 		document.querySelectorAll('[data-auto-ai-view]').forEach(button=>button.addEventListener('click',function(){viewInitialized=true;setView(this.dataset.autoAiView);}));
+
+		document.getElementById('qs-auto-ai-quick-quote')?.addEventListener('click',async function(){
+			const joinerId=joinerSelect.value;
+			if(!joinerId){window.alert('Select a Joiner or choose Create New Joiner.');return;}
+
+			this.disabled=true;
+			const originalText=this.textContent;
+			this.textContent='Creating Test Quote…';
+
+			try{
+				const data=await post('qs_auto_ai_quick_quote',{
+					joiner_id:joinerId,
+					new_joiner_name:document.getElementById('qs-auto-ai-new-name').value,
+					new_joiner_company:document.getElementById('qs-auto-ai-new-company').value,
+					new_joiner_email:document.getElementById('qs-auto-ai-new-email').value,
+					new_joiner_phone:document.getElementById('qs-auto-ai-new-phone').value,
+					new_joiner_address:document.getElementById('qs-auto-ai-new-address').value
+				});
+				window.location.href=data.builder_url;
+			}catch(error){
+				window.alert(error.message);
+				this.disabled=false;
+				this.textContent=originalText;
+			}
+		});
 
 		document.getElementById('qs-auto-ai-start')?.addEventListener('click',async function(){
 			const joinerId=joinerSelect.value;
