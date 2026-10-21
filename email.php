@@ -16,13 +16,59 @@ function qs_is_live_loughlin_site() {
 	return 'loughlinfurniture.com.au' === $host;
 }
 
-/** Get the recipient for Quote System admin notifications. */
-function qs_get_admin_email() {
-	if ( qs_is_live_loughlin_site() ) {
-		return 'info@loughlinfurniture.com.au';
+/**
+ * Return admin notification emails configured specifically for Quote System.
+ *
+ * The option is stored as an array, but string support keeps this resilient if
+ * an older/manual value was ever saved.
+ */
+function qs_get_configured_admin_emails() {
+	$value = get_option( 'qs_admin_notification_emails', array() );
+
+	if ( is_string( $value ) ) {
+		$value = preg_split( '/[\\s,;]+/', $value );
 	}
 
-	return get_option( 'admin_email' );
+	if ( ! is_array( $value ) ) {
+		return array();
+	}
+
+	$emails = array();
+	foreach ( $value as $email ) {
+		$email = sanitize_email( (string) $email );
+		if ( $email && is_email( $email ) ) {
+			$emails[] = $email;
+		}
+	}
+
+	return array_values( array_unique( $emails ) );
+}
+
+/**
+ * Get all recipients for Quote System admin notifications.
+ *
+ * A configured list overrides the environment fallback. With no override the
+ * existing behaviour remains unchanged: production goes to LF, while
+ * staging/dev uses the WordPress Administration Email Address.
+ */
+function qs_get_admin_emails() {
+	$configured = qs_get_configured_admin_emails();
+	if ( $configured ) {
+		return $configured;
+	}
+
+	$fallback = qs_is_live_loughlin_site()
+		? 'info@loughlinfurniture.com.au'
+		: sanitize_email( (string) get_option( 'admin_email' ) );
+
+	return $fallback && is_email( $fallback ) ? array( $fallback ) : array();
+}
+
+/**
+ * Backward-compatible display helper used by testing/logging screens.
+ */
+function qs_get_admin_email() {
+	return implode( ', ', qs_get_admin_emails() );
 }
 
 /**
@@ -67,7 +113,7 @@ function qs_send_admin_email(
 ) {
 
 	return qs_send_email(
-		qs_get_admin_email(),
+		qs_get_admin_emails(),
 		$subject,
 		$message,
 		array(),

@@ -84,6 +84,95 @@ function qs_settings_admin_page() {
 
 
 /**
+ * Save Quote System-specific admin notification recipients.
+ */
+function qs_settings_save_admin_notification_emails() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You do not have permission to change Quote System notification emails.', 'quote-system' ), 403 );
+	}
+
+	check_admin_referer( 'qs_save_admin_notification_emails' );
+
+	$raw = isset( $_POST['qs_admin_notification_emails'] )
+		? (string) wp_unslash( $_POST['qs_admin_notification_emails'] )
+		: '';
+
+	$parts  = preg_split( '/[\\s,;]+/', $raw );
+	$emails = array();
+
+	foreach ( (array) $parts as $email ) {
+		$email = sanitize_email( $email );
+		if ( $email && is_email( $email ) ) {
+			$emails[] = $email;
+		}
+	}
+
+	update_option( 'qs_admin_notification_emails', array_values( array_unique( $emails ) ), false );
+
+	wp_safe_redirect(
+		add_query_arg(
+			array(
+				'post_type'          => 'quote',
+				'page'               => 'qs-settings',
+				'tab'                => 'settings',
+				'notification_saved' => '1',
+			),
+			admin_url( 'edit.php' )
+		)
+	);
+	exit;
+}
+add_action( 'admin_post_qs_save_admin_notification_emails', 'qs_settings_save_admin_notification_emails' );
+
+/**
+ * Render Quote System admin notification recipients on the Settings tab.
+ */
+function qs_settings_render_admin_notification_emails() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$configured = function_exists( 'qs_get_configured_admin_emails' )
+		? qs_get_configured_admin_emails()
+		: array();
+
+	$fallback = function_exists( 'qs_is_live_loughlin_site' ) && qs_is_live_loughlin_site()
+		? 'info@loughlinfurniture.com.au'
+		: sanitize_email( (string) get_option( 'admin_email' ) );
+
+	$saved = isset( $_GET['notification_saved'] )
+		&& '1' === sanitize_text_field( wp_unslash( $_GET['notification_saved'] ) );
+	?>
+	<?php if ( $saved ) : ?>
+		<div class="notice notice-success inline"><p>Admin notification emails updated.</p></div>
+	<?php endif; ?>
+
+	<section class="qs-setup-transfer">
+		<h2>Admin Notification Emails</h2>
+		<p>Choose who receives Quote System admin emails such as <strong>New Quote Submitted</strong>, <strong>Deposit Payment Received</strong>, and <strong>Final Payment Received</strong>.</p>
+
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="qs_save_admin_notification_emails">
+			<?php wp_nonce_field( 'qs_save_admin_notification_emails' ); ?>
+
+			<textarea
+				name="qs_admin_notification_emails"
+				rows="5"
+				class="large-text"
+				placeholder="admin@example.com&#10;developer@example.com"
+			><?php echo esc_textarea( implode( "\n", $configured ) ); ?></textarea>
+
+			<p class="description">Enter one email per line. Commas and semicolons also work. Leave this empty to use the normal fallback: <strong><?php echo esc_html( $fallback ); ?></strong>.</p>
+
+			<p><button type="submit" class="button button-primary">Save Notification Emails</button></p>
+		</form>
+	</section>
+	<?php
+}
+add_action( 'qs_settings_tab_settings', 'qs_settings_render_admin_notification_emails', 20 );
+
+
+/**
  * Keep bookmarks from the earlier separate Setup / Auto AI screens working
  * while keeping those entries out of the Quote System submenu.
  */
