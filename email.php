@@ -129,6 +129,46 @@ function qs_render_email_template(
 }
 
 /**
+ * Return local file paths for supporting documents uploaded against a quote.
+ *
+ * These are passed directly to wp_mail() when the quote is submitted so LF
+ * admin receives the Joiner's JPG, PNG and PDF files with the notification.
+ */
+function qs_quote_supporting_document_attachments( $quote_id ) {
+	$attachment_ids = get_post_meta( $quote_id, '_supporting_documents', true );
+	if ( ! is_array( $attachment_ids ) ) {
+		return array();
+	}
+
+	$attachments   = array();
+	$allowed_mimes = array(
+		'image/jpeg',
+		'image/png',
+		'application/pdf',
+	);
+
+	foreach ( array_unique( array_map( 'absint', $attachment_ids ) ) as $attachment_id ) {
+		if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
+			continue;
+		}
+
+		$mime_type = get_post_mime_type( $attachment_id );
+		if ( ! in_array( $mime_type, $allowed_mimes, true ) ) {
+			continue;
+		}
+
+		$file_path = get_attached_file( $attachment_id );
+		if ( ! $file_path || ! is_readable( $file_path ) ) {
+			continue;
+		}
+
+		$attachments[] = $file_path;
+	}
+
+	return $attachments;
+}
+
+/**
  * Notify admin when quote submitted.
  */
 function qs_email_quote_submitted(
@@ -153,9 +193,12 @@ function qs_email_quote_submitted(
 		)
 	);
 
+	$attachments = qs_quote_supporting_document_attachments( $quote_id );
+
 	return qs_send_admin_email(
 		$subject,
-		$message
+		$message,
+		$attachments
 	);
 
 }
