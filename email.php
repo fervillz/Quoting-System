@@ -295,9 +295,16 @@ function qs_create_temporary_quotation_pdf_attachment( $quote_id ) {
 		return '';
 	}
 
-	$pdf = qs_generate_quotation_pdf( $quote_id );
-	if ( ! $pdf || ! method_exists( $pdf, 'output' ) ) {
-		return '';
+	$pdf_output = function_exists( 'qs_generate_quotation_pdf_output' )
+		? qs_generate_quotation_pdf_output( $quote_id, true )
+		: '';
+
+	if ( is_wp_error( $pdf_output ) || '' === $pdf_output ) {
+		$pdf = qs_generate_quotation_pdf( $quote_id );
+		if ( ! $pdf || ! method_exists( $pdf, 'output' ) ) {
+			return '';
+		}
+		$pdf_output = $pdf->output();
 	}
 
 	$quote_number = sanitize_file_name( get_post_meta( $quote_id, '_quote_number', true ) );
@@ -309,7 +316,7 @@ function qs_create_temporary_quotation_pdf_attachment( $quote_id ) {
 	}
 
 	$path  = trailingslashit( $temp_dir ) . $filename;
-	$bytes = file_put_contents( $path, $pdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+	$bytes = file_put_contents( $path, $pdf_output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
 	if ( false === $bytes ) {
 		@rmdir( $temp_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged

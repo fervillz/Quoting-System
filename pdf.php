@@ -408,6 +408,184 @@ add_shortcode(
 	'qs_quotation_shortcode'
 );
 
+/**
+ * Load the lightweight FPDI + FPDF runtime bundled with Quote System.
+ *
+ * Dompdf still generates the quotation. FPDI/FPDF are only used afterwards
+ * to concatenate the completed quotation with uploaded PDF documents.
+ */
+function qs_load_pdf_merger_library() {
+	if ( class_exists( '\\setasign\\Fpdi\\Fpdi', false ) ) {
+		return true;
+	}
+
+	$fpdf = QS_PATH . 'lib/pdf-merger/fpdf/fpdf.php';
+	$fpdi = QS_PATH . 'lib/pdf-merger/fpdi/src/autoload.php';
+
+	if ( ! is_readable( $fpdf ) || ! is_readable( $fpdi ) ) {
+		return false;
+	}
+
+	if ( ! class_exists( 'FPDF', false ) ) {
+		require_once $fpdf;
+	}
+
+	require_once $fpdi;
+
+	return class_exists( '\\setasign\\Fpdi\\Fpdi', false );
+}
+
+/**
+ * Return uploaded supporting PDFs in their saved order.
+ * JPG and PNG supporting documents intentionally remain separate.
+ */
+function qs_quote_supporting_pdf_paths( $quote_id ) {
+	$attachment_ids = get_post_meta( $quote_id, '_supporting_documents', true );
+	if ( ! is_array( $attachment_ids ) ) {
+		return array();
+	}
+
+	$paths = array();
+
+	foreach ( array_unique( array_map( 'absint', $attachment_ids ) ) as $attachment_id ) {
+		if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
+			continue;
+		}
+
+		$path = get_attached_file( $attachment_id );
+		if ( ! $path || ! is_readable( $path ) ) {
+			continue;
+		}
+
+		$mime      = (string) get_post_mime_type( $attachment_id );
+		$extension = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
+
+		if ( 'application/pdf' !== $mime && 'pdf' !== $extension ) {
+			continue;
+		}
+
+		$paths[] = $path;
+	}
+
+	return $paths;
+}
+
+/**
+ * Concatenate PDF files while retaining each imported page's own page size
+ * and orientation.
+ */
+function qs_merge_pdf_paths( $paths ) {
+	if ( ! qs_load_pdf_merger_library() ) {
+		return new WP_Error(
+			'qs_pdf_merger_missing',
+			__( 'The PDF merger library is not available.', 'quote-system' )
+		);
+	}
+
+	$paths = array_values(
+		array_filter(
+			(array) $paths,
+			static function ( $path ) {
+				return is_string( $path ) && is_readable( $path );
+			}
+		)
+	);
+
+	if ( ! $paths ) {
+		return new WP_Error(
+			'qs_pdf_merge_no_sources',
+			__( 'No readable PDF files were supplied for merging.', 'quote-system' )
+		);
+	}
+
+	try {
+		$merged = new \setasign\Fpdi\Fpdi();
+		$merged->SetAutoPageBreak( false );
+
+		foreach ( $paths as $path ) {
+			$page_count = $merged->setSourceFile( $path );
+
+			for ( $page_number = 1; $page_number <= $page_count; $page_number++ ) {
+				$template_id = $merged->importPage( $page_number );
+				$size        = $merged->getTemplateSize( $template_id );
+
+				if ( empty( $size['width'] ) || empty( $size['height'] ) ) {
+					throw new RuntimeException( 'Unable to determine imported PDF page size.' );
+				}
+
+				$orientation = ! empty( $size['orientation'] )
+					? $size['orientation']
+					: ( $size['width'] > $size['height'] ? 'L' : 'P' );
+
+				$merged->AddPage(
+					$orientation,
+					array( $size['width'], $size['height'] )
+				);
+				$merged->useTemplate( $template_id );
+			}
+		}
+
+		return $merged->Output( 'S' );
+	} catch ( Throwable $error ) {
+		return new WP_Error(
+			'qs_pdf_merge_failed',
+			sprintf(
+				/* translators: %s: PDF merger error. */
+				__( 'The quotation was created, but one of the supporting PDFs could not be appended: %s', 'quote-system' ),
+				$error->getMessage()
+			)
+		);
+	}
+}
+
+/**
+ * Return finished quotation bytes, appending uploaded supporting PDFs when
+ * requested. The original Dompdf quotation remains untouched before merging.
+ */
+function qs_generate_quotation_pdf_output( $quote_id, $append_supporting_pdfs = true ) {
+	$pdf = qs_generate_quotation_pdf( $quote_id );
+
+	if ( ! $pdf || ! method_exists( $pdf, 'output' ) ) {
+		return new WP_Error(
+			'qs_quotation_pdf_failed',
+			__( 'The quotation PDF could not be generated.', 'quote-system' )
+		);
+	}
+
+	$quote_bytes = $pdf->output();
+	$pdf_paths   = $append_supporting_pdfs ? qs_quote_supporting_pdf_paths( $quote_id ) : array();
+
+	if ( ! $pdf_paths ) {
+		return $quote_bytes;
+	}
+
+	$temp_dir = trailingslashit( get_temp_dir() ) . 'quote-system-merge-' . wp_generate_uuid4();
+	if ( ! wp_mkdir_p( $temp_dir ) ) {
+		return new WP_Error(
+			'qs_pdf_merge_temp_failed',
+			__( 'A temporary folder could not be created for the quotation PDF.', 'quote-system' )
+		);
+	}
+
+	$quote_path = trailingslashit( $temp_dir ) . 'quotation.pdf';
+	$written    = file_put_contents( $quote_path, $quote_bytes ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+	if ( false === $written || 0 === $written ) {
+		@rmdir( $temp_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return new WP_Error(
+			'qs_pdf_merge_temp_write_failed',
+			__( 'The temporary quotation PDF could not be written.', 'quote-system' )
+		);
+	}
+
+	$merged = qs_merge_pdf_paths( array_merge( array( $quote_path ), $pdf_paths ) );
+
+	@unlink( $quote_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	@rmdir( $temp_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+	return $merged;
+}
+
 function qs_generate_quotation_pdf(
 	$quote_id
 ) {
@@ -447,20 +625,28 @@ function qs_stream_quotation_pdf(
 	$quote_id
 ) {
 
-	$pdf = qs_generate_quotation_pdf(
-		$quote_id
+	$output = qs_generate_quotation_pdf_output(
+		$quote_id,
+		true
 	);
+
+	if ( is_wp_error( $output ) ) {
+		wp_die(
+			esc_html( $output->get_error_message() ),
+			esc_html__( 'Unable to create quotation PDF', 'quote-system' ),
+			array( 'response' => 500 )
+		);
+	}
 
 	$quote_number = sanitize_file_name( get_post_meta( $quote_id, '_quote_number', true ) );
-	$pdf->stream(
-		'quotation-' .
-		( $quote_number ? $quote_number : $quote_id ) .
-		'.pdf',
-		array(
-			'Attachment' => false,
-		)
-	);
+	$filename     = 'quotation-' . ( $quote_number ? $quote_number : $quote_id ) . '.pdf';
 
+	nocache_headers();
+	header( 'Content-Type: application/pdf' );
+	header( 'Content-Disposition: inline; filename="' . $filename . '"' );
+	header( 'Content-Length: ' . strlen( $output ) );
+
+	echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	exit;
 
 }
