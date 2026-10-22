@@ -723,6 +723,251 @@ function qs_stream_quotation_pdf(
 
 }
 
+/**
+ * Render an admin-only diagnostic page for the quotation PDF merge pipeline.
+ *
+ * Raw PDF responses cannot safely contain browser console output, so this
+ * separate HTML mode runs the same checks and mirrors every step to DevTools.
+ */
+function qs_render_quotation_pdf_debug( $quote_id ) {
+	if ( ! current_user_can( 'edit_post', $quote_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to debug this quotation.', 'quote-system' ), 403 );
+	}
+
+	$steps = array();
+	$log   = static function ( $stage, $status, $details = array() ) use ( &$steps ) {
+		$steps[] = array(
+			'stage'   => $stage,
+			'status'  => $status,
+			'details' => $details,
+		);
+	};
+
+	$quote = get_post( $quote_id );
+	$log(
+		'Quote lookup',
+		$quote && 'quote' === $quote->post_type ? 'OK' : 'ERROR',
+		array(
+			'quote_id' => $quote_id,
+			'title'    => $quote ? $quote->post_title : '',
+			'status'   => $quote ? $quote->post_status : '',
+		)
+	);
+
+	$attachment_ids = get_post_meta( $quote_id, '_supporting_documents', true );
+	$attachment_ids = is_array( $attachment_ids ) ? array_values( array_map( 'absint', $attachment_ids ) ) : array();
+
+	$log(
+		'Supporting document meta',
+		$attachment_ids ? 'OK' : 'WARN',
+		array(
+			'count' => count( $attachment_ids ),
+			'ids'   => $attachment_ids,
+		)
+	);
+
+	foreach ( $attachment_ids as $attachment_id ) {
+		$path           = get_attached_file( $attachment_id );
+		$url            = wp_get_attachment_url( $attachment_id );
+		$mime           = (string) get_post_mime_type( $attachment_id );
+		$url_path       = $url ? (string) wp_parse_url( $url, PHP_URL_PATH ) : '';
+		$path_extension = $path ? strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) ) : '';
+		$url_extension  = $url_path ? strtolower( (string) pathinfo( $url_path, PATHINFO_EXTENSION ) ) : '';
+		$is_pdf         = 'application/pdf' === $mime || 'pdf' === $path_extension || 'pdf' === $url_extension;
+
+		$log(
+			'Attachment #' . $attachment_id,
+			$is_pdf ? 'PDF' : 'NON-PDF',
+			array(
+				'filename'        => $path ? wp_basename( $path ) : ( $url_path ? wp_basename( $url_path ) : get_the_title( $attachment_id ) ),
+				'post_type'       => get_post_type( $attachment_id ),
+				'mime'            => $mime,
+				'local_path'      => $path,
+				'local_readable'  => (bool) ( $path && is_readable( $path ) ),
+				'url'             => $url,
+				'path_extension'  => $path_extension,
+				'url_extension'   => $url_extension,
+				'detected_as_pdf' => $is_pdf,
+			)
+		);
+	}
+
+	$fpdf_path = QS_PATH . 'lib/pdf-merger/fpdf/fpdf.php';
+	$fpdi_path = QS_PATH . 'lib/pdf-merger/fpdi/src/autoload.php';
+
+	$log(
+		'Merger runtime files',
+		is_readable( $fpdf_path ) && is_readable( $fpdi_path ) ? 'OK' : 'ERROR',
+		array(
+			'fpdf_readable' => is_readable( $fpdf_path ),
+			'fpdi_readable' => is_readable( $fpdi_path ),
+			'fpdf_path'     => $fpdf_path,
+			'fpdi_path'     => $fpdi_path,
+		)
+	);
+
+	$library_loaded = false;
+	try {
+		$library_loaded = qs_load_pdf_merger_library();
+		$log(
+			'FPDI class loading',
+			$library_loaded ? 'OK' : 'ERROR',
+			array(
+				'FPDF_class' => class_exists( 'FPDF', false ),
+				'FPDI_class' => class_exists( '\\setasign\\Fpdi\\Fpdi' ),
+			)
+		);
+	} catch ( Throwable $error ) {
+		$log(
+			'FPDI class loading',
+			'ERROR',
+			array( 'message' => $error->getMessage() )
+		);
+	}
+
+	$temporary_paths = array();
+	$sources         = qs_quote_supporting_pdf_sources( $quote_id );
+
+	if ( is_wp_error( $sources ) ) {
+		$log(
+			'Resolve supporting PDFs',
+			'ERROR',
+			array(
+				'code'    => $sources->get_error_code(),
+				'message' => $sources->get_error_message(),
+			)
+		);
+	} else {
+		$temporary_paths = isset( $sources['temporary'] ) ? (array) $sources['temporary'] : array();
+		$pdf_paths       = isset( $sources['paths'] ) ? (array) $sources['paths'] : array();
+
+		$log(
+			'Resolve supporting PDFs',
+			$pdf_paths ? 'OK' : 'WARN',
+			array(
+				'pdf_count'       => count( $pdf_paths ),
+				'paths'           => $pdf_paths,
+				'temporary_count' => count( $temporary_paths ),
+			)
+		);
+
+		if ( $pdf_paths && $library_loaded ) {
+			$quote_pdf = qs_generate_quotation_pdf( $quote_id );
+			$bytes     = $quote_pdf && method_exists( $quote_pdf, 'output' ) ? $quote_pdf->output() : '';
+
+			$log(
+				'Dompdf quotation generation',
+				$bytes ? 'OK' : 'ERROR',
+				array( 'bytes' => strlen( $bytes ) )
+			);
+
+			if ( $bytes ) {
+				$temp_dir = trailingslashit( get_temp_dir() ) . 'quote-system-debug-' . wp_generate_uuid4();
+
+				if ( wp_mkdir_p( $temp_dir ) ) {
+					$quote_path = trailingslashit( $temp_dir ) . 'quotation.pdf';
+					$written    = file_put_contents( $quote_path, $bytes ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+					$log(
+						'Temporary quotation file',
+						false !== $written && $written > 0 ? 'OK' : 'ERROR',
+						array(
+							'path'  => $quote_path,
+							'bytes' => false === $written ? 0 : $written,
+						)
+					);
+
+					if ( false !== $written && $written > 0 ) {
+						$merged = qs_merge_pdf_paths( array_merge( array( $quote_path ), $pdf_paths ) );
+
+						if ( is_wp_error( $merged ) ) {
+							$log(
+								'FPDI merge',
+								'ERROR',
+								array(
+									'code'    => $merged->get_error_code(),
+									'message' => $merged->get_error_message(),
+								)
+							);
+						} else {
+							$log(
+								'FPDI merge',
+								'OK',
+								array(
+									'merged_bytes' => strlen( $merged ),
+									'quote_bytes'  => strlen( $bytes ),
+								)
+							);
+						}
+					}
+
+					@unlink( $quote_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					@rmdir( $temp_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				} else {
+					$log( 'Temporary quotation file', 'ERROR', array( 'message' => 'Could not create temporary debug folder.' ) );
+				}
+			}
+		}
+	}
+
+	qs_cleanup_temporary_pdf_paths( $temporary_paths );
+
+	$normal_pdf_url = add_query_arg(
+		array(
+			'download_quote_pdf' => $quote_id,
+			'v'                  => time(),
+		),
+		home_url( '/' )
+	);
+
+	nocache_headers();
+	header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+	?>
+	<!doctype html>
+	<html>
+	<head>
+		<meta charset="<?php echo esc_attr( get_option( 'blog_charset' ) ); ?>">
+		<title>Quote PDF Debug #<?php echo esc_html( $quote_id ); ?></title>
+		<style>
+			body{font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:32px;color:#1d2327;background:#f6f7f7}
+			.wrap{max-width:1100px;margin:auto;background:#fff;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+			h1{margin-top:0}.step{border-top:1px solid #dcdcde;padding:14px 0}.step:first-of-type{border-top:0}
+			.status{display:inline-block;min-width:58px;margin-right:8px;font-weight:700}.OK{color:#008a20}.WARN{color:#996800}.ERROR{color:#b32d2e}.PDF{color:#2271b1}.NON-PDF{color:#646970}
+			pre{white-space:pre-wrap;word-break:break-word;background:#f6f7f7;padding:10px;margin:8px 0 0}.actions{margin:20px 0}
+			.button{display:inline-block;padding:8px 14px;background:#2271b1;color:#fff;text-decoration:none;border-radius:3px}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<h1>Quote System PDF Merge Debug</h1>
+			<p>Quote ID: <strong><?php echo esc_html( $quote_id ); ?></strong>. These same entries are also printed to the browser console.</p>
+			<div class="actions"><a class="button" href="<?php echo esc_url( $normal_pdf_url ); ?>" target="_blank" rel="noopener">Open Normal PDF</a></div>
+
+			<?php foreach ( $steps as $step ) : ?>
+				<div class="step">
+					<span class="status <?php echo esc_attr( sanitize_html_class( $step['status'] ) ); ?>"><?php echo esc_html( $step['status'] ); ?></span>
+					<strong><?php echo esc_html( $step['stage'] ); ?></strong>
+					<pre><?php echo esc_html( wp_json_encode( $step['details'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></pre>
+				</div>
+			<?php endforeach; ?>
+		</div>
+		<script>
+		(function(){
+			const steps=<?php echo wp_json_encode( $steps ); ?>;
+			console.group('Quote System PDF Merge Debug #<?php echo esc_js( (string) $quote_id ); ?>');
+			steps.forEach(step=>{
+				const method=step.status==='ERROR'?'error':(step.status==='WARN'?'warn':'log');
+				console[method]('['+step.status+'] '+step.stage,step.details);
+			});
+			console.groupEnd();
+		}());
+		</script>
+	</body>
+	</html>
+	<?php
+	exit;
+}
+
 function qs_download_quotation_pdf() {
 
 	if (
@@ -739,6 +984,13 @@ function qs_download_quotation_pdf() {
 
 	if ( ! qs_can_view_quote_document( $quote_id ) ) {
 		wp_die( esc_html__( 'You are not allowed to download this quotation.', 'quote-system' ), 403 );
+	}
+
+	if (
+		isset( $_GET['qs_pdf_debug'] ) &&
+		'1' === sanitize_text_field( wp_unslash( $_GET['qs_pdf_debug'] ) )
+	) {
+		qs_render_quotation_pdf_debug( $quote_id );
 	}
 
 	qs_stream_quotation_pdf(
