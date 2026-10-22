@@ -415,7 +415,7 @@ add_shortcode(
  * to concatenate the completed quotation with uploaded PDF documents.
  */
 function qs_load_pdf_merger_library() {
-	if ( class_exists( '\\setasign\\Fpdi\\Fpdi', false ) ) {
+	if ( class_exists( '\\setasign\\Fpdi\\Fpdi' ) ) {
 		return true;
 	}
 
@@ -432,7 +432,8 @@ function qs_load_pdf_merger_library() {
 
 	require_once $fpdi;
 
-	return class_exists( '\\setasign\\Fpdi\\Fpdi', false );
+	// Trigger the FPDI autoloader registered above.
+	return class_exists( '\\setasign\\Fpdi\\Fpdi' );
 }
 
 /**
@@ -461,18 +462,14 @@ function qs_quote_supporting_pdf_sources( $quote_id ) {
 			continue;
 		}
 
-		$path      = get_attached_file( $attachment_id );
-		$url       = wp_get_attachment_url( $attachment_id );
-		$mime      = (string) get_post_mime_type( $attachment_id );
-		$url_path  = $url ? (string) wp_parse_url( $url, PHP_URL_PATH ) : '';
-		$extension = strtolower(
-			(string) pathinfo(
-				$path ? $path : $url_path,
-				PATHINFO_EXTENSION
-			)
-		);
+		$path           = get_attached_file( $attachment_id );
+		$url            = wp_get_attachment_url( $attachment_id );
+		$mime           = (string) get_post_mime_type( $attachment_id );
+		$url_path       = $url ? (string) wp_parse_url( $url, PHP_URL_PATH ) : '';
+		$path_extension = $path ? strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) ) : '';
+		$url_extension  = $url_path ? strtolower( (string) pathinfo( $url_path, PATHINFO_EXTENSION ) ) : '';
 
-		if ( 'application/pdf' !== $mime && 'pdf' !== $extension ) {
+		if ( 'application/pdf' !== $mime && 'pdf' !== $path_extension && 'pdf' !== $url_extension ) {
 			continue;
 		}
 
