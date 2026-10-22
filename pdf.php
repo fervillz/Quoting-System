@@ -306,6 +306,195 @@ function qs_generate_jobsheet_html(
 }
 
 /**
+ * Add print-friendly page numbering to a Dompdf document.
+ *
+ * The label makes it explicit that numbering applies to the generated
+ * document itself. Supporting PDFs appended later remain untouched.
+ */
+function qs_add_pdf_page_numbers( $dompdf, $label ) {
+	if ( ! $dompdf || ! method_exists( $dompdf, 'getCanvas' ) ) {
+		return;
+	}
+
+	$canvas = $dompdf->getCanvas();
+	if ( ! $canvas || ! method_exists( $canvas, 'page_script' ) ) {
+		return;
+	}
+
+	$canvas->page_script(
+		static function ( $page_number, $page_count, $page_canvas, $font_metrics ) use ( $label ) {
+			$font = $font_metrics->getFont( 'DejaVu Sans', 'normal' );
+			if ( ! $font ) {
+				return;
+			}
+
+			$text      = $label . ' · Page ' . $page_number . ' of ' . $page_count;
+			$font_size = 7.0;
+			$text_width = $font_metrics->getTextWidth( $text, $font, $font_size );
+			$x          = max( 18, $page_canvas->get_width() - $text_width - 22 );
+			$y          = $page_canvas->get_height() - 14;
+
+			// Small white backing keeps the number legible over any footer.
+			$page_canvas->filled_rectangle(
+				$x - 4,
+				$y - 2,
+				$text_width + 8,
+				10,
+				array( 1, 1, 1 )
+			);
+
+			$page_canvas->text(
+				$x,
+				$y,
+				$text,
+				$font,
+				$font_size,
+				array( 0.25, 0.34, 0.42 )
+			);
+		}
+	);
+}
+
+/**
+ * Add a compact continuation header to quotation pages after page one.
+ *
+ * Page one keeps the existing quotation design. Pages 2+ repeat enough
+ * context to make a loose printed page identifiable.
+ */
+function qs_add_quotation_continuation_headers( $dompdf, $quote_id ) {
+	if ( ! $dompdf || ! method_exists( $dompdf, 'getCanvas' ) ) {
+		return;
+	}
+
+	$canvas = $dompdf->getCanvas();
+	if ( ! $canvas || ! method_exists( $canvas, 'page_script' ) ) {
+		return;
+	}
+
+	$data         = qs_get_quote_data( $quote_id );
+	$project_name = isset( $data['project_name'] ) ? (string) $data['project_name'] : '';
+	$company_name = isset( $data['company_name'] ) ? (string) $data['company_name'] : '';
+	$quote_number = isset( $data['quote_number'] ) ? (string) $data['quote_number'] : '';
+
+	$canvas->page_script(
+		static function ( $page_number, $page_count, $page_canvas, $font_metrics ) use ( $project_name, $company_name, $quote_number ) {
+			if ( $page_number <= 1 ) {
+				return;
+			}
+
+			$mm          = 72 / 25.4;
+			$page_width  = $page_canvas->get_width();
+			$font        = $font_metrics->getFont( 'DejaVu Sans', 'normal' );
+			$font_bold   = $font_metrics->getFont( 'DejaVu Sans', 'bold' );
+			$burgundy    = array( 80 / 255, 30 / 255, 42 / 255 );
+			$ink         = array( 64 / 255, 88 / 255, 107 / 255 );
+			$white       = array( 1, 1, 1 );
+			$left        = 8 * $mm;
+			$right       = 8 * $mm;
+
+			if ( ! $font || ! $font_bold ) {
+				return;
+			}
+
+			// Full-width brand bar.
+			$page_canvas->filled_rectangle(
+				0,
+				0,
+				$page_width,
+				16 * $mm,
+				$burgundy
+			);
+
+			$page_canvas->text(
+				$left,
+				6.8 * $mm,
+				'Loughlin Furniture',
+				$font,
+				11.5,
+				$white
+			);
+
+			$document_label = 'Quotation';
+			$label_width    = $font_metrics->getTextWidth( $document_label, $font, 10.5 );
+			$page_canvas->text(
+				$page_width - $right - $label_width,
+				6.8 * $mm,
+				$document_label,
+				$font,
+				10.5,
+				$white
+			);
+
+			// Compact project context below the brand bar.
+			$page_canvas->text(
+				$left,
+				19.3 * $mm,
+				'Project Name:',
+				$font_bold,
+				6.6,
+				$ink
+			);
+			$page_canvas->text(
+				$left + ( 18.5 * $mm ),
+				19.3 * $mm,
+				$project_name,
+				$font,
+				6.6,
+				$ink
+			);
+
+			$page_canvas->text(
+				$left,
+				22.5 * $mm,
+				'Company:',
+				$font_bold,
+				6.6,
+				$ink
+			);
+			$page_canvas->text(
+				$left + ( 18.5 * $mm ),
+				22.5 * $mm,
+				$company_name,
+				$font,
+				6.6,
+				$ink
+			);
+
+			$quote_label       = 'Quote Number';
+			$quote_label_width = $font_metrics->getTextWidth( $quote_label, $font_bold, 6.6 );
+			$quote_width       = $font_metrics->getTextWidth( $quote_number, $font, 6.6 );
+			$quote_x           = $page_width - $right - max( $quote_label_width, $quote_width );
+
+			$page_canvas->text(
+				$quote_x,
+				19.3 * $mm,
+				$quote_label,
+				$font_bold,
+				6.6,
+				$ink
+			);
+			$page_canvas->text(
+				$page_width - $right - $quote_width,
+				22.5 * $mm,
+				$quote_number,
+				$font,
+				6.6,
+				$ink
+			);
+
+			$page_canvas->line(
+				$left,
+				25.5 * $mm,
+				$page_width - $right,
+				25.5 * $mm,
+				array( 0.79, 0.79, 0.79 ),
+				0.5
+			);
+		}
+	);
+}
+
+ /**
  * Generate Job Sheet PDF
  */
 function qs_generate_jobsheet_pdf(
@@ -338,6 +527,8 @@ function qs_generate_jobsheet_pdf(
 	);
 
 	$dompdf->render();
+
+	qs_add_pdf_page_numbers( $dompdf, 'Job Sheet' );
 
 	$quote_number = sanitize_file_name( get_post_meta( $quote_id, '_quote_number', true ) );
 	$dompdf->stream(
@@ -688,6 +879,9 @@ function qs_generate_quotation_pdf(
 	);
 
 	$dompdf->render();
+
+	qs_add_quotation_continuation_headers( $dompdf, $quote_id );
+	qs_add_pdf_page_numbers( $dompdf, 'Quotation' );
 
 	return $dompdf;
 
