@@ -693,6 +693,47 @@ function qs_generate_quotation_pdf(
 
 }
 
+/**
+ * Return the authenticated, uncached quotation PDF URL.
+ *
+ * Use admin-post.php instead of the site root so page/CDN caches cannot serve
+ * an older quotation response when supporting PDFs change.
+ */
+function qs_quotation_pdf_url( $quote_id ) {
+	$quote_id = absint( $quote_id );
+	if ( ! $quote_id ) {
+		return '';
+	}
+
+	$url = add_query_arg(
+		array(
+			'action'   => 'qs_download_quote_pdf',
+			'quote_id' => $quote_id,
+		),
+		admin_url( 'admin-post.php' )
+	);
+
+	return wp_nonce_url( $url, 'qs_download_quote_pdf_' . $quote_id );
+}
+
+/**
+ * Authenticated quotation PDF endpoint.
+ */
+function qs_admin_download_quotation_pdf() {
+	if ( ! is_user_logged_in() ) {
+		auth_redirect();
+	}
+
+	$quote_id = isset( $_GET['quote_id'] ) ? absint( $_GET['quote_id'] ) : 0;
+	if ( ! $quote_id || ! qs_can_view_quote_document( $quote_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to download this quotation.', 'quote-system' ), 403 );
+	}
+
+	check_admin_referer( 'qs_download_quote_pdf_' . $quote_id );
+	qs_stream_quotation_pdf( $quote_id );
+}
+add_action( 'admin_post_qs_download_quote_pdf', 'qs_admin_download_quotation_pdf' );
+
 function qs_stream_quotation_pdf(
 	$quote_id
 ) {
@@ -912,13 +953,7 @@ function qs_render_quotation_pdf_debug( $quote_id ) {
 
 	qs_cleanup_temporary_pdf_paths( $temporary_paths );
 
-	$normal_pdf_url = add_query_arg(
-		array(
-			'download_quote_pdf' => $quote_id,
-			'v'                  => time(),
-		),
-		home_url( '/' )
-	);
+	$normal_pdf_url = qs_quotation_pdf_url( $quote_id );
 
 	nocache_headers();
 	header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );

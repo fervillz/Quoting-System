@@ -210,7 +210,9 @@ function qs_review_admin_summary_actions( $quote_id, $status ) {
 	$is_in_production = (bool) get_post_meta( $quote_id, '_qs_in_production', true );
 	$builder_url   = add_query_arg( 'quote_id', $quote_id, site_url( '/quote-builder/' ) );
 	$pricing_url   = admin_url( 'post.php?post=' . $quote_id . '&action=edit' );
-	$quotation_url = add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) );
+	$quotation_url = function_exists( 'qs_quotation_pdf_url' )
+		? qs_quotation_pdf_url( $quote_id )
+		: add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) );
 	$jobsheet_url  = add_query_arg( 'download_jobsheet_pdf', $quote_id, home_url( '/' ) );
 	?>
 	<div class="qs-review-summary-actions qs-review-admin-actions">
@@ -401,7 +403,7 @@ function qs_quote_review_shortcode() {
 				<?php else : ?>
 					<div class="qs-review-summary-actions">
 						<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( site_url( '/my-quotes/' ) ); ?>">My Quotes</a>
-						<a class="qs-btn" href="<?php echo esc_url( add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) ) ); ?>" target="_blank" rel="noopener">Download PDF</a>
+						<a class="qs-btn" href="<?php echo esc_url( function_exists( 'qs_quotation_pdf_url' ) ? qs_quotation_pdf_url( $quote_id ) : add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) ) ); ?>" target="_blank" rel="noopener">Download PDF</a>
 					</div>
 				<?php endif; ?>
 			</aside>

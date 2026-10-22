@@ -260,7 +260,9 @@ function qs_admin_dashboard_quote_actions( $quote ) {
 	$review_url   = add_query_arg( 'quote_id', $quote->ID, site_url( '/quote-review/' ) );
 	$admin_url    = $review_url;
 	$builder_url  = add_query_arg( 'quote_id', $quote->ID, site_url( '/quote-builder/' ) );
-	$pdf_url      = add_query_arg( 'download_quote_pdf', $quote->ID, home_url( '/' ) );
+	$pdf_url      = function_exists( 'qs_quotation_pdf_url' )
+		? qs_quotation_pdf_url( $quote->ID )
+		: add_query_arg( 'download_quote_pdf', $quote->ID, home_url( '/' ) );
 	$jobsheet_url = add_query_arg( 'download_jobsheet_pdf', $quote->ID, home_url( '/' ) );
 	$edit_url     = admin_url( 'post.php?post=' . $quote->ID . '&action=edit' );
 	$deposit_url  = qs_admin_dashboard_order_url( $quote->ID, 'deposit' );

@@ -45,7 +45,9 @@ function qs_my_quotes_action( $quote, $is_draft = false ) {
 			$label = 'Pay Balance';
 		}
 	} elseif ( in_array( $status, array( 'deposit_paid', 'paid_in_full' ), true ) ) {
-		$url   = add_query_arg( 'download_quote_pdf', $quote->ID, home_url( '/' ) );
+		$url   = function_exists( 'qs_quotation_pdf_url' )
+			? qs_quotation_pdf_url( $quote->ID )
+			: add_query_arg( 'download_quote_pdf', $quote->ID, home_url( '/' ) );
 		$label = 'Download PDF';
 	}
 

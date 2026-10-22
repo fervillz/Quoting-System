@@ -323,7 +323,9 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 		? qs_page_url( 'quote_review', array( 'quote_id' => $post->ID ) )
 		: add_query_arg( 'quote_id', $post->ID, site_url( '/quote-review/' ) );
 
-	$pdf_url = add_query_arg( 'download_quote_pdf', $post->ID, home_url( '/' ) );
+	$pdf_url = function_exists( 'qs_quotation_pdf_url' )
+		? qs_quotation_pdf_url( $post->ID )
+		: add_query_arg( 'download_quote_pdf', $post->ID, home_url( '/' ) );
 	$debug_url = wp_nonce_url(
 		add_query_arg(
 			array(
