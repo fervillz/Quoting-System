@@ -323,18 +323,24 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 		? qs_page_url( 'quote_review', array( 'quote_id' => $post->ID ) )
 		: add_query_arg( 'quote_id', $post->ID, site_url( '/quote-review/' ) );
 
+	$pdf_url     = add_query_arg( 'download_quote_pdf', $post->ID, home_url( '/' ) );
 	$view_action = '<a href="' . esc_url( $review_url ) . '" target="_blank" rel="noopener">View Quote</a>';
+	$pdf_action  = '<a href="' . esc_url( $pdf_url ) . '" target="_blank" rel="noopener">PDF</a>';
 
 	$new_actions = array();
 	foreach ( $actions as $key => $action ) {
 		$new_actions[ $key ] = $action;
 		if ( 'edit' === $key ) {
 			$new_actions['qs_view_quote'] = $view_action;
+			$new_actions['qs_view_pdf']   = $pdf_action;
 		}
 	}
 
 	if ( ! isset( $new_actions['qs_view_quote'] ) ) {
 		$new_actions['qs_view_quote'] = $view_action;
+	}
+	if ( ! isset( $new_actions['qs_view_pdf'] ) ) {
+		$new_actions['qs_view_pdf'] = $pdf_action;
 	}
 
 	return $new_actions;
