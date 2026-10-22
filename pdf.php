@@ -809,7 +809,6 @@ function qs_generate_quotation_pdf(
 
 	$dompdf->render();
 
-	qs_add_quotation_continuation_headers( $dompdf, $quote_id );
 	qs_add_pdf_page_numbers( $dompdf, 'Quotation' );
 
 	return $dompdf;

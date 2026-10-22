@@ -1,10 +1,6 @@
 @page {
-	margin: 28mm 0 41mm 0;
+	margin: 6mm 0 41mm 0;
 	size: A4 portrait;
-}
-
-@page :first {
-	margin-top: 6mm;
 }
 
 * {
