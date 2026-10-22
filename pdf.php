@@ -436,38 +436,98 @@ function qs_load_pdf_merger_library() {
 }
 
 /**
- * Return uploaded supporting PDFs in their saved order.
+ * Resolve uploaded supporting PDFs in their saved order.
+ *
+ * WordPress may keep an attachment locally, or a storage/CDN integration may
+ * leave only the attachment URL available. Use the local path when possible;
+ * otherwise download a temporary copy for FPDI.
+ *
  * JPG and PNG supporting documents intentionally remain separate.
  */
-function qs_quote_supporting_pdf_paths( $quote_id ) {
+function qs_quote_supporting_pdf_sources( $quote_id ) {
 	$attachment_ids = get_post_meta( $quote_id, '_supporting_documents', true );
 	if ( ! is_array( $attachment_ids ) ) {
-		return array();
+		return array(
+			'paths'     => array(),
+			'temporary' => array(),
+		);
 	}
 
-	$paths = array();
+	$paths           = array();
+	$temporary_paths = array();
 
 	foreach ( array_unique( array_map( 'absint', $attachment_ids ) ) as $attachment_id ) {
 		if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
 			continue;
 		}
 
-		$path = get_attached_file( $attachment_id );
-		if ( ! $path || ! is_readable( $path ) ) {
-			continue;
-		}
-
+		$path      = get_attached_file( $attachment_id );
+		$url       = wp_get_attachment_url( $attachment_id );
 		$mime      = (string) get_post_mime_type( $attachment_id );
-		$extension = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
+		$url_path  = $url ? (string) wp_parse_url( $url, PHP_URL_PATH ) : '';
+		$extension = strtolower(
+			(string) pathinfo(
+				$path ? $path : $url_path,
+				PATHINFO_EXTENSION
+			)
+		);
 
 		if ( 'application/pdf' !== $mime && 'pdf' !== $extension ) {
 			continue;
 		}
 
-		$paths[] = $path;
+		if ( $path && is_readable( $path ) ) {
+			$paths[] = $path;
+			continue;
+		}
+
+		if ( ! $url ) {
+			return new WP_Error(
+				'qs_supporting_pdf_unavailable',
+				sprintf(
+					/* translators: %s: supporting document filename. */
+					__( 'Supporting PDF "%s" could not be found on the server.', 'quote-system' ),
+					get_the_title( $attachment_id ) ? get_the_title( $attachment_id ) : $attachment_id
+				)
+			);
+		}
+
+		if ( ! function_exists( 'download_url' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$temp_path = download_url( $url, 30 );
+		if ( is_wp_error( $temp_path ) ) {
+			return new WP_Error(
+				'qs_supporting_pdf_download_failed',
+				sprintf(
+					/* translators: 1: supporting document filename, 2: download error. */
+					__( 'Supporting PDF "%1$s" could not be loaded for merging: %2$s', 'quote-system' ),
+					wp_basename( $url_path ? $url_path : $url ),
+					$temp_path->get_error_message()
+				)
+			);
+		}
+
+		$paths[]           = $temp_path;
+		$temporary_paths[] = $temp_path;
 	}
 
-	return $paths;
+	return array(
+		'paths'     => $paths,
+		'temporary' => $temporary_paths,
+	);
+}
+
+/**
+ * Remove temporary supporting-document copies created for PDF merging.
+ */
+function qs_cleanup_temporary_pdf_paths( $paths ) {
+	foreach ( (array) $paths as $path ) {
+		if ( is_string( $path ) && $path && file_exists( $path ) ) {
+			@unlink( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+	}
 }
 
 /**
@@ -553,7 +613,19 @@ function qs_generate_quotation_pdf_output( $quote_id, $append_supporting_pdfs = 
 	}
 
 	$quote_bytes = $pdf->output();
-	$pdf_paths   = $append_supporting_pdfs ? qs_quote_supporting_pdf_paths( $quote_id ) : array();
+	$sources     = $append_supporting_pdfs
+		? qs_quote_supporting_pdf_sources( $quote_id )
+		: array(
+			'paths'     => array(),
+			'temporary' => array(),
+		);
+
+	if ( is_wp_error( $sources ) ) {
+		return $sources;
+	}
+
+	$pdf_paths           = isset( $sources['paths'] ) ? (array) $sources['paths'] : array();
+	$temporary_pdf_paths = isset( $sources['temporary'] ) ? (array) $sources['temporary'] : array();
 
 	if ( ! $pdf_paths ) {
 		return $quote_bytes;
@@ -561,6 +633,7 @@ function qs_generate_quotation_pdf_output( $quote_id, $append_supporting_pdfs = 
 
 	$temp_dir = trailingslashit( get_temp_dir() ) . 'quote-system-merge-' . wp_generate_uuid4();
 	if ( ! wp_mkdir_p( $temp_dir ) ) {
+		qs_cleanup_temporary_pdf_paths( $temporary_pdf_paths );
 		return new WP_Error(
 			'qs_pdf_merge_temp_failed',
 			__( 'A temporary folder could not be created for the quotation PDF.', 'quote-system' )
@@ -571,6 +644,7 @@ function qs_generate_quotation_pdf_output( $quote_id, $append_supporting_pdfs = 
 	$written    = file_put_contents( $quote_path, $quote_bytes ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
 	if ( false === $written || 0 === $written ) {
+		qs_cleanup_temporary_pdf_paths( $temporary_pdf_paths );
 		@rmdir( $temp_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		return new WP_Error(
 			'qs_pdf_merge_temp_write_failed',
@@ -582,6 +656,7 @@ function qs_generate_quotation_pdf_output( $quote_id, $append_supporting_pdfs = 
 
 	@unlink( $quote_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	@rmdir( $temp_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	qs_cleanup_temporary_pdf_paths( $temporary_pdf_paths );
 
 	return $merged;
 }
