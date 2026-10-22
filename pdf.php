@@ -968,6 +968,28 @@ function qs_render_quotation_pdf_debug( $quote_id ) {
 	exit;
 }
 
+/**
+ * Dedicated admin debug endpoint.
+ *
+ * Using wp-admin/admin-post.php avoids frontend/CDN page caching that can
+ * otherwise return the normal PDF before the qs_pdf_debug query flag reaches
+ * WordPress.
+ */
+function qs_admin_quotation_pdf_debug() {
+	if ( ! is_user_logged_in() ) {
+		auth_redirect();
+	}
+
+	$quote_id = isset( $_GET['quote_id'] ) ? absint( $_GET['quote_id'] ) : 0;
+	if ( ! $quote_id || ! current_user_can( 'edit_post', $quote_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to debug this quotation.', 'quote-system' ), 403 );
+	}
+
+	check_admin_referer( 'qs_pdf_debug_' . $quote_id );
+	qs_render_quotation_pdf_debug( $quote_id );
+}
+add_action( 'admin_post_qs_pdf_debug', 'qs_admin_quotation_pdf_debug' );
+
 function qs_download_quotation_pdf() {
 
 	if (

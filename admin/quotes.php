@@ -323,9 +323,21 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 		? qs_page_url( 'quote_review', array( 'quote_id' => $post->ID ) )
 		: add_query_arg( 'quote_id', $post->ID, site_url( '/quote-review/' ) );
 
-	$pdf_url     = add_query_arg( 'download_quote_pdf', $post->ID, home_url( '/' ) );
-	$view_action = '<a href="' . esc_url( $review_url ) . '" target="_blank" rel="noopener">View Quote</a>';
-	$pdf_action  = '<a href="' . esc_url( $pdf_url ) . '" target="_blank" rel="noopener">PDF</a>';
+	$pdf_url = add_query_arg( 'download_quote_pdf', $post->ID, home_url( '/' ) );
+	$debug_url = wp_nonce_url(
+		add_query_arg(
+			array(
+				'action'   => 'qs_pdf_debug',
+				'quote_id' => $post->ID,
+			),
+			admin_url( 'admin-post.php' )
+		),
+		'qs_pdf_debug_' . $post->ID
+	);
+
+	$view_action  = '<a href="' . esc_url( $review_url ) . '" target="_blank" rel="noopener">View Quote</a>';
+	$pdf_action   = '<a href="' . esc_url( $pdf_url ) . '" target="_blank" rel="noopener">PDF</a>';
+	$debug_action = '<a href="' . esc_url( $debug_url ) . '" target="_blank" rel="noopener">PDF Debug</a>';
 
 	$new_actions = array();
 	foreach ( $actions as $key => $action ) {
@@ -333,6 +345,7 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 		if ( 'edit' === $key ) {
 			$new_actions['qs_view_quote'] = $view_action;
 			$new_actions['qs_view_pdf']   = $pdf_action;
+			$new_actions['qs_pdf_debug']  = $debug_action;
 		}
 	}
 
@@ -341,6 +354,9 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 	}
 	if ( ! isset( $new_actions['qs_view_pdf'] ) ) {
 		$new_actions['qs_view_pdf'] = $pdf_action;
+	}
+	if ( ! isset( $new_actions['qs_pdf_debug'] ) ) {
+		$new_actions['qs_pdf_debug'] = $debug_action;
 	}
 
 	return $new_actions;
