@@ -371,32 +371,26 @@ function qs_add_quotation_continuation_headers( $dompdf, $quote_id ) {
 		return;
 	}
 
-	$data         = qs_get_quote_data( $quote_id );
-	$project_name = isset( $data['project_name'] ) ? (string) $data['project_name'] : '';
-	$company_name = isset( $data['company_name'] ) ? (string) $data['company_name'] : '';
-	$quote_number = isset( $data['quote_number'] ) ? (string) $data['quote_number'] : '';
-
 	$canvas->page_script(
-		static function ( $page_number, $page_count, $page_canvas, $font_metrics ) use ( $project_name, $company_name, $quote_number ) {
+		static function ( $page_number, $page_count, $page_canvas, $font_metrics ) {
 			if ( $page_number <= 1 ) {
 				return;
 			}
 
-			$mm          = 72 / 25.4;
-			$page_width  = $page_canvas->get_width();
-			$font        = $font_metrics->getFont( 'DejaVu Sans', 'normal' );
-			$font_bold   = $font_metrics->getFont( 'DejaVu Sans', 'bold' );
-			$burgundy    = array( 80 / 255, 30 / 255, 42 / 255 );
-			$ink         = array( 64 / 255, 88 / 255, 107 / 255 );
-			$white       = array( 1, 1, 1 );
-			$left        = 8 * $mm;
-			$right       = 8 * $mm;
+			$mm         = 72 / 25.4;
+			$page_width = $page_canvas->get_width();
+			$font       = $font_metrics->getFont( 'DejaVu Sans', 'normal' );
+			$burgundy   = array( 80 / 255, 30 / 255, 42 / 255 );
+			$white      = array( 1, 1, 1 );
+			$left       = 8 * $mm;
+			$right      = 8 * $mm;
 
-			if ( ! $font || ! $font_bold ) {
+			if ( ! $font ) {
 				return;
 			}
 
-			// Full-width brand bar.
+			// Keep continuation pages intentionally simple. Drawing additional
+			// project metadata here can overlap Dompdf's flowing page content.
 			$page_canvas->filled_rectangle(
 				0,
 				0,
@@ -416,6 +410,7 @@ function qs_add_quotation_continuation_headers( $dompdf, $quote_id ) {
 
 			$document_label = 'Quotation';
 			$label_width    = $font_metrics->getTextWidth( $document_label, $font, 10.5 );
+
 			$page_canvas->text(
 				$page_width - $right - $label_width,
 				6.8 * $mm,
@@ -423,72 +418,6 @@ function qs_add_quotation_continuation_headers( $dompdf, $quote_id ) {
 				$font,
 				10.5,
 				$white
-			);
-
-			// Compact project context below the brand bar.
-			$page_canvas->text(
-				$left,
-				19.3 * $mm,
-				'Project Name:',
-				$font_bold,
-				6.6,
-				$ink
-			);
-			$page_canvas->text(
-				$left + ( 18.5 * $mm ),
-				19.3 * $mm,
-				$project_name,
-				$font,
-				6.6,
-				$ink
-			);
-
-			$page_canvas->text(
-				$left,
-				22.5 * $mm,
-				'Company:',
-				$font_bold,
-				6.6,
-				$ink
-			);
-			$page_canvas->text(
-				$left + ( 18.5 * $mm ),
-				22.5 * $mm,
-				$company_name,
-				$font,
-				6.6,
-				$ink
-			);
-
-			$quote_label       = 'Quote Number';
-			$quote_label_width = $font_metrics->getTextWidth( $quote_label, $font_bold, 6.6 );
-			$quote_width       = $font_metrics->getTextWidth( $quote_number, $font, 6.6 );
-			$quote_x           = $page_width - $right - max( $quote_label_width, $quote_width );
-
-			$page_canvas->text(
-				$quote_x,
-				19.3 * $mm,
-				$quote_label,
-				$font_bold,
-				6.6,
-				$ink
-			);
-			$page_canvas->text(
-				$page_width - $right - $quote_width,
-				22.5 * $mm,
-				$quote_number,
-				$font,
-				6.6,
-				$ink
-			);
-
-			$page_canvas->line(
-				$left,
-				25.5 * $mm,
-				$page_width - $right,
-				25.5 * $mm,
-				array( 0.79, 0.79, 0.79 ),
-				0.5
 			);
 		}
 	);
