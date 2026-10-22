@@ -16,6 +16,7 @@ function qs_quote_columns( $columns ) {
 		'cb'           => $columns['cb'],
 		'quote_number' => 'Quote Number',
 		'title'        => 'Title',
+		'attachments'  => 'Attachments',
 		'status'       => 'Status',
 		'date'         => 'Date',
 	);
@@ -43,6 +44,45 @@ function qs_quote_column_content( $column, $post_id ) {
 					true
 				)
 			);
+
+			break;
+
+		case 'attachments':
+
+			$attachment_ids = get_post_meta( $post_id, '_supporting_documents', true );
+			$attachment_ids = is_array( $attachment_ids )
+				? array_values( array_unique( array_filter( array_map( 'absint', $attachment_ids ) ) ) )
+				: array();
+
+			if ( ! $attachment_ids ) {
+				echo '<span class="qs-admin-attachments-none">—</span>';
+				break;
+			}
+
+			echo '<div class="qs-admin-attachments">';
+			echo '<strong>' . esc_html( sprintf( _n( '%d file', '%d files', count( $attachment_ids ), 'quote-system' ), count( $attachment_ids ) ) ) . '</strong>';
+
+			foreach ( $attachment_ids as $attachment_id ) {
+				if ( 'attachment' !== get_post_type( $attachment_id ) ) {
+					continue;
+				}
+
+				$file_url = wp_get_attachment_url( $attachment_id );
+				$file_path = get_attached_file( $attachment_id );
+				$file_name = $file_path ? wp_basename( $file_path ) : get_the_title( $attachment_id );
+
+				if ( ! $file_name ) {
+					$file_name = 'Supporting document';
+				}
+
+				if ( $file_url ) {
+					echo '<a href="' . esc_url( $file_url ) . '" target="_blank" rel="noopener">' . esc_html( $file_name ) . '</a>';
+				} else {
+					echo '<span>' . esc_html( $file_name ) . '</span>';
+				}
+			}
+
+			echo '</div>';
 
 			break;
 
@@ -381,6 +421,30 @@ function qs_quote_admin_status_badge_styles() {
 	}
 	?>
 	<style>
+	.column-attachments {
+		width: 210px;
+	}
+	.qs-admin-attachments {
+		display: grid;
+		gap: 3px;
+	}
+	.qs-admin-attachments > strong {
+		margin-bottom: 2px;
+		font-size: 12px;
+	}
+	.qs-admin-attachments a,
+	.qs-admin-attachments span {
+		display: block;
+		max-width: 200px;
+		overflow: hidden;
+		font-size: 12px;
+		line-height: 1.3;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.qs-admin-attachments-none {
+		color: #8c8f94;
+	}
 	.column-status .qs-admin-status-badge {
 		display: inline-flex;
 		align-items: center;
