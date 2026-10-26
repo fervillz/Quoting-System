@@ -17,6 +17,7 @@
     if (!form) return;
 
     var data = window.QSItemConfigurations || {};
+    var subtotalAnimationDisabled = !!data.subtotalAnimationDisabled;
     var labels = {
       door_profile: optionsMap(data.profiles),
       timber: optionsMap(data.timbers),
@@ -493,6 +494,10 @@
     }
 
     function animateSummaryCommit(section, row, source, wasUpdate) {
+      // Keep Update/Add Item visually stable when the hidden Superadmin
+      // subtotal animation switch is disabled. The row still refreshes and
+      // the server subtotal still recalculates normally.
+      if (subtotalAnimationDisabled) return;
       if (!section || !row) return;
       var rows = Array.prototype.slice.call(section.querySelectorAll('.qs-repeater-row'));
       var index = rows.indexOf(row);

@@ -495,11 +495,12 @@ function qs_enqueue_item_configuration_assets() {
 		'qs-item-configurations',
 		'QSItemConfigurations',
 		array(
-			'profiles' => qs_item_config_product_options( 'door-profile' ),
-			'timbers'  => qs_item_config_product_options( 'timber' ),
-			'handles'  => qs_item_config_product_options( 'accessory' ),
-			'finishes'     => qs_item_config_product_options( 'finish' ),
-			'panelBounds' => qs_item_config_matrix_bounds( qs_find_quote_product( 'Evans', 'door-profile' ) ),
+			'profiles'                  => qs_item_config_product_options( 'door-profile' ),
+			'timbers'                   => qs_item_config_product_options( 'timber' ),
+			'handles'                   => qs_item_config_product_options( 'accessory' ),
+			'finishes'                  => qs_item_config_product_options( 'finish' ),
+			'panelBounds'               => qs_item_config_matrix_bounds( qs_find_quote_product( 'Evans', 'door-profile' ) ),
+			'subtotalAnimationDisabled' => '0' !== (string) get_option( 'qs_disable_subtotal_animation', '1' ),
 		)
 	);
 }
