@@ -226,20 +226,24 @@ function qs_enqueue_assets() {
 	);
 
 	wp_enqueue_script(
-		'qs-subtotal-animation',
-		QS_URL . 'assets/js/subtotal-animation.js',
+		'qs-quote-builder-defaults',
+		QS_URL . 'assets/js/quote-builder-defaults.js',
 		array( 'qs-quote-builder-ux' ),
-		$asset_version( 'assets/js/subtotal-animation.js' ),
+		$asset_version( 'assets/js/quote-builder-defaults.js' ),
 		true
 	);
 
-	wp_localize_script(
-		'qs-subtotal-animation',
-		'qsSubtotalAnimationSettings',
-		array(
-			'disabled' => '0' !== (string) get_option( 'qs_disable_subtotal_animation', '1' ),
-		)
-	);
+	// Superadmin can disable the visual subtotal counter without removing its
+	// code. When disabled, the animation file is not loaded at all.
+	if ( '0' === (string) get_option( 'qs_disable_subtotal_animation', '1' ) ) {
+		wp_enqueue_script(
+			'qs-subtotal-animation',
+			QS_URL . 'assets/js/subtotal-animation.js',
+			array( 'qs-quote-builder-defaults' ),
+			$asset_version( 'assets/js/subtotal-animation.js' ),
+			true
+		);
+	}
 
 	wp_enqueue_style(
 		'qs-quote-review',
