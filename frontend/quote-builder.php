@@ -617,6 +617,7 @@ function qs_quote_builder_shortcode() {
 	$pricing_type        = $quote_id && 'retail' === get_post_meta( $quote_id, '_pricing_type', true ) ? 'retail' : 'trade';
 	$builder_subtotal    = $quote_id ? qs_recalculate_quote_pricing( $quote_id ) : 0;
 	$supporting_document_ids = $quote_id ? qs_builder_supporting_document_ids( $quote_id ) : array();
+	$subtotal_animation_disabled = '0' !== (string) get_option( 'qs_disable_subtotal_animation', '1' );
 	ob_start();
 	?>
 	<div class="qs-builder-shell">
@@ -706,7 +707,7 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 				<h4>Items Breakdown</h4>
 				<div class="qs-summary-items"></div>
 				<div class="qs-lead-time"><strong>Estimated Lead Time</strong><span>4–6 Weeks</span></div>
-				<div class="qs-subtotal"><span>Subtotal (Ex GST)</span><strong data-qs-subtotal>$<?php echo esc_html( number_format_i18n( $builder_subtotal, 2 ) ); ?> AUD</strong></div>
+				<div class="qs-subtotal"><span>Subtotal (Ex GST)</span><strong data-qs-subtotal-value<?php echo $subtotal_animation_disabled ? '' : ' data-qs-subtotal'; ?>>$<?php echo esc_html( number_format_i18n( $builder_subtotal, 2 ) ); ?> AUD</strong></div>
 				<div class="qs-summary-actions"><button class="qs-btn qs-btn-outline" type="submit" name="qs_save_draft">Save Draft</button><button class="qs-btn" type="submit" name="qs_review_quote">Review Quote</button></div>
 			</aside>
 		</form>
@@ -714,7 +715,7 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 	<script>
 	(function(){
 		const form=document.querySelector('.qs-builder-form'); if(!form)return;
-		const subtotal=document.querySelector('[data-qs-subtotal]');
+		const subtotal=document.querySelector('[data-qs-subtotal-value]');
 		const summaryItems=document.querySelector('.qs-summary-items');
 		const ajaxUrl=<?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
 		const summaryIcons={edit:<?php echo wp_json_encode( QS_URL . 'assets/images/icon-pen.svg' ); ?>,remove:<?php echo wp_json_encode( QS_URL . 'assets/images/icon-trash.svg' ); ?>};
