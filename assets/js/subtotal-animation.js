@@ -203,7 +203,12 @@
 	}
 
 	function init() {
-		initSubtotalAnimation();
+		var animationDisabled = window.qsSubtotalAnimationSettings &&
+			window.qsSubtotalAnimationSettings.disabled;
+
+		if (!animationDisabled) {
+			initSubtotalAnimation();
+		}
 		window.setTimeout(initBuilderSelectionDefaults, 0);
 	}
 

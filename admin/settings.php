@@ -7,23 +7,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Hidden internal settings mode.
+ *
+ * The query flag only reveals the Superadmin tab. WordPress capabilities
+ * remain the actual access control.
+ */
+function qs_settings_superadmin_mode() {
+	return current_user_can( 'manage_options' ) && isset( $_GET['superadmin'] );
+}
+
 function qs_settings_tabs() {
-	return array(
+	$tabs = array(
 		'settings' => 'Settings',
 		'testing'  => 'AI Testing',
 		'setup'    => 'Setup',
 	);
+
+	if ( qs_settings_superadmin_mode() ) {
+		$tabs['superadmin'] = 'Superadmin';
+	}
+
+	return $tabs;
 }
 
-function qs_settings_url( $tab = 'settings' ) {
-	return add_query_arg(
-		array(
-			'post_type' => 'quote',
-			'page'      => 'qs-settings',
-			'tab'       => sanitize_key( $tab ),
-		),
-		admin_url( 'edit.php' )
+function qs_settings_url( $tab = 'settings', $superadmin = null ) {
+	if ( null === $superadmin ) {
+		$superadmin = qs_settings_superadmin_mode();
+	}
+
+	$args = array(
+		'post_type' => 'quote',
+		'page'      => 'qs-settings',
+		'tab'       => sanitize_key( $tab ),
 	);
+
+	if ( $superadmin ) {
+		$args['superadmin'] = '1';
+	}
+
+	return add_query_arg( $args, admin_url( 'edit.php' ) );
 }
 
 function qs_settings_admin_menu() {
@@ -43,8 +66,11 @@ function qs_settings_admin_page() {
 		wp_die( esc_html__( 'You do not have permission to manage Quote System settings.', 'quote-system' ) );
 	}
 
-	$tabs   = qs_settings_tabs();
-	$active = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'settings';
+	$superadmin = qs_settings_superadmin_mode();
+	$tabs       = qs_settings_tabs();
+	$active     = isset( $_GET['tab'] )
+		? sanitize_key( wp_unslash( $_GET['tab'] ) )
+		: ( $superadmin ? 'superadmin' : 'settings' );
 	if ( ! isset( $tabs[ $active ] ) ) {
 		$active = 'settings';
 	}
@@ -57,7 +83,7 @@ function qs_settings_admin_page() {
 			<?php foreach ( $tabs as $key => $label ) : ?>
 				<a
 					class="nav-tab <?php echo $active === $key ? 'nav-tab-active' : ''; ?>"
-					href="<?php echo esc_url( qs_settings_url( $key ) ); ?>"
+					href="<?php echo esc_url( qs_settings_url( $key, $superadmin ) ); ?>"
 				><?php echo esc_html( $label ); ?></a>
 			<?php endforeach; ?>
 		</nav>
@@ -170,6 +196,76 @@ function qs_settings_render_admin_notification_emails() {
 	<?php
 }
 add_action( 'qs_settings_tab_settings', 'qs_settings_render_admin_notification_emails', 20 );
+
+
+/**
+ * Save hidden Superadmin settings.
+ */
+function qs_settings_save_superadmin() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You do not have permission to change Quote System Superadmin settings.', 'quote-system' ), 403 );
+	}
+
+	check_admin_referer( 'qs_save_superadmin_settings' );
+
+	$disable_subtotal_animation = isset( $_POST['qs_disable_subtotal_animation'] ) ? '1' : '0';
+	update_option( 'qs_disable_subtotal_animation', $disable_subtotal_animation, false );
+
+	$url = add_query_arg(
+		'superadmin_saved',
+		'1',
+		qs_settings_url( 'superadmin', true )
+	);
+
+	wp_safe_redirect( $url );
+	exit;
+}
+add_action( 'admin_post_qs_save_superadmin_settings', 'qs_settings_save_superadmin' );
+
+/**
+ * Render internal-only Quote System controls.
+ */
+function qs_settings_render_superadmin() {
+	if ( ! current_user_can( 'manage_options' ) || ! qs_settings_superadmin_mode() ) {
+		return;
+	}
+
+	// Default to disabled on existing installations so intermediate count-up
+	// values cannot be mistaken for the final quotation subtotal.
+	$disable_subtotal_animation = '0' !== (string) get_option( 'qs_disable_subtotal_animation', '1' );
+	$saved = isset( $_GET['superadmin_saved'] )
+		&& '1' === sanitize_text_field( wp_unslash( $_GET['superadmin_saved'] ) );
+	?>
+	<?php if ( $saved ) : ?>
+		<div class="notice notice-success inline"><p>Superadmin settings updated.</p></div>
+	<?php endif; ?>
+
+	<section class="qs-setup-transfer">
+		<h2>Quote Builder Effects</h2>
+		<p>Internal feature switches that are intentionally hidden from the normal Settings screen.</p>
+
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="qs_save_superadmin_settings">
+			<?php wp_nonce_field( 'qs_save_superadmin_settings' ); ?>
+
+			<label>
+				<input
+					type="checkbox"
+					name="qs_disable_subtotal_animation"
+					value="1"
+					<?php checked( $disable_subtotal_animation ); ?>
+				>
+				<strong>Disable subtotal counting animation</strong>
+			</label>
+
+			<p class="description">When disabled, the Quote Builder shows the final server-calculated subtotal immediately. Uncheck this to restore the 500ms count-up effect.</p>
+
+			<p><button type="submit" class="button button-primary">Save Superadmin Settings</button></p>
+		</form>
+	</section>
+	<?php
+}
+add_action( 'qs_settings_tab_superadmin', 'qs_settings_render_superadmin', 20 );
 
 
 /**

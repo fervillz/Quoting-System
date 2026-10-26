@@ -233,6 +233,14 @@ function qs_enqueue_assets() {
 		true
 	);
 
+	wp_localize_script(
+		'qs-subtotal-animation',
+		'qsSubtotalAnimationSettings',
+		array(
+			'disabled' => '0' !== (string) get_option( 'qs_disable_subtotal_animation', '1' ),
+		)
+	);
+
 	wp_enqueue_style(
 		'qs-quote-review',
 		QS_URL . 'assets/css/quote-review.css',
