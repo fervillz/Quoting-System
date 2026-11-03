@@ -244,9 +244,13 @@ body .qs-builder-shell .qs-row-field select {
   letter-spacing: 0;
 }
 .qs-product-selection > svg {
-  width: 14px;
-  height: 14px;
-  fill: #501E2A;
+  width: 18px;
+  height: 18px;
+  color: var(--qs-ink);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  justify-self: end;
   transition: transform 0.18s ease;
 }
 .qs-product-picker.is-open .qs-product-selection > svg {
