@@ -216,25 +216,46 @@ $drawer_banks_by_height = $jobsheet_sort_rows( $drawer_banks, 'height' );
 
 					<h3>Doors &amp; Drawers</h3>
 					<?php
-					qs_render_quote_component_table(
-						$production_page['fronts'],
-						array(
+					$doors_columns = 'Width' === $production_page['label']
+						? array(
+							'type'                => 'Item Type',
+							'item_specifications' => 'Specifications',
+							'width'               => 'Width',
+							'shoulder_length'     => 'Shoulder Length',
+							'rail_length'         => 'Rail Length',
+							'quantity'            => 'Quantity',
+							'notes'               => 'Notes',
+						)
+						: array(
 							'type'                => 'Item Type',
 							'item_specifications' => 'Specifications',
 							'width'               => 'Width',
 							'height'              => 'Height',
 							'quantity'            => 'Quantity',
 							'notes'               => 'Notes',
-						),
-						'qs-pdf-table qs-jobsheet-doors-table qs-jobsheet-production-table'
+						);
+
+					qs_render_quote_component_table(
+						$production_page['fronts'],
+						$doors_columns,
+						'qs-pdf-table qs-jobsheet-doors-table qs-jobsheet-production-table ' . ( 'Width' === $production_page['label'] ? 'qs-jobsheet-production-width-table' : 'qs-jobsheet-production-height-table' )
 					);
 					?>
 
 					<h3>Drawer Banks</h3>
 					<?php
-					qs_render_quote_component_table(
-						$production_page['drawer_banks'],
-						array(
+					$drawer_columns = 'Width' === $production_page['label']
+						? array(
+							'type'                => 'Item Type',
+							'item_specifications' => 'Specifications',
+							'configuration'       => 'Configuration',
+							'width'               => 'Width',
+							'shoulder_length'     => 'Shoulder Length',
+							'rail_length'         => 'Rail Length',
+							'quantity'            => 'Quantity',
+							'notes'               => 'Notes',
+						)
+						: array(
 							'type'                => 'Item Type',
 							'item_specifications' => 'Specifications',
 							'configuration'       => 'Configuration',
@@ -242,8 +263,12 @@ $drawer_banks_by_height = $jobsheet_sort_rows( $drawer_banks, 'height' );
 							'height_details'      => 'Height',
 							'quantity'            => 'Quantity',
 							'notes'               => 'Notes',
-						),
-						'qs-pdf-table qs-jobsheet-drawer-bank-table qs-jobsheet-production-table',
+						);
+
+					qs_render_quote_component_table(
+						$production_page['drawer_banks'],
+						$drawer_columns,
+						'qs-pdf-table qs-jobsheet-drawer-bank-table qs-jobsheet-production-table ' . ( 'Width' === $production_page['label'] ? 'qs-jobsheet-production-width-table' : 'qs-jobsheet-production-height-table' ),
 						'No drawer banks supplied.',
 						count( $production_page['fronts'] ) + 1
 					);

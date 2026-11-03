@@ -42,6 +42,17 @@ function qs_component_drawer_heights( $row ) {
 }
 
 function qs_component_display_value( $row, $key ) {
+	if ( 'shoulder_length' === $key || 'rail_length' === $key ) {
+		$width = isset( $row['width'] ) ? (float) $row['width'] : 0;
+		if ( $width <= 0 ) {
+			return '';
+		}
+
+		$shoulder = $width - ( 60 * 2 );
+		$value    = 'rail_length' === $key ? $shoulder + 36 : $shoulder;
+
+		return rtrim( rtrim( number_format( $value, 2, '.', '' ), '0' ), '.' ) . ' mm';
+	}
 	if ( 'configuration' === $key ) {
 		$count = isset( $row['drawer_count'] ) ? absint( $row['drawer_count'] ) : 0;
 		return $count ? $count . ( 1 === $count ? ' Drawer' : ' Drawers' ) : '';

@@ -295,3 +295,36 @@ body {
 .qs-jobsheet-production-table tr {
 	page-break-inside: avoid;
 }
+
+
+/* Sorted-by-Width production page: Height is intentionally omitted so the
+ * two client-requested calculated cutting dimensions fit cleanly. */
+.qs-jobsheet-production-width-table th,
+.qs-jobsheet-production-width-table td {
+	font-size: 6px;
+	padding-left: 0.7mm;
+	padding-right: 0.7mm;
+}
+
+.qs-jobsheet-production-width-table th:first-child,
+.qs-jobsheet-production-width-table td:first-child { width: 4%; }
+
+.qs-jobsheet-production-width-table th:nth-child(2),
+.qs-jobsheet-production-width-table td:nth-child(2) { width: 10%; }
+
+.qs-jobsheet-production-width-table th:nth-child(3),
+.qs-jobsheet-production-width-table td:nth-child(3) { width: 22%; }
+
+.qs-jobsheet-production-width-table th:nth-child(4),
+.qs-jobsheet-production-width-table td:nth-child(4) { width: 9%; }
+
+.qs-jobsheet-production-width-table th:nth-child(5),
+.qs-jobsheet-production-width-table td:nth-child(5),
+.qs-jobsheet-production-width-table th:nth-child(6),
+.qs-jobsheet-production-width-table td:nth-child(6) { width: 11%; }
+
+.qs-jobsheet-production-width-table th:nth-last-child(2),
+.qs-jobsheet-production-width-table td:nth-last-child(2) { width: 8%; }
+
+.qs-jobsheet-production-width-table th:last-child,
+.qs-jobsheet-production-width-table td:last-child { width: 25%; }
