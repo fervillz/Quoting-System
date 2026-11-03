@@ -137,13 +137,23 @@ body {
 	border-bottom: 0;
 }
 
+.qs-pdf-specifications {
+	table-layout: auto;
+}
+
 .qs-pdf-specifications td {
-	padding: 0 1.4mm 0.8mm 0;
+	padding: 0 1mm 0.8mm 0;
 	vertical-align: top;
 }
 
 .qs-pdf-specifications .qs-pdf-swatch-cell {
 	width: 8mm;
+	padding-right: 1.4mm;
+}
+
+.qs-pdf-specifications .qs-pdf-spec-detail {
+	width: 40%;
+	padding-right: 3mm;
 }
 
 .qs-pdf-swatch {

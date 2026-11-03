@@ -79,8 +79,8 @@ $has_legacy_specs = (bool) array_filter(
 								<tr>
 									<?php for ( $j = $i; $j < $i + 2; $j++ ) : ?>
 										<?php if ( isset( $specs[ $j ] ) ) : ?>
-											<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"<?php echo ! empty( $spec[3] ) ? ' style="' . esc_attr( 'background-image:url("' . $spec[3] . '")' ) . '"' : ''; ?>></span></td>
-											<td>
+											<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"<?php echo ! empty( $specs[ $j ][3] ) ? ' style="' . esc_attr( 'background-image:url("' . $specs[ $j ][3] . '")' ) . '"' : ''; ?>></span></td>
+											<td class="qs-pdf-spec-detail">
 												<strong><?php echo esc_html( $specs[ $j ][0] ); ?>:</strong>
 												<span><?php echo esc_html( $specs[ $j ][1] ? $specs[ $j ][1] : '-' ); ?></span>
 												<?php if ( $specs[ $j ][2] ) : ?><small><?php echo esc_html( $specs[ $j ][2] ); ?></small><?php endif; ?>
