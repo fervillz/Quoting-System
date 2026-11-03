@@ -18,6 +18,20 @@ $fronts       = array_values(
 	)
 );
 $drawer_banks = qs_component_rows_by_type( $rows['doors_drawers'], 'Drawer Bank' );
+
+// Preserve the item numbers shown on the master Job Sheet. Sorted production
+// pages may move rows, but manufacturing references must keep these numbers.
+foreach ( $fronts as $index => &$front_row ) {
+	$front_row['_display_index'] = $index + 1;
+}
+unset( $front_row );
+
+$drawer_start = count( $fronts ) + 1;
+foreach ( $drawer_banks as $index => &$drawer_row ) {
+	$drawer_row['_display_index'] = $drawer_start + $index;
+}
+unset( $drawer_row );
+
 $created_by   = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
 $specs        = array(
 	array( 'Timber', $data['timber'], $data['paint_colour'] ? 'Paint Colour: ' . $data['paint_colour'] : '' ),
@@ -70,6 +84,10 @@ $jobsheet_sort_rows = static function ( $items, $dimension ) use ( $jobsheet_row
 				$right_secondary = 'height' === $dimension
 					? ( isset( $right['width'] ) ? absint( $right['width'] ) : 0 )
 					: $jobsheet_row_height( $right );
+
+				if ( $left_secondary === $right_secondary ) {
+					return absint( $left['_display_index'] ?? 0 ) <=> absint( $right['_display_index'] ?? 0 );
+				}
 
 				return $right_secondary <=> $left_secondary;
 			}

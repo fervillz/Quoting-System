@@ -110,7 +110,10 @@ function qs_render_quote_component_table( $rows, $columns, $class = 'qs-table', 
 	echo '</tr></thead><tbody>';
 
 	foreach ( $rows as $index => $row ) {
-		echo '<tr><td>' . esc_html( $index + absint( $start_index ) ) . '</td>';
+		$display_index = isset( $row['_display_index'] ) && absint( $row['_display_index'] )
+			? absint( $row['_display_index'] )
+			: $index + absint( $start_index );
+		echo '<tr><td>' . esc_html( $display_index ) . '</td>';
 		foreach ( array_keys( $columns ) as $key ) {
 			echo '<td>' . nl2br( esc_html( qs_component_display_value( $row, $key ) ) ) . '</td>';
 		}
