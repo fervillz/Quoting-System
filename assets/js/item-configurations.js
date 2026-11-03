@@ -838,6 +838,29 @@
       animateSummaryCommit(section, row, animationSource, wasUpdate);
     }
 
+    // Saving the quote should include an item that is actively being edited,
+    // but must never turn an untouched "Add Item" editor into a new row.
+    form.addEventListener('submit', function (event) {
+      var failed = false;
+
+      document.querySelectorAll('.qs-doors-drawers').forEach(function (section) {
+        if (failed || section.dataset.editingIndex === '') return;
+        commitDoor(section);
+        if (section.dataset.editingIndex !== '') failed = true;
+      });
+
+      document.querySelectorAll('.qs-configured-component').forEach(function (section) {
+        if (failed || section.dataset.editingIndex === '') return;
+        commitComponent(section);
+        if (section.dataset.editingIndex !== '') failed = true;
+      });
+
+      if (failed) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, true);
+
     form.addEventListener('input', function (event) {
       if (!event.target.matches('[data-editor-field], [data-component-field]')) return;
       var root = event.target.closest('.qs-item-editor, .qs-component-editor');

@@ -149,16 +149,23 @@ function qs_builder_save_quote( $quote_id, $handle_uploads = true ) {
 		return new WP_Error( 'forbidden', __( 'You cannot edit this quote.', 'quote-system' ) );
 	}
 	$post = array(
-		'post_type'   => 'quote',
-		'post_status' => 'draft',
-		'post_title'  => $project_name,
-		'post_author' => get_current_user_id(),
+		'post_type'  => 'quote',
+		'post_title' => $project_name,
 	);
 	if ( $quote_id ) {
-		$post['ID'] = $quote_id;
-		$quote_id   = wp_update_post( $post, true );
+		// Editing quote details must not move the quote backwards in the
+		// workflow or replace the original creator with the current admin.
+		$current_status = get_post_status( $quote_id );
+		if ( 'pending' === $current_status ) {
+			$current_status = 'pending_review';
+		}
+		$post['ID']          = $quote_id;
+		$post['post_status'] = $current_status ? $current_status : 'draft';
+		$quote_id            = wp_update_post( $post, true );
 	} else {
-		$quote_id = wp_insert_post( $post, true );
+		$post['post_status'] = 'draft';
+		$post['post_author'] = get_current_user_id();
+		$quote_id            = wp_insert_post( $post, true );
 	}
 	if ( is_wp_error( $quote_id ) ) {
 		return $quote_id;
@@ -618,6 +625,9 @@ function qs_quote_builder_shortcode() {
 	$builder_subtotal    = $quote_id ? qs_recalculate_quote_pricing( $quote_id ) : 0;
 	$supporting_document_ids = $quote_id ? qs_builder_supporting_document_ids( $quote_id ) : array();
 	$subtotal_animation_disabled = '0' !== (string) get_option( 'qs_disable_subtotal_animation', '1' );
+	$current_quote_status        = $quote_id ? get_post_status( $quote_id ) : 'draft';
+	$current_quote_status        = 'pending' === $current_quote_status ? 'pending_review' : $current_quote_status;
+	$save_button_label           = $quote_id && 'draft' !== $current_quote_status ? 'Save Changes' : 'Save Draft';
 	ob_start();
 	?>
 	<div class="qs-builder-shell">
@@ -708,7 +718,7 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 				<div class="qs-summary-items"></div>
 				<div class="qs-lead-time"><strong>Estimated Lead Time</strong><span>4–6 Weeks</span></div>
 				<div class="qs-subtotal"><span>Subtotal (Ex GST)</span><strong data-qs-subtotal-value<?php echo $subtotal_animation_disabled ? '' : ' data-qs-subtotal'; ?>>$<?php echo esc_html( number_format_i18n( $builder_subtotal, 2 ) ); ?> AUD</strong></div>
-				<div class="qs-summary-actions"><button class="qs-btn qs-btn-outline" type="submit" name="qs_save_draft">Save Draft</button><button class="qs-btn" type="submit" name="qs_review_quote">Review Quote</button></div>
+				<div class="qs-summary-actions"><button class="qs-btn qs-btn-outline" type="submit" name="qs_save_draft"><?php echo esc_html( $save_button_label ); ?></button><button class="qs-btn" type="submit" name="qs_review_quote">Review Quote</button></div>
 			</aside>
 		</form>
 	</div>
