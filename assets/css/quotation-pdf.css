@@ -137,44 +137,46 @@ body {
 	border-bottom: 0;
 }
 
+.qs-pdf-specifications td {
+	padding: 0 1.4mm 0.8mm 0;
+	vertical-align: top;
+}
+
+.qs-pdf-specifications .qs-pdf-swatch-cell {
+	width: 8mm;
+}
+
+.qs-pdf-swatch {
+	background: #d8d8d8 center / cover no-repeat;
+	display: block;
+	height: 9mm;
+	width: 7mm;
+}
+
+.qs-pdf-specifications strong,
+.qs-pdf-specifications span,
+.qs-pdf-specifications small {
+	display: block;
+}
+
+.qs-pdf-specifications strong {
+	font-size: 6.2px;
+}
+
+.qs-pdf-specifications span {
+	font-size: 6px;
+}
+
+.qs-pdf-specifications small {
+	font-size: 5px;
+	margin-top: 0.4mm;
+}
+
 /*
  * Quotation item data uses the same structured tables as the Job Sheet.
  * Keep borders/spacing explicit for Dompdf so the customer PDF reads as a
  * proper schedule rather than loose text columns.
  */
-
-.qs-pdf-product-images {
-  border-collapse: separate;
-  border-spacing: 0 1mm;
-  margin: 0.5mm 0 1.8mm;
-  table-layout: fixed;
-  width: 100%;
-}
-
-.qs-pdf-product-images td {
-  padding: 0 2mm 0 0;
-  text-align: left;
-  vertical-align: top;
-}
-
-.qs-pdf-product-images img {
-  display: block;
-  height: 14mm;
-  margin-bottom: 0.7mm;
-  object-fit: cover;
-  width: 20mm;
-}
-
-.qs-pdf-product-images strong,
-.qs-pdf-product-images span {
-  display: block;
-  font-size: 6px;
-  line-height: 1.2;
-}
-
-.qs-pdf-product-images strong {
-  font-weight: 700;
-}
 
 .qs-pdf-table {
 	border-collapse: collapse;

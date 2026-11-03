@@ -139,7 +139,7 @@ body {
 }
 
 .qs-pdf-swatch {
-	background: #d8d8d8;
+	background: #d8d8d8 center / cover no-repeat;
 	display: block;
 	height: 9mm;
 	width: 7mm;
@@ -164,39 +164,6 @@ body {
 	margin-top: 0.4mm;
 }
 
-
-.qs-pdf-product-images {
-  border-collapse: separate;
-  border-spacing: 0 1mm;
-  margin: 0.5mm 0 1.8mm;
-  table-layout: fixed;
-  width: 100%;
-}
-
-.qs-pdf-product-images td {
-  padding: 0 2mm 0 0;
-  text-align: left;
-  vertical-align: top;
-}
-
-.qs-pdf-product-images img {
-  display: block;
-  height: 14mm;
-  margin-bottom: 0.7mm;
-  object-fit: cover;
-  width: 20mm;
-}
-
-.qs-pdf-product-images strong,
-.qs-pdf-product-images span {
-  display: block;
-  font-size: 6px;
-  line-height: 1.2;
-}
-
-.qs-pdf-product-images strong {
-  font-weight: 700;
-}
 
 .qs-pdf-table {
 	border-collapse: collapse;

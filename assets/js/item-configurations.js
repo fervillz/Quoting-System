@@ -68,25 +68,48 @@
       return values;
     }
 
-    function updateSelectImage(root, field) {
+    function setSwatchImage(swatch, image) {
+      if (!swatch) return;
+      image = String(image || '');
+      swatch.style.backgroundImage = image ? 'url("' + image.replace(/"/g, '%22') + '")' : '';
+    }
+
+    function syncImagePicker(root, field) {
       if (!root || (field !== 'door_profile' && field !== 'timber')) return;
       var select = configField(root, field);
-      var preview = root.querySelector('[data-item-config-image="' + field + '"]');
-      if (!select || !preview) return;
+      var picker = root.querySelector('[data-item-image-picker="' + field + '"]');
+      if (!select || !picker) return;
+
       var item = productOption(field, select.value);
-      var image = item && item.image ? String(item.image) : '';
-      preview.style.backgroundImage = image ? 'url("' + image.replace(/"/g, '%22') + '")' : '';
-      preview.classList.toggle('is-empty', !image);
+      var label = picker.querySelector('[data-item-picker-label]');
+      var swatch = picker.querySelector('[data-item-picker-swatch]');
+      if (label) {
+        label.textContent = item ? item.label : (select.value && select.selectedOptions[0] ? select.selectedOptions[0].textContent : 'Select an option');
+      }
+      setSwatchImage(swatch, item && item.image ? item.image : '');
+
+      picker.querySelectorAll('[data-item-picker-option]').forEach(function (option) {
+        option.classList.toggle('is-selected', !!item && option.dataset.value === String(item.id));
+      });
+    }
+
+    function closeImagePicker(picker) {
+      if (!picker) return;
+      picker.classList.remove('is-open');
+      var toggle = picker.querySelector('[data-item-picker-toggle]');
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
     }
 
     function makeSelect(field, placeholder) {
       var select = document.createElement('select');
       select.setAttribute('data-item-config-field', field);
       select.setAttribute('aria-label', placeholder);
+
       var blank = document.createElement('option');
       blank.value = '';
       blank.textContent = placeholder;
       select.appendChild(blank);
+
       (products[field] || []).forEach(function (item) {
         var option = document.createElement('option');
         option.value = String(item.id);
@@ -96,15 +119,74 @@
 
       if (field !== 'door_profile' && field !== 'timber') return select;
 
-      var wrap = document.createElement('div');
-      wrap.className = 'qs-item-config-choice';
-      var preview = document.createElement('span');
-      preview.className = 'qs-item-config-image is-empty';
-      preview.setAttribute('data-item-config-image', field);
-      preview.setAttribute('aria-hidden', 'true');
-      wrap.appendChild(preview);
-      wrap.appendChild(select);
-      return wrap;
+      select.classList.add('qs-item-config-native-select');
+
+      var picker = document.createElement('div');
+      picker.className = 'qs-product-picker qs-item-image-picker';
+      picker.setAttribute('data-item-image-picker', field);
+
+      var toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'qs-product-selection';
+      toggle.setAttribute('data-item-picker-toggle', '');
+      toggle.setAttribute('aria-expanded', 'false');
+
+      var selectedSwatch = document.createElement('span');
+      selectedSwatch.className = 'qs-product-swatch';
+      selectedSwatch.setAttribute('data-item-picker-swatch', '');
+
+      var selectedLabel = document.createElement('span');
+      selectedLabel.setAttribute('data-item-picker-label', '');
+      selectedLabel.textContent = 'Select an option';
+
+      var arrow = document.createElement('span');
+      arrow.className = 'qs-item-picker-arrow';
+      arrow.setAttribute('aria-hidden', 'true');
+      arrow.textContent = '⌄';
+
+      toggle.appendChild(selectedSwatch);
+      toggle.appendChild(selectedLabel);
+      toggle.appendChild(arrow);
+
+      var optionList = document.createElement('div');
+      optionList.className = 'qs-product-options';
+
+      (products[field] || []).forEach(function (item) {
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'qs-product-option qs-item-picker-option';
+        row.setAttribute('data-item-picker-option', '');
+        row.dataset.value = String(item.id);
+
+        var swatch = document.createElement('span');
+        swatch.className = 'qs-product-swatch';
+        setSwatchImage(swatch, item.image || '');
+
+        var label = document.createElement('span');
+        label.className = 'qs-product-option-label';
+        label.textContent = item.label;
+
+        row.appendChild(swatch);
+        row.appendChild(label);
+        row.addEventListener('click', function () {
+          select.value = row.dataset.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          closeImagePicker(picker);
+        });
+        optionList.appendChild(row);
+      });
+
+      toggle.addEventListener('click', function () {
+        var opening = !picker.classList.contains('is-open');
+        document.querySelectorAll('.qs-item-image-picker.is-open').forEach(closeImagePicker);
+        picker.classList.toggle('is-open', opening);
+        toggle.setAttribute('aria-expanded', opening ? 'true' : 'false');
+      });
+
+      picker.appendChild(select);
+      picker.appendChild(toggle);
+      picker.appendChild(optionList);
+      return picker;
     }
 
     function makeConfigBlock(includeProfile) {
@@ -188,8 +270,8 @@
         var input = configField(root, key);
         if (input && values && values[key] !== undefined) input.value = values[key] || '';
       });
-      updateSelectImage(root, 'timber');
-      if (includeProfile) updateSelectImage(root, 'door_profile');
+      syncImagePicker(root, 'timber');
+      if (includeProfile) syncImagePicker(root, 'door_profile');
       syncPaintFields(root);
     }
 
@@ -291,10 +373,22 @@
       setConfig(editor, componentLast[component], false);
     });
 
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('.qs-item-image-picker')) {
+        document.querySelectorAll('.qs-item-image-picker.is-open').forEach(closeImagePicker);
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        document.querySelectorAll('.qs-item-image-picker.is-open').forEach(closeImagePicker);
+      }
+    });
+
     form.addEventListener('change', function (event) {
       var root = event.target.closest('.qs-item-editor, .qs-component-editor');
       if (root && event.target.matches('[data-item-config-field="door_profile"], [data-item-config-field="timber"]')) {
-        updateSelectImage(root, event.target.getAttribute('data-item-config-field'));
+        syncImagePicker(root, event.target.getAttribute('data-item-config-field'));
       }
       if (root && event.target.matches('[data-item-config-field="timber"]')) syncPaintFields(root);
 

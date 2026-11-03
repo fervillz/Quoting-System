@@ -45,20 +45,47 @@ function qs_quote_review_handle_remove_item( $quote_id ) {
 	return 'Item removed from the draft.';
 }
 
-function qs_review_specification_cards( $data ) {
+function qs_review_specification_cards( $data, $quote_id = 0 ) {
+	$primary = function_exists( 'qs_quote_primary_specifications' )
+		? qs_quote_primary_specifications( $quote_id, $data )
+		: array();
+
+	$profile = $primary['door_profile'] ?? array();
+	$timber  = $primary['timber'] ?? array();
+	$finish  = $primary['finish'] ?? array();
+	$handle  = $primary['handle_profile'] ?? array();
+
 	$specifications = array(
-		array( 'label' => 'Profile', 'value' => $data['door_profile'], 'product' => $data['door_profile_id'], 'detail' => '' ),
-		array( 'label' => 'Finish', 'value' => $data['finish'] ? $data['finish'] : '—', 'product' => $data['finish_id'], 'detail' => '' ),
-		array( 'label' => 'Timber', 'value' => $data['timber'], 'product' => $data['timber_id'], 'detail' => $data['paint_colour'] ? 'Paint Colour: ' . $data['paint_colour'] : '' ),
-		array( 'label' => 'Door / Drawer Handle Profile', 'value' => $data['handle_profile'], 'product' => $data['handle_profile_id'], 'detail' => '' ),
+		array(
+			'label' => 'Profile',
+			'value' => ! empty( $profile['label'] ) ? $profile['label'] : ( $data['door_profile'] ?? '' ),
+			'image' => $profile['image'] ?? '',
+			'detail'=> '',
+		),
+		array(
+			'label' => 'Finish',
+			'value' => ! empty( $finish['label'] ) ? $finish['label'] : ( $data['finish'] ?? '' ),
+			'image' => '',
+			'detail'=> '',
+		),
+		array(
+			'label' => 'Timber',
+			'value' => ! empty( $timber['label'] ) ? $timber['label'] : ( $data['timber'] ?? '' ),
+			'image' => $timber['image'] ?? '',
+			'detail'=> ! empty( $primary['paint_colour'] ) ? 'Paint Colour: ' . $primary['paint_colour'] : '',
+		),
+		array(
+			'label' => 'Door / Drawer Handle Profile',
+			'value' => ! empty( $handle['label'] ) ? $handle['label'] : ( $data['handle_profile'] ?? '' ),
+			'image' => '',
+			'detail'=> '',
+		),
 	);
 	?>
 	<div class="qs-review-spec-grid">
-		<?php foreach ( $specifications as $specification ) :
-			$image = qs_quote_product_image_url( $specification['product'] );
-			?>
+		<?php foreach ( $specifications as $specification ) : ?>
 			<div class="qs-review-spec">
-				<span class="qs-review-swatch"<?php echo $image ? ' style="' . esc_attr( 'background-image:url("' . $image . '")' ) . '"' : ''; ?>></span>
+				<span class="qs-review-swatch"<?php echo $specification['image'] ? ' style="' . esc_attr( 'background-image:url("' . $specification['image'] . '")' ) . '"' : ''; ?>></span>
 				<span>
 					<strong><?php echo esc_html( $specification['label'] ); ?>:</strong>
 					<?php echo esc_html( $specification['value'] ? $specification['value'] : '—' ); ?>
@@ -344,12 +371,10 @@ function qs_quote_review_shortcode() {
 					</dl>
 				</section>
 
-				<?php if ( ! $uses_item_config ) : ?>
-					<section class="qs-review-section">
-						<h3>Selected Specifications</h3>
-						<?php qs_review_specification_cards( $data ); ?>
-					</section>
-				<?php endif; ?>
+				<section class="qs-review-section">
+					<h3>Selected Specifications</h3>
+					<?php qs_review_specification_cards( $data, $quote_id ); ?>
+				</section>
 
 				<?php qs_review_component_sections( $quote_id, $data ); ?>
 

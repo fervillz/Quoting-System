@@ -144,65 +144,60 @@ function qs_quote_product_image_url( $product_id ) {
 }
 
 /**
- * Return unique Profile and Timber products used by a quote for visual
- * references in customer/internal PDFs.
+ * Return the primary item configuration used by the Project Details design.
+ * Per-item values take priority; quote-level values remain a legacy fallback.
  */
-function qs_quote_visual_products( $quote_id ) {
+function qs_quote_primary_specifications( $quote_id, $data = array() ) {
 	$quote_id = absint( $quote_id );
-	if ( ! $quote_id ) {
-		return array();
-	}
+	$data     = is_array( $data ) ? $data : array();
 
-	$items = array();
-	$seen  = array();
+	$values = array(
+		'door_profile'   => '',
+		'timber'         => '',
+		'finish'         => '',
+		'handle_profile' => '',
+		'paint_colour'   => '',
+	);
 
-	$add_product = static function ( $type, $value ) use ( &$items, &$seen ) {
-		$product_id = is_numeric( $value ) ? absint( $value ) : 0;
-		if ( ! $product_id ) {
-			return;
-		}
-
-		$key = $type . ':' . $product_id;
-		if ( isset( $seen[ $key ] ) ) {
-			return;
-		}
-
-		$image = qs_quote_product_image_url( $product_id );
-		if ( ! $image ) {
-			return;
-		}
-
-		$seen[ $key ] = true;
-		$items[] = array(
-			'type'  => $type,
-			'id'    => $product_id,
-			'label' => qs_quote_product_label( $product_id ),
-			'image' => $image,
-		);
-	};
-
-	foreach ( qs_component_rows( $quote_id, 'doors_drawers' ) as $row ) {
-		if ( ! empty( $row['door_profile'] ) ) {
-			$add_product( 'Profile', $row['door_profile'] );
-		}
-		if ( ! empty( $row['timber'] ) ) {
-			$add_product( 'Timber', $row['timber'] );
-		}
-	}
-
-	foreach ( array( 'end_panels', 'fillers', 'kickboards' ) as $component ) {
-		foreach ( qs_component_rows( $quote_id, $component ) as $row ) {
-			if ( ! empty( $row['timber'] ) ) {
-				$add_product( 'Timber', $row['timber'] );
+	if ( $quote_id ) {
+		foreach ( qs_component_rows( $quote_id, 'doors_drawers' ) as $row ) {
+			if ( empty( $row['door_profile'] ) && empty( $row['timber'] ) ) {
+				continue;
 			}
+			foreach ( array_keys( $values ) as $key ) {
+				if ( ! empty( $row[ $key ] ) ) {
+					$values[ $key ] = $row[ $key ];
+				}
+			}
+			break;
 		}
 	}
 
-	// Legacy quotes may only have quote-level selections.
-	$add_product( 'Profile', get_post_meta( $quote_id, '_door_profile', true ) );
-	$add_product( 'Timber', get_post_meta( $quote_id, '_timber', true ) );
+	$fallbacks = array(
+		'door_profile'   => $data['door_profile_id'] ?? '',
+		'timber'         => $data['timber_id'] ?? '',
+		'finish'         => $data['finish_id'] ?? '',
+		'handle_profile' => $data['handle_profile_id'] ?? '',
+		'paint_colour'   => $data['paint_colour'] ?? '',
+	);
+	foreach ( $fallbacks as $key => $fallback ) {
+		if ( empty( $values[ $key ] ) ) {
+			$values[ $key ] = $fallback;
+		}
+	}
 
-	return $items;
+	$result = array();
+	foreach ( array( 'door_profile', 'timber', 'finish', 'handle_profile' ) as $key ) {
+		$value = $values[ $key ] ?? '';
+		$result[ $key ] = array(
+			'id'    => is_numeric( $value ) ? absint( $value ) : 0,
+			'label' => $value ? qs_quote_product_label( $value ) : '',
+			'image' => in_array( $key, array( 'door_profile', 'timber' ), true ) ? qs_quote_product_image_url( $value ) : '',
+		);
+	}
+	$result['paint_colour'] = (string) ( $values['paint_colour'] ?? '' );
+
+	return $result;
 }
 
 function qs_quote_summary_groups( $quote_id ) {

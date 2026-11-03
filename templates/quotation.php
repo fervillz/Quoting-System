@@ -30,16 +30,22 @@ $delivery_fee      = (float) $data['shipping'];
 $total             = (float) $data['total'];
 $total_incl_gst    = round( $total * 1.10, 2 );
 $created_by        = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
+$primary_specs      = function_exists( 'qs_quote_primary_specifications' ) ? qs_quote_primary_specifications( $quote_id, $data ) : array();
 $specs             = array(
-	array( 'Timber', $data['timber'], $data['paint_colour'] ? 'Paint Colour: ' . $data['paint_colour'] : '' ),
-	array( 'Finish', $data['finish'], '' ),
-	array( 'Profile', $data['door_profile'], '' ),
-	array( 'Door / Drawer Handle Profile', $data['handle_profile'], '' ),
+	array( 'Timber', $primary_specs['timber']['label'] ?? $data['timber'], ! empty( $primary_specs['paint_colour'] ) ? 'Paint Colour: ' . $primary_specs['paint_colour'] : '', $primary_specs['timber']['image'] ?? '' ),
+	array( 'Finish', $primary_specs['finish']['label'] ?? $data['finish'], '', '' ),
+	array( 'Profile', $primary_specs['door_profile']['label'] ?? $data['door_profile'], '', $primary_specs['door_profile']['image'] ?? '' ),
+	array( 'Door / Drawer Handle Profile', $primary_specs['handle_profile']['label'] ?? $data['handle_profile'], '', '' ),
 );
 $has_legacy_specs = (bool) array_filter(
-	array( $data['timber'], $data['finish'], $data['door_profile'], $data['handle_profile'], $data['paint_colour'] )
+	array(
+		$primary_specs['timber']['label'] ?? '',
+		$primary_specs['finish']['label'] ?? '',
+		$primary_specs['door_profile']['label'] ?? '',
+		$primary_specs['handle_profile']['label'] ?? '',
+		$primary_specs['paint_colour'] ?? '',
+	)
 );
-$visual_products = function_exists( 'qs_quote_visual_products' ) ? qs_quote_visual_products( $quote_id ) : array();
 ?>
 <div class="qs-pdf qs-quotation-pdf">
 	<header class="qs-pdf-header">
@@ -73,7 +79,7 @@ $visual_products = function_exists( 'qs_quote_visual_products' ) ? qs_quote_visu
 								<tr>
 									<?php for ( $j = $i; $j < $i + 2; $j++ ) : ?>
 										<?php if ( isset( $specs[ $j ] ) ) : ?>
-											<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"></span></td>
+											<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"<?php echo ! empty( $spec[3] ) ? ' style="' . esc_attr( 'background-image:url("' . $spec[3] . '")' ) . '"' : ''; ?>></span></td>
 											<td>
 												<strong><?php echo esc_html( $specs[ $j ][0] ); ?>:</strong>
 												<span><?php echo esc_html( $specs[ $j ][1] ? $specs[ $j ][1] : '-' ); ?></span>
@@ -86,13 +92,6 @@ $visual_products = function_exists( 'qs_quote_visual_products' ) ? qs_quote_visu
 								</tr>
 							<?php endfor; ?>
 						</table>
-					<?php endif; ?>
-					<?php if ( $visual_products ) : ?>
-						<table class="qs-pdf-product-images"><tr>
-							<?php foreach ( $visual_products as $visual_product ) : ?>
-								<td><img src="<?php echo esc_url( $visual_product['image'] ); ?>" alt=""><strong><?php echo esc_html( $visual_product['type'] ); ?></strong><span><?php echo esc_html( $visual_product['label'] ); ?></span></td>
-							<?php endforeach; ?>
-						</tr></table>
 					<?php endif; ?>
 					<h3>Delivery Address</h3>
 					<p><?php echo nl2br( esc_html( $data['delivery_address'] ) ); ?></p>

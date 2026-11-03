@@ -33,16 +33,22 @@ foreach ( $drawer_banks as $index => &$drawer_row ) {
 unset( $drawer_row );
 
 $created_by   = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
+$primary_specs = function_exists( 'qs_quote_primary_specifications' ) ? qs_quote_primary_specifications( $quote_id, $data ) : array();
 $specs        = array(
-	array( 'Timber', $data['timber'], $data['paint_colour'] ? 'Paint Colour: ' . $data['paint_colour'] : '' ),
-	array( 'Profile', $data['door_profile'], '' ),
-	array( 'Finish', $data['finish'], '' ),
-	array( 'Door / Drawer Handle Profile', $data['handle_profile'], '' ),
+	array( 'Timber', $primary_specs['timber']['label'] ?? $data['timber'], ! empty( $primary_specs['paint_colour'] ) ? 'Paint Colour: ' . $primary_specs['paint_colour'] : '', $primary_specs['timber']['image'] ?? '' ),
+	array( 'Profile', $primary_specs['door_profile']['label'] ?? $data['door_profile'], '', $primary_specs['door_profile']['image'] ?? '' ),
+	array( 'Finish', $primary_specs['finish']['label'] ?? $data['finish'], '', '' ),
+	array( 'Door / Drawer Handle Profile', $primary_specs['handle_profile']['label'] ?? $data['handle_profile'], '', '' ),
 );
 $has_legacy_specs = (bool) array_filter(
-	array( $data['timber'], $data['finish'], $data['door_profile'], $data['handle_profile'], $data['paint_colour'] )
+	array(
+		$primary_specs['timber']['label'] ?? '',
+		$primary_specs['finish']['label'] ?? '',
+		$primary_specs['door_profile']['label'] ?? '',
+		$primary_specs['handle_profile']['label'] ?? '',
+		$primary_specs['paint_colour'] ?? '',
+	)
 );
-$visual_products = function_exists( 'qs_quote_visual_products' ) ? qs_quote_visual_products( $quote_id ) : array();
 
 /**
  * Production-order pages use the exact same rows as the normal Job Sheet,
@@ -135,7 +141,7 @@ $drawer_banks_by_height = $jobsheet_sort_rows( $drawer_banks, 'height' );
 				<table class="qs-pdf-specifications">
 					<tr>
 						<?php foreach ( $specs as $spec ) : ?>
-							<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"></span></td>
+							<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"<?php echo ! empty( $spec[3] ) ? ' style="' . esc_attr( 'background-image:url("' . $spec[3] . '")' ) . '"' : ''; ?>></span></td>
 							<td>
 								<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
 								<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
@@ -144,13 +150,6 @@ $drawer_banks_by_height = $jobsheet_sort_rows( $drawer_banks, 'height' );
 						<?php endforeach; ?>
 					</tr>
 				</table>
-			<?php endif; ?>
-			<?php if ( $visual_products ) : ?>
-				<table class="qs-pdf-product-images"><tr>
-					<?php foreach ( $visual_products as $visual_product ) : ?>
-						<td><img src="<?php echo esc_url( $visual_product['image'] ); ?>" alt=""><strong><?php echo esc_html( $visual_product['type'] ); ?></strong><span><?php echo esc_html( $visual_product['label'] ); ?></span></td>
-					<?php endforeach; ?>
-				</tr></table>
 			<?php endif; ?>
 		</section>
 
