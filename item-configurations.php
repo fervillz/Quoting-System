@@ -464,7 +464,9 @@ function qs_item_config_product_options( $type ) {
 				$option = array(
 					'id'    => (string) $product->ID,
 					'label' => $label,
-					'image' => get_the_post_thumbnail_url( $product->ID, 'thumbnail' ) ?: '',
+					'image' => function_exists( 'qs_quote_product_image_url' )
+						? qs_quote_product_image_url( $product->ID )
+						: '',
 				);
 				if ( 'door-profile' === $type ) {
 					$option['bounds'] = qs_item_config_matrix_bounds( $product->ID );

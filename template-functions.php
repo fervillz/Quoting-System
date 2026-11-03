@@ -135,11 +135,29 @@ function qs_pdf_component_table( $rows, $columns ) {
 }
 
 function qs_quote_product_image_url( $product_id ) {
-	if ( ! is_numeric( $product_id ) || ! absint( $product_id ) ) {
+	$product_id = is_numeric( $product_id ) ? absint( $product_id ) : 0;
+	if ( ! $product_id ) {
 		return '';
 	}
 
-	$image = get_the_post_thumbnail_url( absint( $product_id ), 'thumbnail' );
+	// Quote Products already store their visual in the existing ACF "image"
+	// field. Read the underlying post meta directly so Quote System does not
+	// depend on ACF being active at render time.
+	$image_value = get_post_meta( $product_id, 'image', true );
+
+	if ( is_numeric( $image_value ) && absint( $image_value ) ) {
+		$image = wp_get_attachment_image_url( absint( $image_value ), 'thumbnail' );
+		if ( $image ) {
+			return $image;
+		}
+	}
+
+	if ( is_string( $image_value ) && filter_var( $image_value, FILTER_VALIDATE_URL ) ) {
+		return $image_value;
+	}
+
+	// Legacy/fallback support for any product that happens to use a Featured Image.
+	$image = get_the_post_thumbnail_url( $product_id, 'thumbnail' );
 	return $image ? $image : '';
 }
 
