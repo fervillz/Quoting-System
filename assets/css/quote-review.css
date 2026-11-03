@@ -120,16 +120,16 @@
 
 .qs-review-spec {
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr);
+  grid-template-columns: 55px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
-  min-height: 54px;
+  min-height: 55px;
 }
 
 .qs-review-swatch {
   display: block;
-  width: 54px;
-  height: 54px;
+  width: 55px;
+  height: 55px;
   background: #d7d7d7 center/cover no-repeat;
 }
 

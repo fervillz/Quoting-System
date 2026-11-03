@@ -34,25 +34,32 @@ body .qs-builder-shell .qs-item-config-grid select.qs-item-config-native-select 
 }
 
 .qs-item-image-picker .qs-product-selection {
-  min-height: 76px !important;
-  grid-template-columns: 100px minmax(0, 1fr) 18px !important;
-  padding: 4px 10px !important;
+  min-height: 72px !important;
+  grid-template-columns: 71px minmax(0, 1fr) 18px !important;
+  padding: 6px 12px !important;
 }
 
 .qs-item-image-picker .qs-product-swatch {
-  width: 100px !important;
-  height: 68px !important;
-  flex: 0 0 100px !important;
+  width: 71px !important;
+  height: 60px !important;
+  flex: 0 0 71px !important;
 }
 
 .qs-item-image-picker .qs-product-options {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: none !important;
   max-height: 330px;
 }
 
 .qs-item-image-picker .qs-product-option {
   display: flex !important;
+  box-sizing: border-box !important;
   width: 100% !important;
-  min-height: 50px !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  align-self: stretch !important;
+  min-height: 72px !important;
   align-items: center !important;
   gap: 12px !important;
   margin: 0 !important;
