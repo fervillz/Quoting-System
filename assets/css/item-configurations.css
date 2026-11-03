@@ -34,15 +34,15 @@ body .qs-builder-shell .qs-item-config-grid select.qs-item-config-native-select 
 }
 
 .qs-item-image-picker .qs-product-selection {
-  min-height: 58px !important;
-  grid-template-columns: 54px minmax(0, 1fr) 18px !important;
+  min-height: 76px !important;
+  grid-template-columns: 100px minmax(0, 1fr) 18px !important;
   padding: 4px 10px !important;
 }
 
 .qs-item-image-picker .qs-product-swatch {
-  width: 54px !important;
-  height: 48px !important;
-  flex: 0 0 54px !important;
+  width: 100px !important;
+  height: 68px !important;
+  flex: 0 0 100px !important;
 }
 
 .qs-item-image-picker .qs-product-options {
