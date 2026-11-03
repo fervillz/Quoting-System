@@ -299,7 +299,7 @@ function qs_builder_product_picker( $name, $label, $type, $selected, $options = 
 			<button class="qs-product-selection" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $options_id ); ?>" data-picker-toggle>
 				<span class="qs-product-swatch" data-picker-selected-swatch<?php echo $selected_image ? ' style="background-image:url(' . esc_url( $selected_image ) . ')"' : ''; ?>></span>
 				<span data-picker-selected-label><?php echo esc_html( $selected_label ? $selected_label : 'Select an option' ); ?></span>
-				<svg aria-hidden="true" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/></svg>
+				<svg aria-hidden="true" viewBox="0 0 16 16" focusable="false"><path d="M4.5 6.25 8 9.75l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
 			</button>
 			<?php if ( 'timber' === $name ) : ?>
 				<div class="qs-paint-colour-field" data-paint-colour-field <?php echo $is_painted ? '' : 'hidden'; ?>>
