@@ -139,10 +139,20 @@
       selectedLabel.setAttribute('data-item-picker-label', '');
       selectedLabel.textContent = 'Select an option';
 
-      var arrow = document.createElement('span');
-      arrow.className = 'qs-item-picker-arrow';
+      var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      arrow.classList.add('qs-item-picker-arrow');
       arrow.setAttribute('aria-hidden', 'true');
-      arrow.textContent = '⌄';
+      arrow.setAttribute('viewBox', '0 0 16 16');
+      arrow.setAttribute('focusable', 'false');
+
+      var arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      arrowPath.setAttribute('d', 'M4.5 6.25 8 9.75l3.5-3.5');
+      arrowPath.setAttribute('fill', 'none');
+      arrowPath.setAttribute('stroke', 'currentColor');
+      arrowPath.setAttribute('stroke-width', '1.5');
+      arrowPath.setAttribute('stroke-linecap', 'round');
+      arrowPath.setAttribute('stroke-linejoin', 'round');
+      arrow.appendChild(arrowPath);
 
       toggle.appendChild(selectedSwatch);
       toggle.appendChild(selectedLabel);
