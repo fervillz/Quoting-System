@@ -76,6 +76,11 @@ body .qs-builder-shell .qs-item-config-grid select.qs-item-config-native-select 
   letter-spacing: 0 !important;
 }
 
+.qs-item-image-picker .qs-product-option:hover,
+.qs-item-image-picker .qs-product-option:focus-visible {
+  background: var(--qs-blush) !important;
+}
+
 .qs-item-image-picker .qs-product-option.is-selected {
   background: var(--qs-blush) !important;
 }
