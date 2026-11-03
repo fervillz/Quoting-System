@@ -61,6 +61,7 @@ body .qs-builder-shell .qs-item-config-grid select.qs-item-config-native-select 
   align-self: stretch !important;
   min-height: 72px !important;
   align-items: center !important;
+  justify-content: flex-start !important;
   gap: 12px !important;
   margin: 0 !important;
   padding: 5px 10px !important;
