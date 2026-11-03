@@ -461,7 +461,11 @@ function qs_item_config_product_options( $type ) {
 				if ( 'timber' === $type && false !== stripos( $label, 'paint' ) ) {
 					$label = 'Painted Oak';
 				}
-				$option = array( 'id' => (string) $product->ID, 'label' => $label );
+				$option = array(
+					'id'    => (string) $product->ID,
+					'label' => $label,
+					'image' => get_the_post_thumbnail_url( $product->ID, 'thumbnail' ) ?: '',
+				);
 				if ( 'door-profile' === $type ) {
 					$option['bounds'] = qs_item_config_matrix_bounds( $product->ID );
 				}

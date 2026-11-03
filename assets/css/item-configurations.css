@@ -19,6 +19,29 @@
   gap: 10px;
 }
 
+
+.qs-item-config-choice {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 7px;
+  min-width: 0;
+}
+
+.qs-item-config-image {
+  display: block;
+  min-height: 36px;
+  border: 1px solid #501e2a;
+  background-color: #f4f1ef;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.qs-item-config-image.is-empty {
+  background-image: none !important;
+}
+
 body .qs-builder-shell .qs-item-config-grid select,
 body .qs-builder-shell .qs-item-config-grid input,
 body .qs-builder-shell .qs-item-notes {

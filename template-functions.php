@@ -129,6 +129,68 @@ function qs_quote_product_image_url( $product_id ) {
 	return $image ? $image : '';
 }
 
+/**
+ * Return unique Profile and Timber products used by a quote for visual
+ * references in customer/internal PDFs.
+ */
+function qs_quote_visual_products( $quote_id ) {
+	$quote_id = absint( $quote_id );
+	if ( ! $quote_id ) {
+		return array();
+	}
+
+	$items = array();
+	$seen  = array();
+
+	$add_product = static function ( $type, $value ) use ( &$items, &$seen ) {
+		$product_id = is_numeric( $value ) ? absint( $value ) : 0;
+		if ( ! $product_id ) {
+			return;
+		}
+
+		$key = $type . ':' . $product_id;
+		if ( isset( $seen[ $key ] ) ) {
+			return;
+		}
+
+		$image = qs_quote_product_image_url( $product_id );
+		if ( ! $image ) {
+			return;
+		}
+
+		$seen[ $key ] = true;
+		$items[] = array(
+			'type'  => $type,
+			'id'    => $product_id,
+			'label' => qs_quote_product_label( $product_id ),
+			'image' => $image,
+		);
+	};
+
+	foreach ( qs_component_rows( $quote_id, 'doors_drawers' ) as $row ) {
+		if ( ! empty( $row['door_profile'] ) ) {
+			$add_product( 'Profile', $row['door_profile'] );
+		}
+		if ( ! empty( $row['timber'] ) ) {
+			$add_product( 'Timber', $row['timber'] );
+		}
+	}
+
+	foreach ( array( 'end_panels', 'fillers', 'kickboards' ) as $component ) {
+		foreach ( qs_component_rows( $quote_id, $component ) as $row ) {
+			if ( ! empty( $row['timber'] ) ) {
+				$add_product( 'Timber', $row['timber'] );
+			}
+		}
+	}
+
+	// Legacy quotes may only have quote-level selections.
+	$add_product( 'Profile', get_post_meta( $quote_id, '_door_profile', true ) );
+	$add_product( 'Timber', get_post_meta( $quote_id, '_timber', true ) );
+
+	return $items;
+}
+
 function qs_quote_summary_groups( $quote_id ) {
 	$doors_drawers = qs_component_rows_with_indices( qs_component_rows( $quote_id, 'doors_drawers' ) );
 

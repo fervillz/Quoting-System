@@ -39,6 +39,7 @@ $specs             = array(
 $has_legacy_specs = (bool) array_filter(
 	array( $data['timber'], $data['finish'], $data['door_profile'], $data['handle_profile'], $data['paint_colour'] )
 );
+$visual_products = function_exists( 'qs_quote_visual_products' ) ? qs_quote_visual_products( $quote_id ) : array();
 ?>
 <div class="qs-pdf qs-quotation-pdf">
 	<header class="qs-pdf-header">
@@ -85,6 +86,13 @@ $has_legacy_specs = (bool) array_filter(
 								</tr>
 							<?php endfor; ?>
 						</table>
+					<?php endif; ?>
+					<?php if ( $visual_products ) : ?>
+						<table class="qs-pdf-product-images"><tr>
+							<?php foreach ( $visual_products as $visual_product ) : ?>
+								<td><img src="<?php echo esc_url( $visual_product['image'] ); ?>" alt=""><strong><?php echo esc_html( $visual_product['type'] ); ?></strong><span><?php echo esc_html( $visual_product['label'] ); ?></span></td>
+							<?php endforeach; ?>
+						</tr></table>
 					<?php endif; ?>
 					<h3>Delivery Address</h3>
 					<p><?php echo nl2br( esc_html( $data['delivery_address'] ) ); ?></p>

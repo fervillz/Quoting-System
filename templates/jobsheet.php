@@ -28,6 +28,7 @@ $specs        = array(
 $has_legacy_specs = (bool) array_filter(
 	array( $data['timber'], $data['finish'], $data['door_profile'], $data['handle_profile'], $data['paint_colour'] )
 );
+$visual_products = function_exists( 'qs_quote_visual_products' ) ? qs_quote_visual_products( $quote_id ) : array();
 
 /**
  * Production-order pages use the exact same rows as the normal Job Sheet,
@@ -125,6 +126,13 @@ $drawer_banks_by_height = $jobsheet_sort_rows( $drawer_banks, 'height' );
 						<?php endforeach; ?>
 					</tr>
 				</table>
+			<?php endif; ?>
+			<?php if ( $visual_products ) : ?>
+				<table class="qs-pdf-product-images"><tr>
+					<?php foreach ( $visual_products as $visual_product ) : ?>
+						<td><img src="<?php echo esc_url( $visual_product['image'] ); ?>" alt=""><strong><?php echo esc_html( $visual_product['type'] ); ?></strong><span><?php echo esc_html( $visual_product['label'] ); ?></span></td>
+					<?php endforeach; ?>
+				</tr></table>
 			<?php endif; ?>
 		</section>
 

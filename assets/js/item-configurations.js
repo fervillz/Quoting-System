@@ -30,6 +30,13 @@
       handle_profile: data.handles || [],
       finish: data.finishes || []
     };
+
+    function productOption(field, value) {
+      value = String(value || '');
+      return (products[field] || []).find(function (item) {
+        return String(item.id) === value;
+      }) || null;
+    }
     var profileBounds = {};
     (data.profiles || []).forEach(function (item) {
       if (item && item.id && item.bounds) profileBounds[String(item.id)] = item.bounds;
@@ -61,6 +68,17 @@
       return values;
     }
 
+    function updateSelectImage(root, field) {
+      if (!root || (field !== 'door_profile' && field !== 'timber')) return;
+      var select = configField(root, field);
+      var preview = root.querySelector('[data-item-config-image="' + field + '"]');
+      if (!select || !preview) return;
+      var item = productOption(field, select.value);
+      var image = item && item.image ? String(item.image) : '';
+      preview.style.backgroundImage = image ? 'url("' + image.replace(/"/g, '%22') + '")' : '';
+      preview.classList.toggle('is-empty', !image);
+    }
+
     function makeSelect(field, placeholder) {
       var select = document.createElement('select');
       select.setAttribute('data-item-config-field', field);
@@ -75,7 +93,18 @@
         option.textContent = item.label;
         select.appendChild(option);
       });
-      return select;
+
+      if (field !== 'door_profile' && field !== 'timber') return select;
+
+      var wrap = document.createElement('div');
+      wrap.className = 'qs-item-config-choice';
+      var preview = document.createElement('span');
+      preview.className = 'qs-item-config-image is-empty';
+      preview.setAttribute('data-item-config-image', field);
+      preview.setAttribute('aria-hidden', 'true');
+      wrap.appendChild(preview);
+      wrap.appendChild(select);
+      return wrap;
     }
 
     function makeConfigBlock(includeProfile) {
@@ -159,6 +188,8 @@
         var input = configField(root, key);
         if (input && values && values[key] !== undefined) input.value = values[key] || '';
       });
+      updateSelectImage(root, 'timber');
+      if (includeProfile) updateSelectImage(root, 'door_profile');
       syncPaintFields(root);
     }
 
@@ -262,6 +293,9 @@
 
     form.addEventListener('change', function (event) {
       var root = event.target.closest('.qs-item-editor, .qs-component-editor');
+      if (root && event.target.matches('[data-item-config-field="door_profile"], [data-item-config-field="timber"]')) {
+        updateSelectImage(root, event.target.getAttribute('data-item-config-field'));
+      }
       if (root && event.target.matches('[data-item-config-field="timber"]')) syncPaintFields(root);
 
       var componentEditor = event.target.closest('.qs-configured-component .qs-component-editor');
