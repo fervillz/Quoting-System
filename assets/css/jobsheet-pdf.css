@@ -158,11 +158,19 @@ body {
 	width: auto;
 }
 
-.qs-pdf-swatch-image {
+.qs-pdf-swatch-image,
+.qs-pdf-swatch-placeholder {
 	display: block;
 	height: 9mm;
-	object-fit: cover;
 	width: 7mm;
+}
+
+.qs-pdf-swatch-image {
+	object-fit: cover;
+}
+
+.qs-pdf-swatch-placeholder {
+	background: #d8d8d8;
 }
 
 .qs-pdf-specifications strong,
