@@ -474,7 +474,185 @@ function qs_generate_jobsheet_pdf(
 }
 
 /**
- * Download Job Sheet PDF
+ * Return an authenticated, uncached Job Sheet PDF URL.
+ */
+function qs_jobsheet_pdf_url( $quote_id ) {
+	$quote_id = absint( $quote_id );
+	if ( ! $quote_id ) {
+		return '';
+	}
+
+	$url = add_query_arg(
+		array(
+			'action'   => 'qs_download_jobsheet_pdf',
+			'quote_id' => $quote_id,
+		),
+		admin_url( 'admin-post.php' )
+	);
+
+	return wp_nonce_url( $url, 'qs_download_jobsheet_pdf_' . $quote_id );
+}
+
+/**
+ * Return the admin-only Job Sheet diagnostic URL.
+ */
+function qs_jobsheet_pdf_debug_url( $quote_id ) {
+	$quote_id = absint( $quote_id );
+	if ( ! $quote_id ) {
+		return '';
+	}
+
+	$url = add_query_arg(
+		array(
+			'action'   => 'qs_jobsheet_pdf_debug',
+			'quote_id' => $quote_id,
+		),
+		admin_url( 'admin-post.php' )
+	);
+
+	return wp_nonce_url( $url, 'qs_jobsheet_pdf_debug_' . $quote_id );
+}
+
+/**
+ * Authenticated Job Sheet PDF endpoint.
+ */
+function qs_admin_download_jobsheet_pdf() {
+	if ( ! is_user_logged_in() ) {
+		auth_redirect();
+	}
+
+	$quote_id = isset( $_GET['quote_id'] ) ? absint( $_GET['quote_id'] ) : 0;
+	if ( ! $quote_id || ! qs_can_view_quote_document( $quote_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to download this job sheet.', 'quote-system' ), 403 );
+	}
+
+	check_admin_referer( 'qs_download_jobsheet_pdf_' . $quote_id );
+	qs_generate_jobsheet_pdf( $quote_id );
+}
+add_action( 'admin_post_qs_download_jobsheet_pdf', 'qs_admin_download_jobsheet_pdf' );
+
+/**
+ * Browser diagnostic for the Job Sheet HTML/Dompdf layout.
+ *
+ * This deliberately renders the exact same Job Sheet HTML and CSS below the
+ * diagnostic panel so spacing differences can be inspected in DevTools.
+ */
+function qs_render_jobsheet_pdf_debug( $quote_id ) {
+	if ( ! current_user_can( 'edit_post', $quote_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to debug this job sheet.', 'quote-system' ), 403 );
+	}
+
+	$data          = qs_get_quote_data( $quote_id );
+	$html          = qs_generate_jobsheet_html( $quote_id );
+	$primary_specs = function_exists( 'qs_quote_primary_specifications' )
+		? qs_quote_primary_specifications( $quote_id, $data )
+		: array();
+
+	$spec_debug = array();
+	foreach ( array(
+		'timber'         => 'Timber',
+		'door_profile'   => 'Profile',
+		'finish'         => 'Finish',
+		'handle_profile' => 'Door / Drawer Handle Profile',
+	) as $key => $label ) {
+		$id = isset( $primary_specs[ $key ]['id'] ) ? absint( $primary_specs[ $key ]['id'] ) : 0;
+		$spec_debug[] = array(
+			'key'       => $key,
+			'label'     => $label,
+			'id'        => $id,
+			'value'     => isset( $primary_specs[ $key ]['label'] ) ? $primary_specs[ $key ]['label'] : '',
+			'image_url' => $id && function_exists( 'qs_quote_product_image_url' ) ? qs_quote_product_image_url( $id ) : '',
+		);
+	}
+
+	$options = new Options();
+	$options->set( 'isRemoteEnabled', true );
+	$options->set( 'defaultFont', 'DejaVu Sans' );
+	$dompdf = new Dompdf( $options );
+	$dompdf->loadHtml( $html );
+	$dompdf->setPaper( 'A4', 'portrait' );
+	$dompdf->render();
+	$pdf_bytes  = method_exists( $dompdf, 'output' ) ? $dompdf->output() : '';
+	$page_count = method_exists( $dompdf, 'getCanvas' ) && $dompdf->getCanvas()
+		? $dompdf->getCanvas()->get_page_count()
+		: 0;
+
+	$normal_pdf_url = qs_jobsheet_pdf_url( $quote_id );
+
+	nocache_headers();
+	header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+	?>
+	<!doctype html>
+	<html>
+	<head>
+		<meta charset="<?php echo esc_attr( get_option( 'blog_charset' ) ); ?>">
+		<title>Job Sheet PDF Debug #<?php echo esc_html( $quote_id ); ?></title>
+		<style>
+			#qs-jobsheet-debug-panel{box-sizing:border-box;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;padding:22px 28px;background:#f6f7f7;color:#1d2327;border-bottom:3px solid #2271b1}
+			#qs-jobsheet-debug-panel h1{margin:0 0 8px;font-size:22px}#qs-jobsheet-debug-panel p{margin:4px 0}
+			#qs-jobsheet-debug-panel table{border-collapse:collapse;margin:14px 0;background:#fff}#qs-jobsheet-debug-panel th,#qs-jobsheet-debug-panel td{border:1px solid #dcdcde;padding:7px 9px;text-align:left;font-size:12px}
+			#qs-jobsheet-debug-panel .button{display:inline-block;margin:8px 8px 0 0;padding:7px 12px;background:#2271b1;color:#fff;text-decoration:none;border-radius:3px}
+			#qs-jobsheet-debug-panel code{font-size:12px}
+			#qs-jobsheet-debug-preview-label{font:600 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:8px 28px;background:#fff3cd;color:#664d03;border-bottom:1px solid #ffe69c}
+		</style>
+	</head>
+	<body>
+		<div id="qs-jobsheet-debug-panel">
+			<h1>Quote System Job Sheet PDF Debug</h1>
+			<p>Quote ID: <strong><?php echo esc_html( $quote_id ); ?></strong></p>
+			<p>Generated HTML: <strong><?php echo esc_html( strlen( $html ) ); ?> bytes</strong> · Dompdf: <strong><?php echo esc_html( strlen( $pdf_bytes ) ); ?> bytes</strong> · Pages: <strong><?php echo esc_html( $page_count ); ?></strong></p>
+			<a class="button" href="<?php echo esc_url( $normal_pdf_url ); ?>" target="_blank" rel="noopener">Open Normal Job Sheet PDF</a>
+			<table>
+				<thead><tr><th>Spec</th><th>Product ID</th><th>Value</th><th>Image URL</th></tr></thead>
+				<tbody>
+					<?php foreach ( $spec_debug as $spec ) : ?>
+						<tr>
+							<td><?php echo esc_html( $spec['label'] ); ?></td>
+							<td><?php echo esc_html( $spec['id'] ); ?></td>
+							<td><?php echo esc_html( $spec['value'] ); ?></td>
+							<td><code><?php echo esc_html( $spec['image_url'] ? $spec['image_url'] : 'No image resolved' ); ?></code></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+			<p>Use Inspect Element on the preview below. The preview is the same HTML/CSS passed to Dompdf.</p>
+		</div>
+		<div id="qs-jobsheet-debug-preview-label">Browser preview of the exact Job Sheet HTML sent to Dompdf</div>
+		<?php echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<script>
+		console.group('Quote System Job Sheet PDF Debug #<?php echo esc_js( (string) $quote_id ); ?>');
+		console.log('HTML bytes', <?php echo (int) strlen( $html ); ?>);
+		console.log('PDF bytes', <?php echo (int) strlen( $pdf_bytes ); ?>);
+		console.log('Page count', <?php echo (int) $page_count; ?>);
+		console.log('Specifications', <?php echo wp_json_encode( $spec_debug ); ?>);
+		console.groupEnd();
+		</script>
+	</body>
+	</html>
+	<?php
+	exit;
+}
+
+/**
+ * Dedicated admin Job Sheet debug endpoint.
+ */
+function qs_admin_jobsheet_pdf_debug() {
+	if ( ! is_user_logged_in() ) {
+		auth_redirect();
+	}
+
+	$quote_id = isset( $_GET['quote_id'] ) ? absint( $_GET['quote_id'] ) : 0;
+	if ( ! $quote_id || ! current_user_can( 'edit_post', $quote_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to debug this job sheet.', 'quote-system' ), 403 );
+	}
+
+	check_admin_referer( 'qs_jobsheet_pdf_debug_' . $quote_id );
+	qs_render_jobsheet_pdf_debug( $quote_id );
+}
+add_action( 'admin_post_qs_jobsheet_pdf_debug', 'qs_admin_jobsheet_pdf_debug' );
+
+/**
+ * Legacy frontend Job Sheet PDF endpoint retained for existing links.
  */
 function qs_download_jobsheet_pdf() {
 
