@@ -34,11 +34,17 @@ unset( $drawer_row );
 
 $created_by   = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
 $primary_specs = function_exists( 'qs_quote_primary_specifications' ) ? qs_quote_primary_specifications( $quote_id, $data ) : array();
+$finish_image = ! empty( $primary_specs['finish']['id'] ) && function_exists( 'qs_quote_product_image_url' )
+	? qs_quote_product_image_url( $primary_specs['finish']['id'] )
+	: '';
+$handle_image = ! empty( $primary_specs['handle_profile']['id'] ) && function_exists( 'qs_quote_product_image_url' )
+	? qs_quote_product_image_url( $primary_specs['handle_profile']['id'] )
+	: '';
 $specs        = array(
 	array( 'Timber', $primary_specs['timber']['label'] ?? $data['timber'], ! empty( $primary_specs['paint_colour'] ) ? 'Paint Colour: ' . $primary_specs['paint_colour'] : '', $primary_specs['timber']['image'] ?? '' ),
 	array( 'Profile', $primary_specs['door_profile']['label'] ?? $data['door_profile'], '', $primary_specs['door_profile']['image'] ?? '' ),
-	array( 'Finish', $primary_specs['finish']['label'] ?? $data['finish'], '', '' ),
-	array( 'Door / Drawer Handle Profile', $primary_specs['handle_profile']['label'] ?? $data['handle_profile'], '', '' ),
+	array( 'Finish', $primary_specs['finish']['label'] ?? $data['finish'], '', $finish_image ),
+	array( 'Door / Drawer Handle Profile', $primary_specs['handle_profile']['label'] ?? $data['handle_profile'], '', $handle_image ),
 );
 $has_legacy_specs = (bool) array_filter(
 	array(
