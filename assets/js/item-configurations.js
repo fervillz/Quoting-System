@@ -328,6 +328,11 @@
     var doorSection = document.querySelector('.qs-doors-drawers');
     var doorLast = globalDefaults(true);
     if (doorSection) {
+      // Untouched editors are not active edits. Explicitly initialise this so
+      // Save Draft / Review Quote never tries to validate an empty Add Item form.
+      if (typeof doorSection.dataset.editingIndex === 'undefined') {
+        doorSection.dataset.editingIndex = '';
+      }
       var existingDoorRows = doorSection.querySelectorAll('.qs-repeater-row');
       if (existingDoorRows.length) doorLast = rowConfig(existingDoorRows[existingDoorRows.length - 1], true, doorLast);
 
@@ -360,6 +365,11 @@
     }
 
     document.querySelectorAll('.qs-configured-component').forEach(function (section) {
+      // These editors are optional until Add Item is used. Without an explicit
+      // empty editing index, undefined was being mistaken for an active edit on submit.
+      if (typeof section.dataset.editingIndex === 'undefined') {
+        section.dataset.editingIndex = '';
+      }
       var component = section.dataset.component;
       var editor = section.querySelector('.qs-component-editor');
       if (!editor) return;
@@ -854,13 +864,13 @@
       var failed = false;
 
       document.querySelectorAll('.qs-doors-drawers').forEach(function (section) {
-        if (failed || section.dataset.editingIndex === '') return;
+        if (failed || !section.dataset.editingIndex) return;
         commitDoor(section);
         if (section.dataset.editingIndex !== '') failed = true;
       });
 
       document.querySelectorAll('.qs-configured-component').forEach(function (section) {
-        if (failed || section.dataset.editingIndex === '') return;
+        if (failed || !section.dataset.editingIndex) return;
         commitComponent(section);
         if (section.dataset.editingIndex !== '') failed = true;
       });
