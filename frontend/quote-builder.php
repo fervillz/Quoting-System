@@ -643,7 +643,8 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 							<strong>Developer Test Tools</strong>
 							<button type="button" class="qs-btn qs-btn-outline" data-dev-fill-details>Fill Details</button>
 							<button type="button" class="qs-btn qs-btn-outline" data-dev-build-test-quote hidden>Build Test Quote</button>
-							<small>Admin-only helpers. Fill Details uses rotating test data; Build Test Quote appears after details are populated.</small>
+							<button type="button" class="qs-btn qs-btn-outline" data-dev-client-review-test>Client Review Test – 11/4</button>
+							<small>Admin-only helpers. Client Review Test builds a controlled quote for checking PDF/job-sheet images, sorting, numbering and rail formulas.</small>
 						</div>
 					<?php endif; ?>
 				</section>
@@ -954,6 +955,63 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 			if(includeProfile)qsDevChooseSelect(root,'[data-item-config-field="handle_profile"]','Finger Pull');
 			qsDevChooseSelect(root,'[data-item-config-field="finish"]','Finished');
 		}
+		function qsDevChooseGlobalProduct(name,preferredLabel){
+			const field=form.querySelector('[data-product-field="'+name+'"]');
+			if(!field)return null;
+			let option=[...field.querySelectorAll('.qs-product-option')].find(row=>(row.dataset.optionLabel||'').trim()===preferredLabel);
+			if(!option)option=field.querySelector('.qs-product-option');
+			const input=option?.querySelector('input[type="radio"]');
+			if(!input)return null;
+			input.checked=true;
+			input.dispatchEvent(new Event('change',{bubbles:true}));
+			return input;
+		}
+		function qsDevAddClientReviewDoor(item){
+			const doors=form.querySelector('.qs-doors-drawers');
+			if(!doors)return;
+			const typeButton=doors.querySelector('[data-select-type="Door"]');
+			if(typeButton)typeButton.click();
+			const panel=doors.querySelector('.qs-item-editor[data-editor-type="Door"]');
+			if(!panel)return;
+			qsDevChooseSelect(panel,'[data-item-config-field="door_profile"]',item.profile);
+			qsDevChooseSelect(panel,'[data-item-config-field="timber"]',item.timber);
+			qsDevChooseSelect(panel,'[data-item-config-field="handle_profile"]',item.handle);
+			qsDevChooseSelect(panel,'[data-item-config-field="finish"]',item.finish);
+			qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="width"]',String(item.width));
+			qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="height"]',String(item.height));
+			qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-editor-field="quantity"]',String(item.quantity));
+			qsDevSetValue('.qs-doors-drawers .qs-item-editor[data-editor-type="Door"] [data-item-config-field="notes"]',item.notes);
+			doors.querySelector('.qs-commit-item')?.click();
+		}
+		function qsDevBuildClientReviewTest(){
+			qsDevSetValue('[name="company_name"]','Client Review Test Joinery');
+			qsDevSetValue('[name="project_name"]','11/4 Job Sheet + PDF Client Review Test');
+			qsDevSetValue('[name="customer_name"]','Client Review Test');
+			qsDevSetValue('[name="customer_email"]','client-review@example.com');
+			qsDevSetValue('[name="customer_phone"]','0400 110 400');
+			qsDevSetValue('[name="delivery_address"]','11 Test Street\nBayswater VIC 3153');
+			qsDevSetValue('[name="custom_requests"]','CLIENT REVIEW TEST: verify profile/timber images in quotation PDF and job sheet; sorted page numbering; Shoulder Length and Rail Length columns.');
+			qsDevSetValue('[name="project_notes"]','Expected sorted-by-width original item numbers: 2, 6, 3, 4, 1, 5. Expected sorted-by-height original item numbers: 5, 3, 4, 6, 2, 1.');
+
+			qsDevChooseGlobalProduct('door_profile','Rattan Tight Weave (20mm thick)');
+			qsDevChooseGlobalProduct('timber','American Oak Natural');
+			qsDevChooseGlobalProduct('handle_profile','Square Edge');
+			qsDevChooseGlobalProduct('finish','Finished');
+
+			const rows=[
+				{width:546,height:2030,quantity:3,profile:'Rattan Tight Weave (20mm thick)',timber:'American Oak Natural',handle:'Square Edge',finish:'Finished',notes:'TEST #1 – width 546; shoulder 426; rail 462.'},
+				{width:307,height:2008,quantity:1,profile:'Rattan Tight Weave (20mm thick)',timber:'American Oak Natural',handle:'Square Edge',finish:'Finished',notes:'TEST #2 – width 307; shoulder 187; rail 223.'},
+				{width:407,height:602,quantity:1,profile:'Angourie (19mm thick/39mm with handle)',timber:'American Oak Light',handle:'Finger Pull',finish:'Finished',notes:'TEST #3 – width 407; shoulder 287; rail 323.'},
+				{width:407,height:1425,quantity:1,profile:'Evans (19mm thick)',timber:'Spotted Gum',handle:'Square Edge',finish:'Finished',notes:'TEST #4 – same width as #3; original item number must remain 4.'},
+				{width:720,height:450,quantity:1,profile:'60 Shaker (20mm thick)',timber:'Blackbutt',handle:'Finger Pull',finish:'Raw',notes:'TEST #5 – width 720; shoulder 600; rail 636.'},
+				{width:330,height:1800,quantity:2,profile:'30 Shaker (21mm thick)',timber:'American Oak Aged',handle:'Square Edge',finish:'Finished',notes:'TEST #6 – width 330; shoulder 210; rail 246.'}
+			];
+			rows.forEach(qsDevAddClientReviewDoor);
+
+			const buildButton=document.querySelector('[data-dev-build-test-quote]');
+			if(buildButton)buildButton.hidden=false;
+			window.setTimeout(()=>scheduleCalculation(),100);
+		}
 		function qsDevBuildTestQuote(){
 			if(qsDevDetailsIndex<0)qsDevFillDetails();
 
@@ -1057,6 +1115,11 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 		}
 		document.querySelector('[data-dev-fill-details]')?.addEventListener('click',qsDevFillDetails);
 		document.querySelector('[data-dev-build-test-quote]')?.addEventListener('click',qsDevBuildTestQuote);
+		document.querySelector('[data-dev-client-review-test]')?.addEventListener('click',qsDevBuildClientReviewTest);
+		const qsDevRequestedScenario=new URLSearchParams(window.location.search).get('qs_test');
+		if(!quoteId&&qsDevRequestedScenario==='client-review-1104'){
+			window.setTimeout(qsDevBuildClientReviewTest,250);
+		}
 		<?php endif; ?>
 
 		function scheduleCalculation(){
