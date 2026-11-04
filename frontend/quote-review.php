@@ -240,6 +240,16 @@ function qs_review_admin_summary_actions( $quote_id, $status ) {
 	$quotation_url = function_exists( 'qs_quotation_pdf_url' )
 		? qs_quotation_pdf_url( $quote_id )
 		: add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) );
+	$quotation_debug_url = wp_nonce_url(
+		add_query_arg(
+			array(
+				'action'   => 'qs_pdf_debug',
+				'quote_id' => $quote_id,
+			),
+			admin_url( 'admin-post.php' )
+		),
+		'qs_pdf_debug_' . $quote_id
+	);
 	$jobsheet_url  = function_exists( 'qs_jobsheet_pdf_url' )
 		? qs_jobsheet_pdf_url( $quote_id )
 		: add_query_arg( 'download_jobsheet_pdf', $quote_id, home_url( '/' ) );
@@ -257,6 +267,7 @@ function qs_review_admin_summary_actions( $quote_id, $status ) {
 		<?php endif; ?>
 
 		<a class="qs-btn" href="<?php echo esc_url( $quotation_url ); ?>" target="_blank" rel="noopener">Quotation PDF</a>
+		<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( $quotation_debug_url ); ?>" target="_blank" rel="noopener">Quotation PDF Debug</a>
 		<a class="qs-btn" href="<?php echo esc_url( $jobsheet_url ); ?>" target="_blank" rel="noopener">Job Sheet</a>
 		<?php if ( $jobsheet_debug_url ) : ?>
 			<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( $jobsheet_debug_url ); ?>" target="_blank" rel="noopener">Job Sheet Debug</a>
