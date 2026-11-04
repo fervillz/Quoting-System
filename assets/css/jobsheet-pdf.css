@@ -138,8 +138,8 @@ body {
 
 .qs-pdf-spec-item {
 	border-collapse: collapse;
-	table-layout: fixed;
-	width: 100%;
+	table-layout: auto;
+	width: auto;
 }
 
 .qs-pdf-spec-item td {
@@ -148,18 +148,20 @@ body {
 }
 
 .qs-pdf-spec-item .qs-pdf-swatch-cell {
-	padding-right: 1.5mm;
+	padding: 0 1.2mm 0 0;
 	width: 7mm;
 }
 
 .qs-pdf-spec-copy {
+	padding: 0 !important;
 	text-align: left;
+	width: auto;
 }
 
-.qs-pdf-swatch {
-	background: center / cover no-repeat;
+.qs-pdf-swatch-image {
 	display: block;
 	height: 9mm;
+	object-fit: cover;
 	width: 7mm;
 }
 
