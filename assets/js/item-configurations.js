@@ -561,6 +561,11 @@
     function triggerRefresh(row) {
       var input = row && row.querySelector('[name]');
       if (input) input.dispatchEvent(new Event('input', { bubbles: true }));
+
+      // The item-configuration layer intercepts Add/Update Item before the
+      // legacy builder click handler runs. Notify the builder explicitly so
+      // its AJAX subtotal recalculation is never skipped.
+      form.dispatchEvent(new Event('qs:pricing-change'));
     }
 
     function summaryTarget(component, index) {
