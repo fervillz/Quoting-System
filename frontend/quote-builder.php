@@ -993,7 +993,7 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 			qsDevSetValue('[name="customer_phone"]','0400 110 400');
 			qsDevSetValue('[name="delivery_address"]','11 Test Street\nBayswater VIC 3153');
 			qsDevSetValue('[name="custom_requests"]','CLIENT REVIEW TEST: verify profile/timber images in quotation PDF and job sheet; sorted page numbering; Shoulder Length and Rail Length columns.');
-			qsDevSetValue('[name="project_notes"]','Expected sorted-by-width original item numbers: 2, 6, 3, 4, 1, 5. Expected sorted-by-height original item numbers: 5, 3, 4, 6, 2, 1.');
+			qsDevSetValue('[name="project_notes"]','Expected sorted-by-width original item numbers: 5, 1, 4, 3, 6, 2. Expected sorted-by-height original item numbers: 1, 2, 6, 4, 3, 5.');
 
 			qsDevChooseGlobalProduct('door_profile','Rattan Tight Weave (20mm thick)');
 			qsDevChooseGlobalProduct('timber','American Oak Natural');
