@@ -240,7 +240,12 @@ function qs_review_admin_summary_actions( $quote_id, $status ) {
 	$quotation_url = function_exists( 'qs_quotation_pdf_url' )
 		? qs_quotation_pdf_url( $quote_id )
 		: add_query_arg( 'download_quote_pdf', $quote_id, home_url( '/' ) );
-	$jobsheet_url  = add_query_arg( 'download_jobsheet_pdf', $quote_id, home_url( '/' ) );
+	$jobsheet_url  = function_exists( 'qs_jobsheet_pdf_url' )
+		? qs_jobsheet_pdf_url( $quote_id )
+		: add_query_arg( 'download_jobsheet_pdf', $quote_id, home_url( '/' ) );
+	$jobsheet_debug_url = function_exists( 'qs_jobsheet_pdf_debug_url' )
+		? qs_jobsheet_pdf_debug_url( $quote_id )
+		: '';
 	?>
 	<div class="qs-review-summary-actions qs-review-admin-actions">
 		<h3>Admin Actions</h3>
@@ -253,6 +258,9 @@ function qs_review_admin_summary_actions( $quote_id, $status ) {
 
 		<a class="qs-btn" href="<?php echo esc_url( $quotation_url ); ?>" target="_blank" rel="noopener">Quotation PDF</a>
 		<a class="qs-btn" href="<?php echo esc_url( $jobsheet_url ); ?>" target="_blank" rel="noopener">Job Sheet</a>
+		<?php if ( $jobsheet_debug_url ) : ?>
+			<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( $jobsheet_debug_url ); ?>" target="_blank" rel="noopener">Job Sheet Debug</a>
+		<?php endif; ?>
 
 		<?php if ( in_array( $status, array( 'pending', 'pending_review' ), true ) ) : ?>
 			<?php qs_admin_dashboard_action_button( $quote_id, 'request_deposit', 'Request Deposit' ); ?>
