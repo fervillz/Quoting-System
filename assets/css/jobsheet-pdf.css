@@ -148,8 +148,8 @@ body {
 }
 
 .qs-pdf-spec-item .qs-pdf-swatch-cell {
-	padding: 0 1.2mm 0 0;
-	width: 7mm;
+	padding: 0 6px 0 0;
+	width: 25px;
 }
 
 .qs-pdf-spec-copy {
@@ -161,8 +161,12 @@ body {
 .qs-pdf-swatch-image,
 .qs-pdf-swatch-placeholder {
 	display: block;
-	height: 9mm;
-	width: 7mm;
+	height: 25px;
+	max-height: 25px;
+	max-width: 25px;
+	min-height: 25px;
+	min-width: 25px;
+	width: 25px;
 }
 
 .qs-pdf-swatch-image {
