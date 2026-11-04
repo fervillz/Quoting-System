@@ -324,16 +324,37 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 		: add_query_arg( 'quote_id', $post->ID, site_url( '/quote-review/' ) );
 
 	$pdf_url = qs_quotation_pdf_url( $post->ID );
+	$pdf_debug_url = wp_nonce_url(
+		add_query_arg(
+			array(
+				'action'   => 'qs_pdf_debug',
+				'quote_id' => $post->ID,
+			),
+			admin_url( 'admin-post.php' )
+		),
+		'qs_pdf_debug_' . $post->ID
+	);
+	$jobsheet_debug_url = function_exists( 'qs_jobsheet_pdf_debug_url' )
+		? qs_jobsheet_pdf_debug_url( $post->ID )
+		: '';
 
-	$view_action = '<a href="' . esc_url( $review_url ) . '" target="_blank" rel="noopener">View Quote</a>';
-	$pdf_action  = '<a href="' . esc_url( $pdf_url ) . '" target="_blank" rel="noopener">PDF</a>';
+	$view_action           = '<a href="' . esc_url( $review_url ) . '" target="_blank" rel="noopener">View Quote</a>';
+	$pdf_action            = '<a href="' . esc_url( $pdf_url ) . '" target="_blank" rel="noopener">PDF</a>';
+	$pdf_debug_action      = '<a href="' . esc_url( $pdf_debug_url ) . '" target="_blank" rel="noopener">PDF Debug</a>';
+	$jobsheet_debug_action = $jobsheet_debug_url
+		? '<a href="' . esc_url( $jobsheet_debug_url ) . '" target="_blank" rel="noopener">Job Sheet Debug</a>'
+		: '';
 
 	$new_actions = array();
 	foreach ( $actions as $key => $action ) {
 		$new_actions[ $key ] = $action;
 		if ( 'edit' === $key ) {
-			$new_actions['qs_view_quote'] = $view_action;
-			$new_actions['qs_view_pdf']   = $pdf_action;
+			$new_actions['qs_view_quote']      = $view_action;
+			$new_actions['qs_view_pdf']        = $pdf_action;
+			$new_actions['qs_pdf_debug']       = $pdf_debug_action;
+			if ( $jobsheet_debug_action ) {
+				$new_actions['qs_jobsheet_debug'] = $jobsheet_debug_action;
+			}
 		}
 	}
 
@@ -342,6 +363,12 @@ function qs_quote_frontend_row_action( $actions, $post ) {
 	}
 	if ( ! isset( $new_actions['qs_view_pdf'] ) ) {
 		$new_actions['qs_view_pdf'] = $pdf_action;
+	}
+	if ( ! isset( $new_actions['qs_pdf_debug'] ) ) {
+		$new_actions['qs_pdf_debug'] = $pdf_debug_action;
+	}
+	if ( $jobsheet_debug_action && ! isset( $new_actions['qs_jobsheet_debug'] ) ) {
+		$new_actions['qs_jobsheet_debug'] = $jobsheet_debug_action;
 	}
 
 	return $new_actions;
