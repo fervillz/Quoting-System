@@ -644,7 +644,7 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 							<button type="button" class="qs-btn qs-btn-outline" data-dev-fill-details>Fill Details</button>
 							<button type="button" class="qs-btn qs-btn-outline" data-dev-build-test-quote hidden>Build Test Quote</button>
 							<button type="button" class="qs-btn qs-btn-outline" data-dev-client-review-test>Client Review Test – 11/4</button>
-							<small>Admin-only helpers. Client Review Test builds a controlled quote for checking PDF/job-sheet images, sorting, numbering and rail formulas.</small>
+							<small>Admin-only helpers. Client Review Test adds six Door rows only; End Panels, Fillers and Kickboards stay blank.</small>
 						</div>
 					<?php endif; ?>
 				</section>
@@ -984,6 +984,8 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 			doors.querySelector('.qs-commit-item')?.click();
 		}
 		function qsDevBuildClientReviewTest(){
+			const originalScrollY=window.scrollY;
+			document.activeElement?.blur();
 			qsDevSetValue('[name="company_name"]','Client Review Test Joinery');
 			qsDevSetValue('[name="project_name"]','11/4 Job Sheet + PDF Client Review Test');
 			qsDevSetValue('[name="customer_name"]','Client Review Test');
@@ -1008,9 +1010,16 @@ Pricing updates automatically as you configure your selections.</p><div class="q
 			];
 			rows.forEach(qsDevAddClientReviewDoor);
 
+			// This scenario intentionally tests only Doors & Drawers. Keep
+			// End Panels, Fillers and Kickboards blank for the client request.
 			const buildButton=document.querySelector('[data-dev-build-test-quote]');
-			if(buildButton)buildButton.hidden=false;
-			window.setTimeout(()=>scheduleCalculation(),100);
+			if(buildButton)buildButton.hidden=true;
+
+			document.activeElement?.blur();
+			window.setTimeout(()=>{
+				window.scrollTo({top:originalScrollY,left:0,behavior:'auto'});
+				scheduleCalculation();
+			},100);
 		}
 		function qsDevBuildTestQuote(){
 			if(qsDevDetailsIndex<0)qsDevFillDetails();
