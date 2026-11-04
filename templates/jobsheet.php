@@ -141,11 +141,19 @@ $drawer_banks_by_height = $jobsheet_sort_rows( $drawer_banks, 'height' );
 				<table class="qs-pdf-specifications">
 					<tr>
 						<?php foreach ( $specs as $spec ) : ?>
-							<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"<?php echo ! empty( $spec[3] ) ? ' style="' . esc_attr( 'background-image:url("' . $spec[3] . '")' ) . '"' : ''; ?>></span></td>
-							<td>
-								<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
-								<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
-								<?php if ( $spec[2] ) : ?><small><?php echo esc_html( $spec[2] ); ?></small><?php endif; ?>
+							<td class="qs-pdf-spec-group">
+								<table class="qs-pdf-spec-item">
+									<tr>
+										<?php if ( ! empty( $spec[3] ) ) : ?>
+											<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch" style="<?php echo esc_attr( 'background-image:url("' . $spec[3] . '")' ); ?>"></span></td>
+										<?php endif; ?>
+										<td class="qs-pdf-spec-copy">
+											<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
+											<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
+											<?php if ( $spec[2] ) : ?><small><?php echo esc_html( $spec[2] ); ?></small><?php endif; ?>
+										</td>
+									</tr>
+								</table>
 							</td>
 						<?php endforeach; ?>
 					</tr>
