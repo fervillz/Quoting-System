@@ -150,9 +150,13 @@ $drawer_banks_by_height = $jobsheet_sort_rows( $drawer_banks, 'height' );
 							<td class="qs-pdf-spec-group<?php echo ! empty( $spec[3] ) ? ' has-image' : ''; ?>">
 								<table class="qs-pdf-spec-item">
 									<tr>
-										<?php if ( ! empty( $spec[3] ) ) : ?>
-											<td class="qs-pdf-swatch-cell"><img class="qs-pdf-swatch-image" src="<?php echo esc_url( $spec[3] ); ?>" alt=""></td>
-										<?php endif; ?>
+										<td class="qs-pdf-swatch-cell">
+											<?php if ( ! empty( $spec[3] ) ) : ?>
+												<img class="qs-pdf-swatch-image" src="<?php echo esc_url( $spec[3] ); ?>" alt="">
+											<?php else : ?>
+												<span class="qs-pdf-swatch-placeholder" aria-hidden="true"></span>
+											<?php endif; ?>
+										</td>
 										<td class="qs-pdf-spec-copy">
 											<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
 											<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
