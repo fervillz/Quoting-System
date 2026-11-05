@@ -167,6 +167,45 @@ function qs_resolve_quote_product( $value, $type = '' ) {
 	return qs_find_quote_product( $value, $type );
 }
 
+/**
+ * Return the Evans profile used as the pricing base for flat End Panels and Fillers.
+ *
+ * Live product titles include descriptive suffixes such as "(19mm thick)", so an
+ * exact-title lookup alone can incorrectly return zero and silently skip pricing.
+ */
+function qs_end_panel_profile_product() {
+	$product_id = qs_find_quote_product( 'Evans', 'door-profile' );
+	if ( $product_id ) {
+		return $product_id;
+	}
+
+	$products = get_posts(
+		array(
+			'post_type'      => 'quote_products',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'orderby'        => array( 'menu_order' => 'ASC', 'title' => 'ASC' ),
+			'no_found_rows'  => true,
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'quote_product_type',
+					'field'    => 'slug',
+					'terms'    => 'door-profile',
+				),
+			),
+		)
+	);
+
+	foreach ( $products as $product ) {
+		$title = trim( (string) $product->post_title );
+		if ( 0 === stripos( $title, 'Evans' ) ) {
+			return (int) $product->ID;
+		}
+	}
+
+	return 0;
+}
+
 /** Return the lower-case pricing method saved on a Quote Product. */
 function qs_product_pricing_method( $product_id ) {
 	return strtolower( trim( (string) qs_pricing_meta( $product_id, 'pricing_method', '' ) ) );
@@ -415,6 +454,21 @@ function qs_kickboard_product( $material ) {
 }
 
 /**
+ * Price a Kickboard row from its configured product.
+ *
+ * Kickboards are normally linear-priced. The dimensional fallback prevents a
+ * valid product with a linked/alternate pricing method from silently returning zero.
+ */
+function qs_kickboard_row_price( $product_id, $length, $height ) {
+	$price = qs_product_linear_price( $product_id, $length, $height );
+	if ( $price > 0 ) {
+		return $price;
+	}
+
+	return qs_product_dimension_price( $product_id, $length, $height, $length );
+}
+
+/**
  * Calculate the trade subtotal from the selected products and component rows.
  */
 function qs_calculate_component_subtotal( $quote_id ) {
@@ -423,7 +477,7 @@ function qs_calculate_component_subtotal( $quote_id ) {
 	$finish_id  = qs_resolve_quote_product( get_post_meta( $quote_id, '_finish', true ), 'finish' );
 	$handle_id  = qs_resolve_quote_product( get_post_meta( $quote_id, '_handle_profile', true ), 'accessory' );
 	$paint_id   = qs_quote_paint_product( $quote_id );
-	$evans_id   = qs_find_quote_product( 'Evans', 'door-profile' );
+	$evans_id   = qs_end_panel_profile_product();
 
 	$breakdown = array(
 		'doors_drawers' => 0,
@@ -476,7 +530,7 @@ function qs_calculate_component_subtotal( $quote_id ) {
 		$product_id = qs_kickboard_product( isset( $row['material'] ) ? $row['material'] : '' );
 		$quantity   = isset( $row['quantity'] ) ? absint( $row['quantity'] ) : 0;
 		if ( $product_id && $quantity ) {
-			$breakdown['kickboards'] += qs_product_linear_price(
+			$breakdown['kickboards'] += qs_kickboard_row_price(
 				$product_id,
 				isset( $row['length'] ) ? $row['length'] : 0,
 				isset( $row['height'] ) ? $row['height'] : 0
