@@ -119,7 +119,7 @@ function qs_item_config_apply_legacy_modifiers( $base, $quote_id, &$breakdown ) 
  */
 function qs_item_config_calculate_trade_subtotal( $quote_id ) {
 	$row_mode = qs_item_config_has_row_configuration( $quote_id );
-	$evans_id = qs_find_quote_product( 'Evans', 'door-profile' );
+	$evans_id = qs_end_panel_profile_product();
 	$legacy_profile = qs_resolve_quote_product( get_post_meta( $quote_id, '_door_profile', true ), 'door-profile' );
 	$legacy_handle  = qs_resolve_quote_product( get_post_meta( $quote_id, '_handle_profile', true ), 'accessory' );
 	$legacy_paint   = qs_quote_paint_product( $quote_id );
@@ -198,7 +198,7 @@ function qs_item_config_calculate_trade_subtotal( $quote_id ) {
 			continue;
 		}
 
-		$row_amount = qs_product_linear_price(
+		$row_amount = qs_kickboard_row_price(
 			$product_id,
 			isset( $row['length'] ) ? $row['length'] : 0,
 			isset( $row['height'] ) ? $row['height'] : 0
@@ -401,7 +401,7 @@ function qs_validate_quote_pricing_dimensions( $quote_id ) {
 		}
 	}
 
-	$evans_id = qs_find_quote_product( 'Evans', 'door-profile' );
+	$evans_id = qs_end_panel_profile_product();
 	$panel_bounds = qs_item_config_matrix_bounds( $evans_id );
 	if ( $panel_bounds ) {
 		foreach ( array( 'end_panels', 'fillers' ) as $component ) {
@@ -505,7 +505,7 @@ function qs_enqueue_item_configuration_assets() {
 			'timbers'                   => qs_item_config_product_options( 'timber' ),
 			'handles'                   => qs_item_config_product_options( 'accessory' ),
 			'finishes'                  => qs_item_config_product_options( 'finish' ),
-			'panelBounds'               => qs_item_config_matrix_bounds( qs_find_quote_product( 'Evans', 'door-profile' ) ),
+			'panelBounds'               => qs_item_config_matrix_bounds( qs_end_panel_profile_product() ),
 			'subtotalAnimationDisabled' => '0' !== (string) get_option( 'qs_disable_subtotal_animation', '1' ),
 		)
 	);
