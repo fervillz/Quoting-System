@@ -647,8 +647,8 @@ function qs_auto_ai_step_create_quote( $run_id ) {
 
 	list( $door_width, $door_height )       = qs_auto_ai_test_dimensions( $profile_id, 600, 800 );
 	list( $drawer_width, $drawer_height )   = qs_auto_ai_test_dimensions( $profile_id, 600, 200 );
-	list( $panel_width, $panel_height )     = qs_auto_ai_test_dimensions( qs_find_quote_product( 'Evans', 'door-profile' ), 600, 800 );
-	list( $filler_width, $filler_height )   = qs_auto_ai_test_dimensions( qs_find_quote_product( 'Evans', 'door-profile' ), 200, 800 );
+	list( $panel_width, $panel_height )     = qs_auto_ai_test_dimensions( qs_end_panel_profile_product(), 600, 800 );
+	list( $filler_width, $filler_height )   = qs_auto_ai_test_dimensions( qs_end_panel_profile_product(), 200, 800 );
 	list( $kick_length, $kick_height )      = qs_auto_ai_kickboard_dimensions( $kickboard_id );
 
 	$defaults = qs_auto_ai_joiner_defaults( $joiner );
