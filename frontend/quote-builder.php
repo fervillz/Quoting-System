@@ -235,11 +235,12 @@ function qs_builder_save_quote( $quote_id, $handle_uploads = true ) {
 }
 
 function qs_builder_products( $type ) {
-	return get_posts(
+	$products = get_posts(
 		array(
 			'post_type'      => 'quote_products',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
+			'no_found_rows'  => true,
 			'orderby'        => array( 'menu_order' => 'ASC', 'title' => 'ASC' ),
 			'tax_query'      => array(
 				array(
@@ -248,11 +249,17 @@ function qs_builder_products( $type ) {
 					'terms'    => $type,
 				),
 			),
-			'meta_query'     => array(
-				'relation' => 'OR',
-				array( 'key' => 'active', 'value' => '1' ),
-				array( 'key' => 'active', 'compare' => 'NOT EXISTS' ),
-			),
+		)
+	);
+
+	// Preserve the previous query behaviour without joining the large postmeta table:
+	// include products when active is "1" or missing/blank; exclude only explicit "0".
+	return array_values(
+		array_filter(
+			$products,
+			static function ( $product ) {
+				return '0' !== (string) get_post_meta( $product->ID, 'active', true );
+			}
 		)
 	);
 }
