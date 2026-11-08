@@ -438,6 +438,7 @@ function qs_item_config_product_options( $type ) {
 			'post_type'      => 'quote_products',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
+			'no_found_rows'  => true,
 			'orderby'        => array( 'menu_order' => 'ASC', 'title' => 'ASC' ),
 			'tax_query'      => array(
 				array(
@@ -446,11 +447,17 @@ function qs_item_config_product_options( $type ) {
 					'terms'    => $type,
 				),
 			),
-			'meta_query'     => array(
-				'relation' => 'OR',
-				array( 'key' => 'active', 'value' => '1' ),
-				array( 'key' => 'active', 'compare' => 'NOT EXISTS' ),
-			),
+		)
+	);
+
+	// Match the previous active=1 OR active NOT EXISTS rule in PHP so this
+	// picker does not force MySQL to join and group against the postmeta table.
+	$products = array_values(
+		array_filter(
+			$products,
+			static function ( $product ) {
+				return '0' !== (string) get_post_meta( $product->ID, 'active', true );
+			}
 		)
 	);
 
