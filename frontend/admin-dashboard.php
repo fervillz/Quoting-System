@@ -140,19 +140,10 @@ function qs_admin_dashboard_action_button( $quote_id, $action, $label, $confirm 
 	<?php
 }
 
-function qs_admin_dashboard_visible_meta_query() {
-	return array(
-		'relation' => 'OR',
-		array(
-			'key'     => '_qs_archived',
-			'compare' => 'NOT EXISTS',
-		),
-		array(
-			'key'     => '_qs_archived',
-			'value'   => '1',
-			'compare' => '!=',
-		),
-	);
+function qs_admin_dashboard_quote_is_visible( $quote ) {
+	$quote_id = $quote instanceof WP_Post ? $quote->ID : absint( $quote );
+
+	return $quote_id > 0 && '1' !== (string) get_post_meta( $quote_id, '_qs_archived', true );
 }
 
 function qs_admin_dashboard_handle_action() {
@@ -358,18 +349,18 @@ function qs_admin_dashboard_shortcode() {
 	}
 
 	$success_message = qs_admin_dashboard_handle_action();
-	$statuses        = array( 'draft', 'pending', 'pending_review', 'awaiting_deposit', 'deposit_paid', 'final_balance', 'paid_in_full' );
-	$visible_quotes  = qs_admin_dashboard_visible_meta_query();
-	$all_quotes      = get_posts(
+	$statuses   = array( 'draft', 'pending', 'pending_review', 'awaiting_deposit', 'deposit_paid', 'final_balance', 'paid_in_full' );
+	$all_quotes = get_posts(
 		array(
 			'post_type'      => 'quote',
 			'post_status'    => $statuses,
 			'posts_per_page' => -1,
+			'no_found_rows'  => true,
 			'orderby'        => 'modified',
 			'order'          => 'DESC',
-			'meta_query'     => $visible_quotes,
 		)
 	);
+	$all_quotes = array_values( array_filter( $all_quotes, 'qs_admin_dashboard_quote_is_visible' ) );
 
 	$company_filter = isset( $_GET['company'] ) ? sanitize_text_field( wp_unslash( $_GET['company'] ) ) : '';
 	$status_filter  = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
@@ -387,14 +378,12 @@ function qs_admin_dashboard_shortcode() {
 		'post_type'      => 'quote',
 		'post_status'    => $filtered_statuses,
 		'posts_per_page' => -1,
+		'no_found_rows'  => true,
 		'orderby'        => 'modified',
 		'order'          => 'DESC',
 	);
 
-	$meta_query = array(
-		'relation' => 'AND',
-		$visible_quotes,
-	);
+	$meta_query = array();
 	if ( $company_filter ) {
 		$meta_query[] = array(
 			'key'   => '_company_name',
@@ -407,7 +396,9 @@ function qs_admin_dashboard_shortcode() {
 			'value' => $project_filter,
 		);
 	}
-	$args['meta_query'] = $meta_query;
+	if ( $meta_query ) {
+		$args['meta_query'] = $meta_query;
+	}
 
 	switch ( $date_filter ) {
 		case 'today':
@@ -433,6 +424,7 @@ function qs_admin_dashboard_shortcode() {
 	}
 
 	$quotes          = get_posts( $args );
+	$quotes          = array_values( array_filter( $quotes, 'qs_admin_dashboard_quote_is_visible' ) );
 	$company_list    = qs_admin_dashboard_filter_values( $all_quotes, '_company_name' );
 	$project_list    = qs_admin_dashboard_filter_values( $all_quotes, '_project_name' );
 	$grouped_quotes  = array();
