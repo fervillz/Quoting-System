@@ -6,10 +6,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Resolve the Quote System dashboard used after a frontend Joiner login.
+ * Prefer the configured My Quotes page so renamed/recreated pages do not
+ * accidentally fall back through the site's homepage routing.
+ */
+function qs_quote_login_dashboard_url() {
+	if ( function_exists( 'qs_page_url' ) ) {
+		$url = qs_page_url( 'my_quotes' );
+		if ( $url ) {
+			return $url;
+		}
+	}
+
+	return site_url( '/my-quotes/' );
+}
+
 function qs_quote_login_shortcode( $atts ) {
 	$atts = shortcode_atts(
 		array(
-			'redirect' => site_url( '/my-quotes/' ),
+			'redirect' => qs_quote_login_dashboard_url(),
 		),
 		$atts,
 		'quote_login'
@@ -18,7 +34,7 @@ function qs_quote_login_shortcode( $atts ) {
 	if ( is_user_logged_in() ) {
 		$current_user = wp_get_current_user();
 		$redirect     = function_exists( 'qs_user_is_joiner' ) && qs_user_is_joiner( $current_user )
-			? qs_joiner_dashboard_url()
+			? qs_quote_login_dashboard_url()
 			: $atts['redirect'];
 
 		return '<div class="qs-container qs-login-already"><p>You are already logged in.</p><a class="qs-btn" href="' . esc_url( $redirect ) . '">Open My Quotes</a></div>';
@@ -40,7 +56,7 @@ function qs_quote_login_shortcode( $atts ) {
 				$error = 'The email address or password is incorrect.';
 			} else {
 				$redirect = function_exists( 'qs_user_is_joiner' ) && qs_user_is_joiner( $user )
-					? qs_joiner_dashboard_url()
+					? qs_quote_login_dashboard_url()
 					: $atts['redirect'];
 				wp_safe_redirect( $redirect );
 				exit;
