@@ -30,23 +30,7 @@ $delivery_fee      = (float) $data['shipping'];
 $total             = (float) $data['total'];
 $total_incl_gst    = round( $total * 1.10, 2 );
 $created_by        = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
-$primary_specs      = function_exists( 'qs_quote_primary_specifications' ) ? qs_quote_primary_specifications( $quote_id, $data ) : array();
-$specs             = array(
-	array( 'Timber', $primary_specs['timber']['label'] ?? $data['timber'], ! empty( $primary_specs['paint_colour'] ) ? 'Paint Colour: ' . $primary_specs['paint_colour'] : '', $primary_specs['timber']['image'] ?? '' ),
-	array( 'Finish', $primary_specs['finish']['label'] ?? $data['finish'], '', '' ),
-	array( 'Profile', $primary_specs['door_profile']['label'] ?? $data['door_profile'], '', $primary_specs['door_profile']['image'] ?? '' ),
-	array( 'Door / Drawer Handle Profile', $primary_specs['handle_profile']['label'] ?? $data['handle_profile'], '', '' ),
-);
-$has_legacy_specs = (bool) array_filter(
-	array(
-		$primary_specs['timber']['label'] ?? '',
-		$primary_specs['finish']['label'] ?? '',
-		$primary_specs['door_profile']['label'] ?? '',
-		$primary_specs['handle_profile']['label'] ?? '',
-		$primary_specs['paint_colour'] ?? '',
-	)
-);
-?>
+
 <div class="qs-pdf qs-quotation-pdf">
 	<header class="qs-pdf-header">
 		<strong>Loughlin Furniture</strong>
@@ -73,26 +57,6 @@ $has_legacy_specs = (bool) array_filter(
 			<div class="qs-pdf-content">
 				<section class="qs-pdf-section qs-pdf-project-details">
 					<h2>Project Details</h2>
-					<?php if ( $has_legacy_specs ) : ?>
-						<table class="qs-pdf-specifications">
-							<?php for ( $i = 0; $i < count( $specs ); $i += 2 ) : ?>
-								<tr>
-									<?php for ( $j = $i; $j < $i + 2; $j++ ) : ?>
-										<?php if ( isset( $specs[ $j ] ) ) : ?>
-											<td class="qs-pdf-swatch-cell"><span class="qs-pdf-swatch"<?php echo ! empty( $specs[ $j ][3] ) ? ' style="' . esc_attr( 'background-image:url("' . $specs[ $j ][3] . '")' ) . '"' : ''; ?>></span></td>
-											<td class="qs-pdf-spec-detail">
-												<strong><?php echo esc_html( $specs[ $j ][0] ); ?>:</strong>
-												<span><?php echo esc_html( $specs[ $j ][1] ? $specs[ $j ][1] : '-' ); ?></span>
-												<?php if ( $specs[ $j ][2] ) : ?><small><?php echo esc_html( $specs[ $j ][2] ); ?></small><?php endif; ?>
-											</td>
-										<?php else : ?>
-											<td></td><td></td>
-										<?php endif; ?>
-									<?php endfor; ?>
-								</tr>
-							<?php endfor; ?>
-						</table>
-					<?php endif; ?>
 					<h3>Delivery Address</h3>
 					<p><?php echo nl2br( esc_html( $data['delivery_address'] ) ); ?></p>
 				</section>
