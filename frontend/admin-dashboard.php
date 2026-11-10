@@ -209,7 +209,15 @@ function qs_admin_dashboard_handle_action() {
 			qs_update_quote_status( $quote_id, 'deposit_paid' );
 			update_post_meta( $quote_id, '_qs_deposit_manually_paid_by', get_current_user_id() );
 			update_post_meta( $quote_id, '_qs_deposit_manually_paid_at', current_time( 'mysql' ) );
-			return 'Deposit marked as paid.';
+
+			$deposit_order_id = absint( get_post_meta( $quote_id, '_qs_deposit_order_id', true ) );
+			$email_sent = function_exists( 'qs_email_deposit_received' )
+				? qs_email_deposit_received( $quote_id, $deposit_order_id, true )
+				: false;
+
+			return $email_sent
+				? 'Deposit marked as paid and customer receipt email sent.'
+				: 'Deposit marked as paid, but the customer receipt email could not be sent.';
 
 		case 'create_final_invoice':
 			if ( ! in_array( $status, array( 'deposit_paid', 'final_balance' ), true ) ) {

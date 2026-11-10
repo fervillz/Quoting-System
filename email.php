@@ -414,6 +414,59 @@ function qs_email_admin_payment_received( $quote_id, $payment_type, $order_id ) 
 }
 
 /**
+ * Confirm a received deposit to the Joiner/customer.
+ *
+ * The sent marker keeps this idempotent across WooCommerce payment hooks and
+ * the manual "Mark Deposit Paid" action.
+ */
+function qs_email_deposit_received( $quote_id, $order_id = 0, $manual = false ) {
+	$quote_id = absint( $quote_id );
+	$order_id = absint( $order_id );
+	if ( ! $quote_id ) {
+		return false;
+	}
+
+	$sent_key = '_qs_deposit_customer_received_sent';
+	if ( get_post_meta( $quote_id, $sent_key, true ) ) {
+		return true;
+	}
+
+	$deposit_amount = qs_calculate_deposit( $quote_id );
+	if ( $order_id && function_exists( 'wc_get_order' ) ) {
+		$order = wc_get_order( $order_id );
+		if ( $order ) {
+			$deposit_amount = (float) $order->get_total();
+		}
+	}
+
+	$total             = qs_calculate_total( $quote_id );
+	$remaining_balance = max( 0, round( $total - $deposit_amount, 2 ) );
+	$received_at       = current_time( 'timestamp' );
+	$quote_number      = get_post_meta( $quote_id, '_quote_number', true );
+	$subject           = sprintf( 'Deposit Received - %s', $quote_number );
+
+	$message = qs_render_email_template(
+		'email-deposit-received.php',
+		array(
+			'quote_id'          => $quote_id,
+			'order_id'          => $order_id,
+			'deposit_amount'     => $deposit_amount,
+			'total_amount'       => $total,
+			'remaining_balance'  => $remaining_balance,
+			'received_at'        => $received_at,
+			'manual'             => (bool) $manual,
+		)
+	);
+
+	$sent = qs_send_customer_email( $quote_id, $subject, $message );
+	if ( $sent ) {
+		update_post_meta( $quote_id, $sent_key, current_time( 'mysql' ) );
+	}
+
+	return $sent;
+}
+
+/**
  * Confirm the completed quote workflow to the Joiner/customer after the
  * final WooCommerce payment has been confirmed.
  */

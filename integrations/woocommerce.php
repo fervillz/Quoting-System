@@ -167,7 +167,9 @@ function qs_handle_payment_complete( $order_id ) {
 	update_post_meta( $quote_id, $notice_key, current_time( 'mysql' ) );
 	qs_email_admin_payment_received( $quote_id, $type, $order_id );
 
-	if ( 'balance' === $type ) {
+	if ( 'deposit' === $type ) {
+		qs_email_deposit_received( $quote_id, $order_id, false );
+	} elseif ( 'balance' === $type ) {
 		qs_email_quote_paid_in_full( $quote_id );
 	}
 }
