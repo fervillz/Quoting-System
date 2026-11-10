@@ -33,29 +33,6 @@ foreach ( $drawer_banks as $index => &$drawer_row ) {
 unset( $drawer_row );
 
 $created_by   = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
-$primary_specs = function_exists( 'qs_quote_primary_specifications' ) ? qs_quote_primary_specifications( $quote_id, $data ) : array();
-$finish_image = ! empty( $primary_specs['finish']['id'] ) && function_exists( 'qs_quote_product_image_url' )
-	? qs_quote_product_image_url( $primary_specs['finish']['id'] )
-	: '';
-$handle_image = ! empty( $primary_specs['handle_profile']['id'] ) && function_exists( 'qs_quote_product_image_url' )
-	? qs_quote_product_image_url( $primary_specs['handle_profile']['id'] )
-	: '';
-$specs        = array(
-	array( 'Timber', $primary_specs['timber']['label'] ?? $data['timber'], ! empty( $primary_specs['paint_colour'] ) ? 'Paint Colour: ' . $primary_specs['paint_colour'] : '', $primary_specs['timber']['image'] ?? '' ),
-	array( 'Profile', $primary_specs['door_profile']['label'] ?? $data['door_profile'], '', $primary_specs['door_profile']['image'] ?? '' ),
-	array( 'Finish', $primary_specs['finish']['label'] ?? $data['finish'], '', $finish_image ),
-	array( 'Door / Drawer Handle Profile', $primary_specs['handle_profile']['label'] ?? $data['handle_profile'], '', $handle_image ),
-);
-$has_legacy_specs = (bool) array_filter(
-	array(
-		$primary_specs['timber']['label'] ?? '',
-		$primary_specs['finish']['label'] ?? '',
-		$primary_specs['door_profile']['label'] ?? '',
-		$primary_specs['handle_profile']['label'] ?? '',
-		$primary_specs['paint_colour'] ?? '',
-	)
-);
-
 /**
  * Production-order pages use the exact same rows as the normal Job Sheet,
  * but present them in descending cutting order.
@@ -140,36 +117,6 @@ $drawer_banks_by_height = $jobsheet_sort_rows( $drawer_banks, 'height' );
 				</td>
 			</tr>
 		</table>
-
-		<section class="qs-pdf-section qs-pdf-project-details">
-			<h2>Project Details</h2>
-			<?php if ( $has_legacy_specs ) : ?>
-				<table class="qs-pdf-specifications">
-					<tr>
-						<?php foreach ( $specs as $spec ) : ?>
-							<td class="qs-pdf-spec-group<?php echo ! empty( $spec[3] ) ? ' has-image' : ''; ?>">
-								<table class="qs-pdf-spec-item">
-									<tr>
-										<td class="qs-pdf-swatch-cell">
-											<?php if ( ! empty( $spec[3] ) ) : ?>
-												<img class="qs-pdf-swatch-image" src="<?php echo esc_url( $spec[3] ); ?>" alt="">
-											<?php else : ?>
-												<span class="qs-pdf-swatch-placeholder" aria-hidden="true"></span>
-											<?php endif; ?>
-										</td>
-										<td class="qs-pdf-spec-copy">
-											<strong><?php echo esc_html( $spec[0] ); ?>:</strong>
-											<span><?php echo esc_html( $spec[1] ? $spec[1] : '-' ); ?></span>
-											<?php if ( $spec[2] ) : ?><small><?php echo esc_html( $spec[2] ); ?></small><?php endif; ?>
-										</td>
-									</tr>
-								</table>
-							</td>
-						<?php endforeach; ?>
-					</tr>
-				</table>
-			<?php endif; ?>
-		</section>
 
 		<section class="qs-pdf-section">
 			<h2>Doors &amp; Drawers</h2>
