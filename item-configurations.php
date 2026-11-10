@@ -114,6 +114,105 @@ function qs_item_config_apply_legacy_modifiers( $base, $quote_id, &$breakdown ) 
 }
 
 /**
+ * Return the displayed total price for one saved component row.
+ *
+ * This follows the same product-resolution and row-modifier rules as the
+ * quote subtotal, then applies the quote's Retail/Trade mode.
+ */
+function qs_item_config_row_price( $quote_id, $component, $row ) {
+	$quote_id  = absint( $quote_id );
+	$component = sanitize_key( $component );
+	$row       = is_array( $row ) ? $row : array();
+	$row_mode  = qs_item_config_has_row_configuration( $quote_id );
+	$quantity  = isset( $row['quantity'] ) ? absint( $row['quantity'] ) : 0;
+
+	if ( ! $quote_id || ! $quantity ) {
+		return 0;
+	}
+
+	$retail_amount = 0;
+	$legacy_paint  = qs_quote_paint_product( $quote_id );
+
+	if ( 'doors_drawers' === $component ) {
+		$type   = isset( $row['type'] ) ? strtolower( trim( (string) $row['type'] ) ) : 'door';
+		$width  = isset( $row['width'] ) ? absint( $row['width'] ) : 0;
+		$height = isset( $row['height'] ) ? absint( $row['height'] ) : 0;
+
+		$profile_id = $row_mode
+			? qs_item_config_product_id( $quote_id, $row, 'door_profile', '_door_profile', 'door-profile' )
+			: qs_resolve_quote_product( get_post_meta( $quote_id, '_door_profile', true ), 'door-profile' );
+		$timber_id = $row_mode ? qs_item_config_product_id( $quote_id, $row, 'timber', '_timber', 'timber' ) : 0;
+		$finish_id = $row_mode ? qs_item_config_product_id( $quote_id, $row, 'finish', '_finish', 'finish' ) : 0;
+		$handle_id = $row_mode
+			? qs_item_config_product_id( $quote_id, $row, 'handle_profile', '_handle_profile', 'accessory' )
+			: qs_resolve_quote_product( get_post_meta( $quote_id, '_handle_profile', true ), 'accessory' );
+		$paint_id = $row_mode ? qs_item_config_paint_product( $quote_id, $row, $timber_id ) : $legacy_paint;
+
+		if ( ! $profile_id || ! $width ) {
+			return 0;
+		}
+		if ( 'profile end panel' === $type ) {
+			$handle_id = 0;
+		}
+
+		if ( 'drawer bank' === $type ) {
+			foreach ( qs_drawer_bank_heights( $row ) as $drawer_height ) {
+				$retail_amount += qs_price_panel( $profile_id, $width, $drawer_height, $paint_id, $handle_id ) * $quantity;
+			}
+		} elseif ( $height ) {
+			$retail_amount = qs_price_panel( $profile_id, $width, $height, $paint_id, $handle_id ) * $quantity;
+		}
+
+		if ( $row_mode ) {
+			$retail_amount = qs_item_config_apply_row_modifiers( $retail_amount, $timber_id, $finish_id, $quantity );
+		}
+	} elseif ( in_array( $component, array( 'end_panels', 'fillers' ), true ) ) {
+		$width  = isset( $row['width'] ) ? absint( $row['width'] ) : 0;
+		$height = isset( $row['height'] ) ? absint( $row['height'] ) : 0;
+		$evans  = qs_end_panel_profile_product();
+		if ( ! $evans || ! $width || ! $height ) {
+			return 0;
+		}
+
+		$timber_id = $row_mode ? qs_item_config_product_id( $quote_id, $row, 'timber', '_timber', 'timber' ) : 0;
+		$finish_id = $row_mode ? qs_item_config_product_id( $quote_id, $row, 'finish', '_finish', 'finish' ) : 0;
+		$paint_id  = $row_mode ? qs_item_config_paint_product( $quote_id, $row, $timber_id ) : $legacy_paint;
+
+		$retail_amount = qs_price_panel( $evans, $width, $height, $paint_id ) * $quantity;
+		if ( $row_mode ) {
+			$retail_amount = qs_item_config_apply_row_modifiers( $retail_amount, $timber_id, $finish_id, $quantity );
+		}
+	} elseif ( 'kickboards' === $component ) {
+		$product_id = qs_kickboard_product( isset( $row['material'] ) ? $row['material'] : '' );
+		if ( ! $product_id ) {
+			return 0;
+		}
+
+		$retail_amount = qs_kickboard_row_price(
+			$product_id,
+			isset( $row['length'] ) ? $row['length'] : 0,
+			isset( $row['height'] ) ? $row['height'] : 0
+		) * $quantity;
+
+		if ( $row_mode ) {
+			$timber_id = qs_item_config_product_id( $quote_id, $row, 'timber', '_timber', 'timber' );
+			$finish_id = qs_item_config_product_id( $quote_id, $row, 'finish', '_finish', 'finish' );
+			$retail_amount = qs_item_config_apply_row_modifiers( $retail_amount, $timber_id, $finish_id, $quantity );
+		}
+	}
+
+	if ( ! $row_mode && $retail_amount > 0 ) {
+		$timber_id = qs_resolve_quote_product( get_post_meta( $quote_id, '_timber', true ), 'timber' );
+		$finish_id = qs_resolve_quote_product( get_post_meta( $quote_id, '_finish', true ), 'finish' );
+		$retail_amount = qs_item_config_apply_row_modifiers( $retail_amount, $timber_id, $finish_id, 1 );
+	}
+
+	return 'retail' === get_post_meta( $quote_id, '_pricing_type', true )
+		? round( $retail_amount, 2 )
+		: qs_apply_trade_discount( $retail_amount );
+}
+
+/**
  * Calculate pricing using either row-level configuration or legacy quote-level
  * configuration. Profile End Panels deliberately never receive handle charges.
  */

@@ -208,6 +208,9 @@ function qs_review_summary_items( $quote_id, $can_edit ) {
 						<?php if ( qs_quote_summary_secondary( $group['component'], $row ) ) : ?><small><?php echo nl2br( esc_html( qs_quote_summary_secondary( $group['component'], $row ) ) ); ?></small><?php endif; ?>
 					</span>
 					<span>Qty. <?php echo esc_html( isset( $row['quantity'] ) ? absint( $row['quantity'] ) : 0 ); ?></span>
+					<?php if ( function_exists( 'qs_item_config_row_price' ) ) : ?>
+						<span class="qs-review-summary-price">$<?php echo esc_html( number_format_i18n( qs_item_config_row_price( $quote_id, $group['component'], $row ), 2 ) ); ?> AUD</span>
+					<?php endif; ?>
 					<?php if ( $can_edit ) : ?>
 						<span class="qs-review-summary-controls">
 							<a href="<?php echo esc_url( $edit_url ); ?>" aria-label="Edit item"><img src="<?php echo esc_url( QS_URL . 'assets/images/icon-pen.svg' ); ?>" alt=""></a>
