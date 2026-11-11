@@ -212,16 +212,18 @@ function qs_payment_priority_enqueue_assets() {
 	$args     = array(
 		'post_type'      => 'quote',
 		'post_status'    => $statuses,
-		'posts_per_page' => -1,
+		'posts_per_page' => 1000,
+		'no_found_rows'  => true,
 		'fields'         => 'ids',
 	);
-	if ( function_exists( 'qs_admin_dashboard_visible_meta_query' ) ) {
-		$args['meta_query'] = qs_admin_dashboard_visible_meta_query();
+	$quote_ids = get_posts( $args );
+	if ( function_exists( 'qs_admin_dashboard_quote_is_visible' ) ) {
+		$quote_ids = array_values( array_filter( $quote_ids, 'qs_admin_dashboard_quote_is_visible' ) );
 	}
 
 	$states       = array();
 	$verify_count = 0;
-	foreach ( get_posts( $args ) as $quote_id ) {
+	foreach ( $quote_ids as $quote_id ) {
 		$state               = qs_payment_priority_state( $quote_id );
 		$states[ $quote_id ]  = $state;
 		if ( ! empty( $state['needs_verification'] ) ) {
