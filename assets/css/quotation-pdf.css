@@ -219,33 +219,72 @@ body {
 	width: 5%;
 }
 
+/* Customer quotation tables include a compact Price column before Notes.
+ * Keep the widths at 100% so Dompdf does not collapse the final Notes cell.
+ */
 .qs-pdf-doors-table th:nth-child(2),
-.qs-pdf-doors-table td:nth-child(2) { width: 14%; }
+.qs-pdf-doors-table td:nth-child(2) { width: 12%; }
 .qs-pdf-doors-table th:nth-child(3),
-.qs-pdf-doors-table td:nth-child(3) { width: 25%; }
+.qs-pdf-doors-table td:nth-child(3) { width: 24%; }
 .qs-pdf-doors-table th:nth-child(4),
-.qs-pdf-doors-table td:nth-child(4) { width: 12%; }
+.qs-pdf-doors-table td:nth-child(4) { width: 9%; }
 .qs-pdf-doors-table th:nth-child(5),
-.qs-pdf-doors-table td:nth-child(5) { width: 12%; }
+.qs-pdf-doors-table td:nth-child(5) { width: 9%; }
 .qs-pdf-doors-table th:nth-child(6),
-.qs-pdf-doors-table td:nth-child(6) { width: 8%; }
+.qs-pdf-doors-table td:nth-child(6) { width: 7%; }
 .qs-pdf-doors-table th:nth-child(7),
-.qs-pdf-doors-table td:nth-child(7) { width: 24%; }
+.qs-pdf-doors-table td:nth-child(7) { width: 13%; }
+.qs-pdf-doors-table th:nth-child(8),
+.qs-pdf-doors-table td:nth-child(8) { width: 21%; }
 
 .qs-pdf-drawer-bank-table th:nth-child(2),
-.qs-pdf-drawer-bank-table td:nth-child(2) { width: 12%; }
+.qs-pdf-drawer-bank-table td:nth-child(2) { width: 10%; }
 .qs-pdf-drawer-bank-table th:nth-child(3),
-.qs-pdf-drawer-bank-table td:nth-child(3) { width: 21%; }
+.qs-pdf-drawer-bank-table td:nth-child(3) { width: 20%; }
 .qs-pdf-drawer-bank-table th:nth-child(4),
-.qs-pdf-drawer-bank-table td:nth-child(4) { width: 10%; }
+.qs-pdf-drawer-bank-table td:nth-child(4) { width: 9%; }
 .qs-pdf-drawer-bank-table th:nth-child(5),
-.qs-pdf-drawer-bank-table td:nth-child(5) { width: 9%; }
+.qs-pdf-drawer-bank-table td:nth-child(5) { width: 8%; }
 .qs-pdf-drawer-bank-table th:nth-child(6),
 .qs-pdf-drawer-bank-table td:nth-child(6) { width: 11%; }
 .qs-pdf-drawer-bank-table th:nth-child(7),
-.qs-pdf-drawer-bank-table td:nth-child(7) { width: 8%; }
+.qs-pdf-drawer-bank-table td:nth-child(7) { width: 7%; }
 .qs-pdf-drawer-bank-table th:nth-child(8),
-.qs-pdf-drawer-bank-table td:nth-child(8) { width: 24%; }
+.qs-pdf-drawer-bank-table td:nth-child(8) { width: 12%; }
+.qs-pdf-drawer-bank-table th:nth-child(9),
+.qs-pdf-drawer-bank-table td:nth-child(9) { width: 18%; }
+
+.qs-pdf-panel-table th:nth-child(2),
+.qs-pdf-panel-table td:nth-child(2) { width: 23%; }
+.qs-pdf-panel-table th:nth-child(3),
+.qs-pdf-panel-table td:nth-child(3) { width: 10%; }
+.qs-pdf-panel-table th:nth-child(4),
+.qs-pdf-panel-table td:nth-child(4) { width: 10%; }
+.qs-pdf-panel-table th:nth-child(5),
+.qs-pdf-panel-table td:nth-child(5) { width: 9%; }
+.qs-pdf-panel-table th:nth-child(6),
+.qs-pdf-panel-table td:nth-child(6) { width: 9%; }
+.qs-pdf-panel-table th:nth-child(7),
+.qs-pdf-panel-table td:nth-child(7) { width: 7%; }
+.qs-pdf-panel-table th:nth-child(8),
+.qs-pdf-panel-table td:nth-child(8) { width: 12%; }
+.qs-pdf-panel-table th:nth-child(9),
+.qs-pdf-panel-table td:nth-child(9) { width: 15%; }
+
+.qs-pdf-kickboard-table th:nth-child(2),
+.qs-pdf-kickboard-table td:nth-child(2) { width: 14%; }
+.qs-pdf-kickboard-table th:nth-child(3),
+.qs-pdf-kickboard-table td:nth-child(3) { width: 24%; }
+.qs-pdf-kickboard-table th:nth-child(4),
+.qs-pdf-kickboard-table td:nth-child(4) { width: 10%; }
+.qs-pdf-kickboard-table th:nth-child(5),
+.qs-pdf-kickboard-table td:nth-child(5) { width: 10%; }
+.qs-pdf-kickboard-table th:nth-child(6),
+.qs-pdf-kickboard-table td:nth-child(6) { width: 7%; }
+.qs-pdf-kickboard-table th:nth-child(7),
+.qs-pdf-kickboard-table td:nth-child(7) { width: 12%; }
+.qs-pdf-kickboard-table th:nth-child(8),
+.qs-pdf-kickboard-table td:nth-child(8) { width: 18%; }
 
 .qs-pdf-quote-totals {
 	border-top: 1px solid #bcbcbc;
