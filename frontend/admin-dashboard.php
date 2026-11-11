@@ -354,7 +354,7 @@ function qs_admin_dashboard_shortcode() {
 		array(
 			'post_type'      => 'quote',
 			'post_status'    => $statuses,
-			'posts_per_page' => -1,
+			'posts_per_page' => 1000,
 			'no_found_rows'  => true,
 			'orderby'        => 'modified',
 			'order'          => 'DESC',
@@ -377,7 +377,7 @@ function qs_admin_dashboard_shortcode() {
 	$args = array(
 		'post_type'      => 'quote',
 		'post_status'    => $filtered_statuses,
-		'posts_per_page' => -1,
+		'posts_per_page' => 1000,
 		'no_found_rows'  => true,
 		'orderby'        => 'modified',
 		'order'          => 'DESC',
