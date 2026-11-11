@@ -78,6 +78,12 @@ function qs_joiner_block_wp_admin() {
 		return;
 	}
 
+	// Frontend Quote System actions such as authenticated PDF downloads use
+	// admin-post.php. Allow that endpoint while still blocking wp-admin pages.
+	if ( isset( $GLOBALS['pagenow'] ) && 'admin-post.php' === $GLOBALS['pagenow'] ) {
+		return;
+	}
+
 	wp_safe_redirect( qs_joiner_dashboard_url() );
 	exit;
 }
