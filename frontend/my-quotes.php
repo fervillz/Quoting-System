@@ -130,7 +130,8 @@ function qs_my_quotes_shortcode() {
 	$args = array(
 		'post_type'      => 'quote',
 		'post_status'    => array( 'draft', 'pending', 'pending_review', 'awaiting_deposit', 'deposit_paid', 'final_balance', 'paid_in_full' ),
-		'posts_per_page' => -1,
+		'posts_per_page' => 1000,
+		'no_found_rows'  => true,
 		'orderby'        => 'modified',
 		'order'          => 'DESC',
 	);
