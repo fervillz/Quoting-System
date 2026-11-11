@@ -154,7 +154,8 @@ function qs_joiners_build_data() {
 		array(
 			'post_type'      => 'quote',
 			'post_status'    => qs_joiners_quote_statuses(),
-			'posts_per_page' => -1,
+			'posts_per_page' => 1000,
+			'no_found_rows'  => true,
 			'author__in'     => array_map( 'absint', array_keys( $rows ) ),
 			'orderby'        => 'modified',
 			'order'          => 'DESC',
