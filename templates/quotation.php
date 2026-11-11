@@ -28,7 +28,20 @@ $quotation_add_line_prices = static function ( $component, $items ) use ( $quote
 		$amount = function_exists( 'qs_item_config_row_price' )
 			? qs_item_config_row_price( $quote_id, $component, $item )
 			: 0;
-		$item['line_price'] = '
+		$item['line_price'] = '$' . number_format_i18n( $amount, 2 ) . ' AUD';
+	}
+	unset( $item );
+
+	return $items;
+};
+
+$fronts             = $quotation_add_line_prices( 'doors_drawers', $fronts );
+$drawer_banks       = $quotation_add_line_prices( 'doors_drawers', $drawer_banks );
+$rows['end_panels'] = $quotation_add_line_prices( 'end_panels', $rows['end_panels'] );
+$rows['fillers']    = $quotation_add_line_prices( 'fillers', $rows['fillers'] );
+$rows['kickboards'] = $quotation_add_line_prices( 'kickboards', $rows['kickboards'] );
+
+$subtotal          = (float) $data['subtotal'];
 $discount          = isset( $data['discount_amount'] ) ? (float) $data['discount_amount'] : (float) $data['discount'];
 $discount_label    = function_exists( 'qs_discount_label' ) ? qs_discount_label( $quote_id ) : 'Discount';
 $additional_charge = (float) $data['additional_charges'];
@@ -36,7 +49,7 @@ $delivery_fee      = (float) $data['shipping'];
 $total             = (float) $data['total'];
 $total_incl_gst    = round( $total * 1.10, 2 );
 $created_by        = $data['created_by'] ? $data['created_by'] : $data['customer_name'];
-
+?>
 <div class="qs-pdf qs-quotation-pdf">
 	<header class="qs-pdf-header">
 		<strong>Loughlin Furniture</strong>
