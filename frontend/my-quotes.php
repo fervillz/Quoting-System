@@ -179,6 +179,7 @@ function qs_my_quotes_shortcode() {
 				<p><strong>Logged in as:</strong> <span><?php echo esc_html( $company ? $company : $user->display_name ); ?></span><br><span class="qs-user-name"><?php echo esc_html( $user->display_name ); ?></span></p>
 			</div>
 			<nav aria-label="Quote account actions">
+				<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( function_exists( 'qs_joiner_dashboard_url' ) ? qs_joiner_dashboard_url() : site_url( '/joiner-resources/' ) ); ?>">Joiner Resources</a>
 				<a class="qs-btn qs-btn-outline" href="<?php echo esc_url( site_url( '/my-quotes/' ) ); ?>">My Quotes</a>
 				<a class="qs-btn" href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>">Logout</a>
 			</nav>
