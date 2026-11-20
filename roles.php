@@ -49,8 +49,31 @@ function qs_user_is_joiner( $user = null ) {
 
 /** Frontend landing page for Joiners after authentication. */
 function qs_joiner_dashboard_url() {
-	return site_url( '/my-quotes/' );
+	return site_url( '/joiner-resources/' );
 }
+
+/**
+ * Restrict the Joiner Resources landing page to administrators and Joiners.
+ */
+function qs_restrict_joiner_resources_page() {
+	if ( ! is_page( 'joiner-resources' ) ) {
+		return;
+	}
+
+	if ( ! is_user_logged_in() ) {
+		$login_url = function_exists( 'qs_page_url' ) ? qs_page_url( 'login' ) : site_url( '/quote-login/' );
+		wp_safe_redirect( $login_url );
+		exit;
+	}
+
+	if ( current_user_can( 'manage_options' ) || qs_user_is_joiner() ) {
+		return;
+	}
+
+	wp_safe_redirect( home_url( '/' ) );
+	exit;
+}
+add_action( 'template_redirect', 'qs_restrict_joiner_resources_page', 5 );
 
 /**
  * Redirect Joiners who authenticate through WordPress's normal login screen

@@ -7,19 +7,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Resolve the Quote System dashboard used after a frontend Joiner login.
- * Prefer the configured My Quotes page so renamed/recreated pages do not
- * accidentally fall back through the site's homepage routing.
+ * Resolve the landing page used after a frontend Joiner login.
  */
 function qs_quote_login_dashboard_url() {
-	if ( function_exists( 'qs_page_url' ) ) {
-		$url = qs_page_url( 'my_quotes' );
-		if ( $url ) {
-			return $url;
-		}
-	}
-
-	return site_url( '/my-quotes/' );
+	return function_exists( 'qs_joiner_dashboard_url' )
+		? qs_joiner_dashboard_url()
+		: site_url( '/joiner-resources/' );
 }
 
 function qs_quote_login_shortcode( $atts ) {
@@ -37,7 +30,7 @@ function qs_quote_login_shortcode( $atts ) {
 			? qs_quote_login_dashboard_url()
 			: $atts['redirect'];
 
-		return '<div class="qs-container qs-login-already"><p>You are already logged in.</p><a class="qs-btn" href="' . esc_url( $redirect ) . '">Open My Quotes</a></div>';
+		return '<div class="qs-container qs-login-already"><p>You are already logged in.</p><a class="qs-btn" href="' . esc_url( $redirect ) . '" >Open Joiner Resources</a></div>';
 	}
 
 	$error = '';
